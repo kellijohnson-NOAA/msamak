@@ -7,7 +7,9 @@
 //         "!! cout << "Text" << endl << endl;"
 ///////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////
 DATA_SECTION
+///////////////////////////////////////////////////////////////////////////////
 
   // Output
   !!CLASS ofstream mceval("mceval.dat")
@@ -631,8 +633,9 @@ DATA_SECTION
     }
  END_CALCS
 
-
+///////////////////////////////////////////////////////////////////////////////
 PARAMETER_SECTION
+///////////////////////////////////////////////////////////////////////////////
   !! cout << "Begin PARAMETER_SECTION" << endl << endl;
 
   // Fishery selectivity parameters combined over species
@@ -873,7 +876,9 @@ PARAMETER_SECTION
 
  sdreport_matrix SSBOut(1,nspp,first_rec_est,endyr);
 
+///////////////////////////////////////////////////////////////////////////////
 PRELIMINARY_CALCS_SECTION
+///////////////////////////////////////////////////////////////////////////////
   double btmp,ctmp,TotN,LogH1Low;
   int nagestmp, iyrs,Itot,II,iage;
 
@@ -1040,7 +1045,7 @@ PRELIMINARY_CALCS_SECTION
      }
 
      if (PhasePred3x!= -99)
-      for (rsp=1; rsp<=nspp; rsp++) 
+      for (rsp=1; rsp<=nspp; rsp++)
         Q_other_est(rsp) = log(10000);
     if (PhasePred2 != -99)
      {
@@ -1087,13 +1092,15 @@ PRELIMINARY_CALCS_SECTION
 // ==========================================================================
 // ==========================================================================
 
+///////////////////////////////////////////////////////////////////////////////
 PROCEDURE_SECTION
+///////////////////////////////////////////////////////////////////////////////
  obj_fun.initialize();
  DoAll();
 
-
+  // ============================
 FUNCTION DoAll
-
+  // ============================
   obj_fun.initialize();
 
   // Extract predation parameters from log space
@@ -1279,7 +1286,6 @@ FUNCTION Get_Selectivity
      switch (srv_sel_opt(isrv))
       {
        case 1 : // Survey selectivity coefficients (mackerel)
-                // ===============================
        if (phase_selcoff_srv(isrv) > 0 || phase_selcoff_srv(isrv) == -99)
         {
          int isel_ch_tmp = 1 ;
@@ -1306,7 +1312,6 @@ FUNCTION Get_Selectivity
         }
        break;
        case 2 : // Survey asymptotic logistic (pollock, cod)
-                // ==========================
         {
          //cout << "srv_sel_opt case 2" << endl;
          int isel_ch_tmp = 1 ; // selectivity change pointer can be incremented with n_sel_ch_srv and with srv
@@ -1405,6 +1410,7 @@ FUNCTION Get_Mortality
      }
    }
   if (DebugOut == 1) cout << "end get_mortality" << endl;
+
   //=============================
 FUNCTION Get_Bzero
   //=============================
@@ -1876,11 +1882,11 @@ FUNCTION Catch_at_Age
      eac_fsh(ifsh,iyr)=Ctmp(yrs_fsh_comp(ifsh,iyr))/(1.0e-10+sum(Ctmp(yrs_fsh_comp(ifsh,iyr))));
    }
 
-  // ============================
+  //=============================
 FUNCTION evaluate_the_objective_function
+  //=============================
   dvariable Temp_obj;
 
-  // ============================
   count_iters = count_iters + 1;
 
   Cat_Like();
@@ -1956,8 +1962,6 @@ FUNCTION evaluate_the_objective_function
    }
   cout << "obj_fun: " << obj_fun << " Iteration: " << count_iters << " Phase: " << current_phase() << endl;
   cout << obj_comps << " " << Temp_obj  << endl;
-
-
 
   // ============================
 FUNCTION Cat_Like
@@ -2314,7 +2318,7 @@ FUNCTION Fmort_Pen
   fpen.initialize();
   for(isp=1; isp<=nspp; isp++)
    {
-    if (Disc_any_phases != 0 & current_phase()<3-Initial_phase+1) // penalize High F's for beginning phases
+    if (Disc_any_phases != 0 & current_phase()<3-Initial_phase+1) // penalize High Fs for beginning phases
      fpen(isp,1) += 10.* norm2(Fmort(isp) - .2);
     else
      fpen(isp,1) +=.001*norm2(Fmort(isp) - .2);
@@ -2353,12 +2357,11 @@ FUNCTION Compute_priors
      post_priors(3) += square(sigmar(isp)-sigmarprior(isp))/(2*cvsigmarprior(isp)*cvsigmarprior(isp));
    }
 
-
+///////////////////////////////////////////////////////////////////////////////
 REPORT_SECTION
-  // ============================
-  // this report file outputs source code for R
-
- // Andre_crap();
+// Report section is formated for automatic sourcing into the R statistical
+// software environment.
+///////////////////////////////////////////////////////////////////////////////
 
   report << " #### INDEX VALUES ##### " << endl;
   report << "nspp <- " << nspp << endl;
@@ -3780,14 +3783,11 @@ REPORT_SECTION
 
   report << endl;
 
-
-
+///////////////////////////////////////////////////////////////////////////////
 TOP_OF_MAIN_SECTION
+///////////////////////////////////////////////////////////////////////////////
   gradient_structure::set_MAX_NVAR_OFFSET(6263);  // replaced 1000 with 6263
   gradient_structure::set_NUM_DEPENDENT_VARIABLES(1000);
   gradient_structure::set_GRADSTACK_BUFFER_SIZE(20000000);
   gradient_structure::set_CMPDIF_BUFFER_SIZE(15000000);
   arrmblsize=500000000;
-
-
-
