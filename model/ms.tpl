@@ -935,11 +935,19 @@ PRELIMINARY_CALCS_SECTION
 
   // Compute years having time-varying selectivities (PRELIMINARY_CALCS_SECTION)
   for (ifsh = 1; ifsh <= nfsh; ifsh++)
-   for (iyr=1;iyr<=n_sel_ch_fsh(ifsh);iyr++)
-    yrs_sel_ch_fsh(ifsh,iyr) = yrs_sel_ch_tmp(ifsh,iyr);
+  {
+    for (iyr = 1; iyr <= n_sel_ch_fsh(ifsh); iyr++)
+    {
+      yrs_sel_ch_fsh(ifsh,iyr) = yrs_sel_ch_tmp(ifsh,iyr);
+    }
+  }
   for (isrv = 1; isrv <= nsrv; isrv++)
-   for (iyr=1;iyr<=n_sel_ch_srv(isrv);iyr++)
-    yrs_sel_ch_srv(isrv,iyr) = yrs_sel_ch_tsrv(isrv,iyr);
+  {
+    for (iyr = 1; iyr <= n_sel_ch_srv(isrv); iyr++)
+    {
+      yrs_sel_ch_srv(isrv,iyr) = yrs_sel_ch_tsrv(isrv,iyr);
+    }
+  }
   if (DebugOut > 1) cout << "yrs_sel_ch_fsh: " << yrs_sel_ch_fsh << endl;
   if (DebugOut > 1) cout << "yrs_sel_ch_srv: " << yrs_sel_ch_srv << endl;
 
