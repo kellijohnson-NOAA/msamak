@@ -1274,6 +1274,8 @@
 #sel_change_in_fsh (by fsh)
 #matrix: rows == fishery; columns == start year : end year
 #values > 0 enable time-varying selectivity blocks
+#  and determine the prior on smoothness for time-varying selectivity
+#  implemented in the likelihood function as lambda_{selectivity}
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1287,6 +1289,9 @@
  1 1 1
 #sel_change_in_srv (by srv)
 #matrix: rows == survey; columns == start year : end year
+#values > 0 enable time-varying selectivity blocks
+#  and determine the prior on smoothness for time-varying selectivity
+#  implemented in the likelihood function as lambda_{selectivity}
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
