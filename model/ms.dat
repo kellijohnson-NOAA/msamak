@@ -1261,6 +1261,7 @@
 
 ### Fishery Selectivity
 #fsh_sel_opt (by fsh)
+#1 == non-parametric age specific selectivity
 1 1 1 1 1
 #nselages_in_fsh (by fsh)
 12 10 10 10 10
@@ -1271,6 +1272,8 @@
 #seldec_pen_fsh (by fsh)
 200 1000 1000 1000 1000
 #sel_change_in_fsh (by fsh)
+#matrix: rows == fishery; columns == start year : end year
+#values > 0 enable time-varying selectivity blocks
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1279,8 +1282,11 @@
 
 ### Survey Selectivity
 #srv_sel_opt (by srv)
+#1 == non-parametric age specific selectivity
+#2 == asymptotic logistic selectivity
  1 1 1
 #sel_change_in_srv (by srv)
+#matrix: rows == survey; columns == start year : end year
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
