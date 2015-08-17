@@ -104,5 +104,9 @@ Additionally, $q$ is fixed at one in the model for each survey. Prior to the las
 if the estimate of $q$ is different than one the likelihood is weighted heavily such that
 the survey fits are increased in subsequent phases.
 
+# Task list
+
+* add log normal distribution to survey biomass
+* investigate estimation of $q$ for a relative index of abundance rather than absolute
 
 # References
