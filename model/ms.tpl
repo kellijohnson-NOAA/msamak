@@ -1114,8 +1114,8 @@ FUNCTION DoAll
   obj_fun.initialize();
 
   // Extract predation parameters from log space
-  / with_pred dictates whether or not diet data is used, which in turn dictates
-  / if predation is estimated for multiple species.
+  // with_pred dictates whether or not diet data is used, which in turn dictates
+  // if predation is estimated for multiple species.
   if (with_pred == 0)
    H_1 = 0;
   else
@@ -1128,8 +1128,8 @@ FUNCTION DoAll
   gam_b = mfexp(log_gam_b);
 
   // Assign natural mortality
-  / If M is not estimated then the estimated value is set equal to the
-  / prior for M for that species
+  // If M is not estimated then the estimated value is set equal to the
+  // prior for M for that species
   ipnt = 0;
   for (isp=1;isp<=nspp;isp++)
    if (natmortphase2(isp) <= 0)
