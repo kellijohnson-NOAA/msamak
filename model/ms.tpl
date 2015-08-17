@@ -1109,9 +1109,13 @@ PROCEDURE_SECTION
   // ============================
 FUNCTION DoAll
   // ============================
+
+  // Initialize the objective function
   obj_fun.initialize();
 
   // Extract predation parameters from log space
+  / with_pred dictates whether or not diet data is used, which in turn dictates
+  / if predation is estimated for multiple species.
   if (with_pred == 0)
    H_1 = 0;
   else
@@ -1123,7 +1127,9 @@ FUNCTION DoAll
   gam_a = mfexp(log_gam_a);
   gam_b = mfexp(log_gam_b);
 
-  // Assign natural mortality (= prior if not estimated)
+  // Assign natural mortality
+  / If M is not estimated then the estimated value is set equal to the
+  / prior for M for that species
   ipnt = 0;
   for (isp=1;isp<=nspp;isp++)
    if (natmortphase2(isp) <= 0)
@@ -1137,23 +1143,41 @@ FUNCTION DoAll
   if (DebugOut > 1) cout << "logH_1 = " << logH_1 << endl;
   if (DebugOut > 1) cout << "H_1 = " << H_1 << endl;
 
+  // Obtain fishery and survey selectivity
   Get_Selectivity();
+
+  // Obtain predation mortality if predation is estimated
   if (with_pred != 0) gamma_selectivity();
+
+  // Obtain mortality of each fish species
   Get_Mortality();
 
+  // Initialize matrices for predation
   Pmort_ua.initialize();
   eaten_ua.initialize();
   eaten_la.initialize();
+
+  // Obtain initial conditions
   Get_Bzero();
+
+  // Project the model forward
   Get_Numbers_at_Age();
+
+  // Obtain predictions for survey estimates of biomass
   Get_Survey_Predictions();
+
+  // Predict the catch
   Catch_at_Age();
+
+  // Obtain parameter estimates using maximum likelihood
   evaluate_the_objective_function();
 
+  // Store the yearly spawning biomass
   for (isp=1;isp<=nspp;isp++)
    for (iyr=styr_sp(isp);iyr<=endyr_all(isp);iyr++)
     SSBOut(isp,iyr) = Sp_Biom(isp,iyr);
 
+  // Perform mcmc
   if (mceval_phase())
    {
     for (isp=1;isp<=nspp;isp++)
@@ -1897,7 +1921,7 @@ FUNCTION evaluate_the_objective_function
 
   count_iters = count_iters + 1;
 
-  Cat_Like();
+  Catch_Like();
   Rec_Like();
   Age_Like();
   Srv_Like();
@@ -1972,9 +1996,9 @@ FUNCTION evaluate_the_objective_function
   cout << obj_comps << " " << Temp_obj  << endl;
 
   // ============================
-FUNCTION Cat_Like
+FUNCTION Catch_Like
   // ============================
-  if (DebugOut == 1) cout << "begin Cat_Like" << endl;
+  if (DebugOut == 1) cout << "begin Catch_Like" << endl;
 
   catch_like.initialize();
   for (ifsh=1; ifsh<=nfsh; ifsh++)
@@ -2111,10 +2135,10 @@ FUNCTION Srv_Like
 
   // ============================
 FUNCTION Sel_Like
-  // first_difference - an admb function that calculates the lag 1 differences,
-  //   x[2:n] - x[1:(n-1)], and returns a vector of length (n-1)
-  // first_difference(first_difference(x)) == (n_3 - n_2) - (n_2 - n_1) ==
-  //   n_3 + n_1 - 2n_2
+  // first_difference - calculates the lag 1 differences, returns a vector of length (n-1)
+  //   x[2:n] - x[1:(n-1)],
+  // first_difference(first_difference(x))
+  //   (n_3 - n_2) - (n_2 - n_1) == n_3 + n_1 - 2n_2
   // Prior on smoothness for age-specific selectivity is implemented using
   // sum((x_{a+2} + x_{a} - 2x_{a+1})^2) == norm2(fist_difference(first_difference(x)))
   // ============================
