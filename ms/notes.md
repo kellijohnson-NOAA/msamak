@@ -11,8 +11,9 @@ bibliography: 'c:\\users\\kelli\\Google Drive\\references\\references.bib'
 csl: 'c:\\users\\kelli\\Google Drive\\references\\ices-journal-of-marine-science.csl'
 ---
 
-Selectivity
------------
+# Multispecies age-structured stock assessment model
+
+## Selectivity
 
 The relative proportion of the population at age that is available to the sampling method.
 
@@ -29,7 +30,7 @@ $x_0$ is the midpoint of the sigmoid.
 In stock assessments, logistic selectivity uses the above equation with $L = 1$, such
 that all values of selectivity range between zero and one.
 
-### @kinzey2009
+### @Kinzey2009
 
 Included age-specific selectivity [@maunder2003] for each species x fleet combination.
 Time-varying selectivity was accommodated using blocks, which allowed age-specific 
@@ -90,9 +91,18 @@ time blocks which correspond to:
 Survey selectivity is conditioned to have a mean value of one for ages between four
 and ten.
 
-Initial conditions
-------------------
+## Initial conditions
 
+
+## Survey biomass
+
+### @Kinzey2009
+
+@Kinzey2009 used a normal distribution to model the survey biomass rather than a lognormal
+distribution which is what is used in AMAK. 
+Additionally, $q$ is fixed at one in the model for each survey. Prior to the last phase
+if the estimate of $q$ is different than one the likelihood is weighted heavily such that
+the survey fits are increased in subsequent phases.
 
 
 # References
