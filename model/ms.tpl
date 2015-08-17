@@ -2111,6 +2111,12 @@ FUNCTION Srv_Like
 
   // ============================
 FUNCTION Sel_Like
+  // first_difference - an admb function that calculates the lag 1 differences,
+  //   x[2:n] - x[1:(n-1)], and returns a vector of length (n-1)
+  // first_difference(first_difference(x)) == (n_3 - n_2) - (n_2 - n_1) ==
+  //   n_3 + n_1 - 2n_2
+  // Prior on smoothness for age-specific selectivity is implemented using
+  // sum((x_{a+2} + x_{a} - 2x_{a+1})^2) == norm2(fist_difference(first_difference(x)))
   // ============================
   if (DebugOut == 1) cout << "Begin Sel_Like" << endl;
 
