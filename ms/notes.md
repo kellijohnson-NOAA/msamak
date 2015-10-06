@@ -1,6 +1,6 @@
 ---
 Title: Multispecies age-structured stock assessment framework
-Author: 
+Author:
 - name: Kelli Faye Johnson
   email: kfjohns@uw.edu
   affiliation: School of Aquatic and Fishery Sciences, University of Washington
@@ -13,6 +13,20 @@ csl: 'c:\\users\\kelli\\Google Drive\\references\\ices-journal-of-marine-science
 
 # Multispecies age-structured stock assessment model
 
+## Running model
+
+Prior to running the model, one must download the latest version of
+[ADMB](https://github.com/admb-project/admb "ADMB github").
+Navigate to the admb folder and run `make` from the command line.
+After compiling from source one should navigate to the examples folder
+and test whether or not the simple example can be ran.
+Prior to running the example ADMB may need to be added to the path,
+where the binary will be located in `admb\build\dist`.
+
+The msamak can then be downloaded from its own
+[github](https://github.com/kellijohnson/msamak.git "msamak github") repository.
+The model then must be built using ADMB.
+
 ## Selectivity
 
 The relative proportion of the population at age that is available to the sampling method.
@@ -23,7 +37,7 @@ A logistic function is a sigmoid curve dictated by the following equation:
 
 $$f(x) = \frac{L}{1 + e^{-k(x - x_0)}},$$
 
-where 
+where
 $L$ is the curves maximum value,
 $k$ is the steepness of the curve or the rate of increase at $x_0$, and
 $x_0$ is the midpoint of the sigmoid.
@@ -33,8 +47,8 @@ that all values of selectivity range between zero and one.
 ### @Kinzey2009
 
 Included age-specific selectivity [@maunder2003] for each species x fleet combination.
-Time-varying selectivity was accommodated using blocks, which allowed age-specific 
-selectivity parameters to change between periods of years. 
+Time-varying selectivity was accommodated using blocks, which allowed age-specific
+selectivity parameters to change between periods of years.
 Above a certain age ($A_{k,m}$) selectivity was assumed to be independent of age.
 
 $$L = \sum_{species}{\sum_{f}{\sum_{a}{\lambda(n_{k,a+2}^{f} + n_{k,a}^{f} - 2n_{k,a+1}^{f})}}}$$
@@ -53,7 +67,7 @@ using a penalty.
 Cod selectivity is modelled using a random walk with respect to age where there is one
 parameter per age greater than or equal to age 1. Age zero fish have a selectivity of
 zero. For each age the selectivity parameter is the logarithm of the ratio of selectivity
-at that age to selectivity at the previous age 
+at that age to selectivity at the previous age
 (i.e., the backward first difference on the log scale). The resulting selectivity curves
 are modelled using the Stock Synthesis selectivity-at-age pattern 17.
 
@@ -62,10 +76,10 @@ ages is equal to one. Differences between ages are penalized using the sum of sq
 second differences (log-scale).
 Selectivity is assumed to be equal for all ages greater than or
 equal to 8 (i.e., constant selectivity for ages 8 - 15). Four temporal blocks allow
-selectivity to change over time: 
+selectivity to change over time:
 (a) 1978-1989, foreign fishery;
 (b) 1990-1998, domestic fishery;
-(c) 1999-2008, closed fishery; and 
+(c) 1999-2008, closed fishery; and
 (d) 2009-2014, bycatch in arrowtooth fishery.
 Survey selectivity is also age-based with a single parameter up to age eight, though
 there is no time-varying parameters included in the relationship.
@@ -99,7 +113,7 @@ and ten.
 ### @Kinzey2009
 
 @Kinzey2009 used a normal distribution to model the survey biomass rather than a lognormal
-distribution which is what is used in AMAK. 
+distribution which is what is used in AMAK.
 Additionally, $q$ is fixed at one in the model for each survey. Prior to the last phase
 if the estimate of $q$ is different than one the likelihood is weighted heavily such that
 the survey fits are increased in subsequent phases.
