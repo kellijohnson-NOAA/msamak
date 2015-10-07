@@ -71,7 +71,6 @@ DATA_SECTION
 
   !! cout << "Reading data file" << endl << endl;
 
-  // Debug
   init_int DebugOut
 
   // Pin
@@ -140,20 +139,11 @@ DATA_SECTION
   !!  }
   !! styr_sp  = styr_rec;
 
-  !! if (DebugOut >1 ) cout << "ncomps_fsh = " << ncomps_fsh << endl;
-  !! if (DebugOut > 1) cout << "nages_fsh = " << nages_fsh << endl;
-  !! if (DebugOut > 1) cout << "styr_rec = " << styr_rec << endl;
-  !! if (DebugOut > 1) cout << "styr_sp = " << styr_sp << endl;
-  !! if (DebugOut > 1) cout << "endyr_sp = " << endyr_sp << endl;
-
   // Fishery catch
   !! cout << "Reading fishery catches" << endl << endl;
 
   init_matrix catch_bio(1,nfsh,styr,endyr)            // Catch biomass
   init_3darray wt_fsh(1,nfsh,styr,endyr,1,nages_fsh)  // Weight-at-age in the catch
-
-  !! if (DebugOut > 2) cout << "Catch_bio = " << endl << catch_bio << endl;
-  !! if (DebugOut > 2) cout << "wt_fsh = " << endl << wt_fsh << endl;
 
   // Fishery composition
   !! cout << "Reading fishery compositions" << endl << endl;
@@ -163,10 +153,6 @@ DATA_SECTION
   init_matrix nsmpl_fsh(1,nfsh,1,nyrs_fsh_comp)       // Effective sample sizes
   init_3darray oc_fsh(1,nfsh,1,nyrs_fsh_comp,1,ncomps_fsh); // Fishery age or length composition data
   !! tot_yr_fsh_comp = sum(nyrs_fsh_comp);            // Number of years of age data (over fleets)
-
-  !! if (DebugOut > 2) cout << "yrs_fsh_comp = " << endl << yrs_fsh_comp << endl;
-  !! if (DebugOut > 2) cout << "nsmpl_fsh = " << endl << nsmpl_fsh << endl;
-  !! if (DebugOut > 2) cout << "oc_fsh = " << endl << oc_fsh << endl;
 
   // Survey index
   !! cout << "Reading survey index data" << endl << endl;
@@ -181,9 +167,6 @@ DATA_SECTION
   init_vector mo_srv(1,nsrv)                 // Timing of the survey
   init_matrix obs_srv(1,nsrv,1,nyrs_srv)     // The survey indices
   init_matrix obs_se_srv(1,nsrv,1,nyrs_srv)  // The survey standard errors
-
-  !! if (DebugOut > 2) cout << "spp_srv = " << spp_srv << endl;
-  !! if (DebugOut > 2) cout << "obs_srv = " << endl << obs_srv << endl;
 
   ivector ncomps_srv(1,nsrv);   // Number of age or length compositions per survey
   ivector nages_srv(1,nsrv);    // Number of ages per survey
@@ -250,8 +233,6 @@ DATA_SECTION
   init_3darray al_key(1,nspp,1,nages,1,l_bins);         // Age-length transition matrix
   matrix mean_laa(1,nspp,1,nages);                      // Mean length-at-age for predator selectivity
 
-  !! if (DebugOut > 1) cout << "al_key = " << endl << al_key << endl;
-
   // Predator-prey data
   !! cout << "Reading predator-prey data" << endl << endl;
 
@@ -309,18 +290,6 @@ DATA_SECTION
   init_3darray diet_l_dat(1,nspp_sq,1,r_lens,1,k_lens); // Prey length fraction data
   number offset_diet_w;                              // Scales multinomial likelihood to 1
   number offset_diet_l;                              // Scales multinomial likelihood to 1
-
-  !! if (DebugOut > 1) cout << "nspp_sq = " << nspp_sq << endl;
-  !! if (DebugOut > 1) cout << "pred_l_bin = " << endl << pred_l_bin << endl;
-  !! if (DebugOut > 1) cout << "omega_vB" << endl << omega_vB << endl;
-  !! if (DebugOut > 1) cout << "omega_sigma" << endl << omega_sigma << endl;
-  !! if (DebugOut > 1) cout << "nyrs_stomwts" << endl << nyrs_stomwts << endl;
-  !! if (DebugOut > 1) cout << "yrs_stomwts" << endl << yrs_stomwts << endl;
-  !! if (DebugOut > 1) cout << "stoms_w_N" << endl << stoms_w_N << endl;
-  !! if (DebugOut > 1) cout << "nyrs_stomlns" << endl << nyrs_stomlns << endl;
-  !! if (DebugOut > 1) cout << "yrs_stomlns" << endl << yrs_stomlns << endl;
-  !! if (DebugOut > 1) cout << "yrs_stomwts = " << endl << yrs_stomwts << endl;
-  !! if (DebugOut > 1) cout << "diet_l_dat" << endl << diet_l_dat << endl;
 
   init_int check;
   !! cout << ".DAT Check = " << check << endl << endl;
@@ -493,12 +462,6 @@ DATA_SECTION
    }
  END_CALCS
 
-  !! if (DebugOut > 1) cout << "srv_sel_opt = " << srv_sel_opt << endl;
-  !! if (DebugOut > 1) cout << "phase_sel_srv = " << phase_sel_srv << endl;
-  !! if (DebugOut > 1) cout << "curv_pen_srv = " << curv_pen_srv << endl;
-  !! if (DebugOut > 1) cout << "seldec_pen_srv = "  << seldec_pen_srv << endl;
-  !! if (DebugOut > 1) cout << "nselages_in_srv = " << nselages_in_srv << endl;
-
   number Steepness_UB;                           // Upper bound for Steepness
   !! Steepness_UB =   .999;
   vector R_guess(1,nspp);                        // Initial values for R0
@@ -522,9 +485,6 @@ DATA_SECTION
      }
     n_sel_ch_fsh(ifsh) = j;
    }
-  if (DebugOut > 1) cout << "sel_change_in_fsh = " << endl << sel_change_in_fsh << endl;
-  if (DebugOut > 1) cout << "yrs_sel_ch_tmp = " << endl << yrs_sel_ch_tmp << endl;
-  if (DebugOut > 1) cout << "n_sel_ch_fsh = " << endl << n_sel_ch_fsh << endl;
 
   // Survey Selectivity local calcs
   for (isrv=1; isrv<=nspp; isrv++)
@@ -540,9 +500,7 @@ DATA_SECTION
      }
     n_sel_ch_srv(isrv) = j;
    }
-  if (DebugOut > 1) cout << "sel_change_in_srv = " << endl << sel_change_in_srv << endl;
-  if (DebugOut > 1) cout << "yrs_sel_ch_tsrv = " << endl << yrs_sel_ch_tsrv << endl;
-  if (DebugOut > 1) cout << "n_sel_ch_srv = " << endl << n_sel_ch_srv << endl;
+
  END_CALCS
 
   // Years and ages of changing selectivities (Fishery and survey)
@@ -948,8 +906,6 @@ PRELIMINARY_CALCS_SECTION
       yrs_sel_ch_srv(isrv,iyr) = yrs_sel_ch_tsrv(isrv,iyr);
     }
   }
-  if (DebugOut > 1) cout << "yrs_sel_ch_fsh: " << yrs_sel_ch_fsh << endl;
-  if (DebugOut > 1) cout << "yrs_sel_ch_srv: " << yrs_sel_ch_srv << endl;
 
   // set min & max sample size for stomach prey wts, lns
   for (rsp=1;rsp <= nspp; rsp++)
@@ -1095,7 +1051,6 @@ PRELIMINARY_CALCS_SECTION
      }
    }
   cout << "END PRELIMINARY_CALCS_SECTION" << endl;
-  if (DebugOut > 1) cout << "logH_1 = " << logH_1 << endl;
 
 // ==========================================================================
 // ==========================================================================
@@ -1139,9 +1094,6 @@ FUNCTION DoAll
      ipnt +=1;
      M(isp) = MEst(ipnt);
     }
-
-  if (DebugOut > 1) cout << "logH_1 = " << logH_1 << endl;
-  if (DebugOut > 1) cout << "H_1 = " << H_1 << endl;
 
   // Obtain fishery and survey selectivity
   Get_Selectivity();
@@ -1190,11 +1142,6 @@ FUNCTION DoAll
     McFile2 << endl;
    }
 
-  if (DebugOut > 4) for (isp=1; isp <= nspp; isp++)
-   {
-    cout << "natage(" << isp << ") = " << endl << natage(isp) << endl;
-   }
-
  ObjTemp = obj_fun;
 
   // ============================
@@ -1205,9 +1152,7 @@ FUNCTION gamma_selectivity
   dvariable gsum;
   int ncnt;
   int r_age,k_age;
-  // -dhk June 26 2009
 
-  if (DebugOut == 1) cout << "begin Gamma_selectivity" << endl;
   gam_ua.initialize();
   rk_sp = 0;
   for (rsp = 1; rsp <= nspp; rsp++)
@@ -1240,15 +1185,11 @@ FUNCTION gamma_selectivity
        }
      }
    }
-  if (DebugOut > 5) cout << "gam_ua = " << endl << gam_ua << endl;
-  if (DebugOut == 1) cout << "end gamma_selectivity" << endl;
 
   // ============================
 FUNCTION Get_Selectivity
   // ============================
   int iage,max_sel_age;
-
-  if (DebugOut == 1) cout << "begin Get_selectivity" << endl;
 
   ipnt = 0;
   for (ifsh = 1; ifsh <= nfsh; ifsh++)
@@ -1379,15 +1320,12 @@ FUNCTION Get_Selectivity
    }         // end of isrv loop
   sel_fsh = mfexp(log_sel_fsh);
   sel_srv = mfexp(log_sel_srv);
-  if (DebugOut == 1) cout << "end Get_Selectivity" << endl;
 
   //=============================
 FUNCTION Get_Mortality
   //=============================
   int age,ii;
   dvariable Temp,Temp1;
-
-  if (DebugOut == 1) cout << "begin Get_Mortality" << endl;
 
   // Extract the rec_devs
   //int rec_adv.initialize();
@@ -1441,20 +1379,16 @@ FUNCTION Get_Mortality
       Z(isp,iyr) += F(ifsh,iyr);
      }
    }
-  if (DebugOut == 1) cout << "end get_mortality" << endl;
 
   //=============================
 FUNCTION Get_Bzero
   //=============================
   int ages;
 
-  if (DebugOut == 1) cout << "Begin Get_Bzero" << endl;
-
   Rzero =  mfexp(log_Rzero);
   Sp_Biom.initialize();
   Bzero.initialize();
   AltStart();    // Iteratively calculate natage in styr_pred
-  if (DebugOut == 1) cout << " Get_Bzero past AltStart" << endl;
 
   // Extract all the recruitments
   for (isp=1;isp<=nspp;isp++)
@@ -1480,22 +1414,9 @@ FUNCTION Get_Bzero
      }
    }
 
-  if (DebugOut == 1) cout << " Get_Bzero past Compute_Predation" << endl;
-
   // Equilibrium is located - find the parameters of the s-r relationship
   for (isp=1; isp<=nspp; isp++)
    {
-    if (DebugOut > 1) cout << "inside Get_Bzero" << endl;
-    if (DebugOut > 1) cout << "styr_rec = " << styr_rec << endl;
-    if (DebugOut > 1) cout << "elem_prod(wt_pop(isp) , maturity(isp))" << endl;
-    if (DebugOut > 1) cout << elem_prod(wt_pop(isp) , maturity(isp)) << endl;
-    if (DebugOut > 1) cout << "natage(isp,styr_rec(isp)-1)" << endl;
-    if (DebugOut > 1) cout << natage(isp,styr_rec(isp)-1) << endl;
-    if (DebugOut > 1) cout << "pow(surv(isp),spmo_frac(isp))*natage(isp,styr_rec(isp)-1)" << endl;
-    if (DebugOut > 1) cout << pow(surv(isp),spmo_frac(isp))*natage(isp,styr_rec(isp)-1) << endl;
-    if (DebugOut > 1) cout << "pow(surv(isp),spmo_frac(isp))" << endl;
-    if (DebugOut > 1) cout << pow(surv(isp),spmo_frac(isp)) << endl;
-
     iyr = styr_rec(isp)-1;
     Bzero(isp) = elem_prod(natage(isp,iyr),pow(S(isp,iyr),spmo_frac(isp))) *
                  elem_prod(wt_pop(isp),maturity(isp));
@@ -1516,7 +1437,6 @@ FUNCTION Get_Bzero
      }
     Sp_Biom(isp)(styr_sp(isp),styr_rec(isp)) = Bzero(isp);
    }
-  if (DebugOut == 1) cout << "end Get_Bzero" << endl;
 
   //=============================
 FUNCTION AltStart
@@ -1525,7 +1445,6 @@ FUNCTION AltStart
   dvar_matrix NN(1,nspp,1,nages);
   dvariable pred_effect,Term;
   dvariable ParA, ParB, ParC;
-   if (DebugOut == 1) cout << " Begin AltStart" << endl;
 
   //Term.initialize(); // not initialized in NRM tpl -dhk apr 28 09
 
@@ -1613,8 +1532,6 @@ FUNCTION AltStart
 FUNCTION Get_Numbers_at_Age
   //=============================
   int ages;
-
-  if (DebugOut == 1) cout << "Begin Get_Numbers_at_age" << endl;
 
   // Project ahead
   for (iyr=styr;iyr<endyr;iyr++)
@@ -1872,9 +1789,6 @@ FUNCTION Compute_Predation
   //=============================
 FUNCTION Get_Survey_Predictions
   //=============================
-
-  if (DebugOut == 1) cout << "Begin Get_Survey_Predictions" << endl;
-
   dvariable sum_tmp;
   sum_tmp.initialize();
   int yy;
@@ -1899,9 +1813,6 @@ FUNCTION Get_Survey_Predictions
   //=============================
 FUNCTION Catch_at_Age
   //=============================
-
-  if (DebugOut == 1) cout << "Begin Catch_at_Age" << endl;
-
   for (ifsh=1; ifsh<=nfsh; ifsh++)
    {
     isp = spp_fsh(ifsh);
@@ -1971,34 +1882,12 @@ FUNCTION evaluate_the_objective_function
   if (current_phase() == Terminal_phase)
     cout << "ration_pen = " << ration_pen << endl;
 
-  if (DebugOut > 2)
-   {
-    cout << "obj_comps(1) = catch_like = " << catch_like << endl;
-    cout << "obj_comps(2) = age_like_fsh = " << age_like_fsh << endl;
-    cout << "obj_comps(3) = sel_like_fsh = " << endl << sel_like_fsh << endl;
-    cout << "obj_comps(4) = surv_like = " << surv_like << endl;
-    cout << "obj_comps(5) = age_like_srv = " << age_like_srv << endl;
-    cout << "obj_comps(6) = sel_like_srv = " << endl << sel_like_srv << endl;
-    cout << "obj_comps(7) = rec_like = " << endl << rec_like << endl;
-    cout << "obj_comps(8) = fpen = " << endl << fpen << endl;
-    cout << "obj_comps(9) = post_priors_srvq = " << post_priors_srvq << endl;
-    cout << "obj_comps(10) = post_priors = " << post_priors << endl;
-    cout << "obj_comps(12) = Zlast_pen = " << Zlast_pen << endl;
-    cout << "obj_comps(13) = ration_like = " << ration_like << endl;
-    cout << "obj_comps(14) = diet_like1 = " << diet_like1 << endl;
-    cout << "obj_comps(15) = diet_like2 = " << diet_like2 << endl;
-    cout << "obj_comps(16) = ration_pen = " << ration_pen << endl;
-    cout << endl << "end of evaluate_the_objective_function, iteration " << count_iters << endl;
-    cout << "  ======================================================================" << endl;
-    cout << "  ======================================================================" << endl << endl;
-   }
   cout << "obj_fun: " << obj_fun << " Iteration: " << count_iters << " Phase: " << current_phase() << endl;
   cout << obj_comps << " " << Temp_obj  << endl;
 
   // ============================
 FUNCTION Catch_Like
   // ============================
-  if (DebugOut == 1) cout << "begin Catch_Like" << endl;
 
   catch_like.initialize();
   for (ifsh=1; ifsh<=nfsh; ifsh++)
@@ -2010,7 +1899,6 @@ FUNCTION Catch_Like
   // ============================
 FUNCTION Rec_Like
   // ============================
-  if (DebugOut == 1) cout << "Begin Rec_like" << endl;
 
   rec_like.initialize();
   if (active(rec_dev) || phase_RecDev == -99)
@@ -2048,7 +1936,6 @@ FUNCTION Rec_Like
   // ============================
 FUNCTION Age_Like
   // ============================
-  if (DebugOut == 1) cout << "Begin Age_Like " << endl;
 
   age_like_fsh.initialize();
   for (ifsh=1;ifsh<=nfsh;ifsh++)
@@ -2142,7 +2029,6 @@ FUNCTION Sel_Like
   // Prior on smoothness for age-specific selectivity is implemented using
   // sum((x_{a+2} + x_{a} - 2x_{a+1})^2) == norm2(fist_difference(first_difference(x)))
   // ============================
-  if (DebugOut == 1) cout << "Begin Sel_Like" << endl;
 
   sel_like_fsh.initialize();
   sel_like_srv.initialize();
@@ -2208,8 +2094,6 @@ FUNCTION ration
   int jyr,age;
   dvariable n_avg,numer,denom;
 
-  if (DebugOut == 1) cout << "Begin Ration" << endl;
-
   // Equations 9 and 10
   omega_hat_ave.initialize();
   omega_hat.initialize();
@@ -2246,7 +2130,6 @@ FUNCTION ration_Like
   int ages;
   //ration_like.initialize(); // not initialized in NRM tpl -dhk apr 28 09
 
-  if (DebugOut == 1) cout << "Begin Ration_Like" << endl;
   // Likelihood (Eqn 11)
   for (rsp=1;rsp<=nspp; rsp++)
    {
@@ -2306,8 +2189,6 @@ FUNCTION diet_len_Like
   int loop_count;
   loop_count = 0;
 
-  if (DebugOut == 1) cout << "Begin Diet_len_Like" << endl;
-
   // Calculate the predicted fraction by length-class (Eqn 17)
   rk_sp=0;
   T_hat.initialize();
@@ -2350,8 +2231,6 @@ FUNCTION diet_len_Like
 FUNCTION Fmort_Pen
   // ============================
   dvariable totalN, totalF, TotalG, Temp;
-
-  if (DebugOut == 1) cout << "Begin Fmort_Pen" << endl;
 
   fpen.initialize();
   for(isp=1; isp<=nspp; isp++)
