@@ -356,10 +356,7 @@ DATA_SECTION
   !! phase_SelSrvCoff2 = phase_SelSrvCoff;
 
   vector catchbiomass_pen(1,nspp)                    // Convert cv_catchbiomass to penalty
-  !! for(isp=1; isp<=nspp; isp++)
-  !!  {
-  !!   catchbiomass_pen(isp)= 1.0/(2*cv_catchbiomass(isp)*cv_catchbiomass(isp));
-  !!  }
+  !! catchbiomass_pen = 1.0 / (2 * square(cv_catchbiomass));
 
   // Fishery selectivity
   init_ivector fsh_sel_opt(1,nfsh)                   // Options for fishery selectivity
