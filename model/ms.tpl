@@ -140,14 +140,10 @@ DATA_SECTION
   !! styr_sp  = styr_rec;
 
   // Fishery catch
-  !! cout << "Reading fishery catches" << endl << endl;
-
   init_matrix catch_bio(1,nfsh,styr,endyr)            // Catch biomass
   init_3darray wt_fsh(1,nfsh,styr,endyr,1,nages_fsh)  // Weight-at-age in the catch
 
   // Fishery composition
-  !! cout << "Reading fishery compositions" << endl << endl;
-
   init_ivector nyrs_fsh_comp(1,nfsh)                  // Number of years of age data (by fleet)
   init_imatrix yrs_fsh_comp(1,nfsh,1,nyrs_fsh_comp)   // Years with age data
   init_matrix nsmpl_fsh(1,nfsh,1,nyrs_fsh_comp)       // Effective sample sizes
@@ -155,8 +151,6 @@ DATA_SECTION
   !! tot_yr_fsh_comp = sum(nyrs_fsh_comp);            // Number of years of age data (over fleets)
 
   // Survey index
-  !! cout << "Reading survey index data" << endl << endl;
-
   init_ivector nsrv_spp(1,nspp)              // Number of surveys per species
   !! nsrv = sum(nsrv_spp);                   // Total number of survey-species combinations
   init_ivector spp_srv(1,nsrv);              // Link between survey and species
@@ -185,8 +179,6 @@ DATA_SECTION
   !!  }
 
   // Survey age data
-  !! cout << "Reading survey age data" << endl << endl;
-
   init_ivector nyrs_srv_comp(1,nsrv)                   // Number of years of age data for surveys
   !! tot_yr_srv_age = sum(nyrs_srv_comp);              // Number of years of age data for surveys (all species)
   init_imatrix yrs_srv_comp(1,nsrv,1,nyrs_srv_comp)    // Years with survey data
@@ -215,8 +207,6 @@ DATA_SECTION
   init_3darray  wt_srv(1,nsrv,styr,endyr,1,nages)       // Weight-at-age (survey)
 
   // Biological parameters
-  !! cout << "Reading biological parameter data" << endl << endl;
-
   init_matrix wt_pop(1,nspp,1,nages);                   // Population weight-at-age
   init_matrix maturity(1,nspp,1,nages);                 // Population maturity-at-age
   init_vector spawnmo(1,nspp);                          // Spawning month
@@ -228,14 +218,10 @@ DATA_SECTION
   !!  }
 
   // Age-length key
-  !! cout << "Reading age length key data" << endl << endl;
-
   init_3darray al_key(1,nspp,1,nages,1,l_bins);         // Age-length transition matrix
   matrix mean_laa(1,nspp,1,nages);                      // Mean length-at-age for predator selectivity
 
   // Predator-prey data
-  !! cout << "Reading predator-prey data" << endl << endl;
-
   !! nspp_sq = nspp * nspp;        // number pred X prey
   !! nspp_sq2 = nspp * (nspp + 1); // number pred X (prey + "other")
   // indices using l_bins or nages for each pred-prey combination:
@@ -295,8 +281,6 @@ DATA_SECTION
   !! cout << ".DAT Check = " << check << endl << endl;
 
   // Modelling options
-  !! cout << "Reading modelling option data" << endl << endl;
-
   init_int SrType                                    // Stock-Recruit type: 2 Bholt, 1 Ricker
   init_vector steepnessprior(1,nspp)                 // Prior for steepness
   init_vector cvsteepnessprior(1,nspp)
@@ -393,8 +377,6 @@ DATA_SECTION
   !!  }
 
   // Fishery selectivity
-  !! cout << "Reading fishery selectivity data" << endl << endl;
-
   init_ivector fsh_sel_opt(1,nfsh)                   // Options for fishery selectivity
   init_vector nselages_in_fsh(1,nfsh)                // Number of age classes with selectivities by fishery
   init_ivector phase_sel_fsh(1,nfsh)                 // Phase for selectivity parameters
@@ -414,8 +396,6 @@ DATA_SECTION
   !! phase_selcoff_fsh = phase_sel_fsh;
 
   // Survey selectivity
-  !! cout << "Reading survey selectivity data" << endl << endl;
-
   init_ivector srv_sel_opt(1,nsrv)                   // Options for survey selectivity
   init_matrix sel_change_in_srv(1,nsrv,styr,endyr)   // Changes survey selectivity
   init_ivector phase_sel_srv(1,nsrv)                 // Phase for survey selectivity
@@ -608,7 +588,6 @@ PARAMETER_SECTION
   !!      }
   !!    }
   !!  }
-  !! cout << "Nselfshpars = " << Nselfshpars << endl;
 
   // Survey selectivity parameters combined over species
   // =============================
@@ -631,36 +610,11 @@ PARAMETER_SECTION
   !!      Nselsrvlogs += 1;
   !!    }
   !!  }
-  !! cout << "Nselsrvpars = " << Nselsrvpars << endl;
-  !! cout << "Nselsrvlogs = " << Nselsrvlogs << endl;
   !! if (Nselsrvlogs == 0)
   !!  {
   !!   Nselsrvlogs = -1;
   !!   phase_SelSrvCoff2 = -1;
   !!  }
-
-  !! cout << "PHASE VALUES: " << endl;
-  !! cout << "phase_M = " << phase_M << endl;
-  !! cout << "phasePred1 = " << PhasePred1 << endl;
-  !! cout << "phasePred2 = " << PhasePred2 << endl;
-  !! cout << "phasePred3 = " << PhasePred3 << endl;
-  !! cout << "phasePredH1a = " << PhasePredH1a << endl;
-  !! cout << "phasePredH2 = " << PhasePredH2 << endl;
-  !! cout << "phasePredH3 = " << PhasePredH3 << endl;
-  !! cout << "phasePredH4 = " << PhasePredH4 << endl;
-  !! cout << "phase_LogRec = " << phase_LogRec << endl;
-  !! cout << "phase_srec = " << phase_srec << endl;
-  !! cout << "phase_Rzero = " << phase_Rzero << endl;
-  !! cout << "phase_RecDev = " << phase_RecDev << endl;
-  !! cout << "phase_sigmar = " << phase_sigmar << endl;
-  !! cout << "phase_SelFshCoff = " << phase_SelFshCoff << endl;
-  !! cout << "phase_q = " << phase_q << endl;
-  !! cout << "phase_SelSrvCoff = " << phase_SelSrvCoff << endl;
-  !! cout << "phase_SelSrvCoff2 = " << phase_SelSrvCoff2 << endl;
-  !! cout << "phase_fmort = " << phase_fmort << endl << endl;
-  !! cout << "phase_fmort1 = " << phase_fmort1 << endl << endl;
-  !! cout << "phase_selcoff_fsh = " << phase_selcoff_fsh << endl;
-  !! cout << "phase_selcoff_srv = " << phase_selcoff_srv << endl;
 
   // Count how many F_devs are needed
   !! int NFdevs = 0;
@@ -674,7 +628,6 @@ PARAMETER_SECTION
   !!      }
   !!    }
   !!  }
-  !! cout << "NFdevs = " << NFdevs << endl;
 
   // Estimated parameters by species, fishery, or survey
   // =============================
@@ -830,8 +783,6 @@ PARAMETER_SECTION
   number ObjTemp;                                          // Objective function value from previous iteration
   number SSLow;                                            // Maximum value for ObjTemp
 
-  !! cout << "END OF PARAMETER_SECTION" << endl << endl;
-
  sdreport_matrix SSBOut(1,nspp,first_rec_est,endyr);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -859,8 +810,6 @@ PRELIMINARY_CALCS_SECTION
      ctmp = mean(catch_bio(isp));
      R_guess(isp) = log((ctmp/.05 )/btmp/exp(-natmortprior(isp)) ) ;
     }
-
-  cout << "R_guess = " << R_guess << endl;
 
   // Compute fishery offsets to be used in FUNCTION Age_Like (PRELIMINARY_CALCS_SECTION)
   // ===================================================================================
@@ -976,7 +925,6 @@ PRELIMINARY_CALCS_SECTION
   // Initial values for M, steepness, sigmar, R0, etc, (PRELIMINARY_CALCS_SECTION)
   if (Set_from_pin_file == 0)
    {
-    cout << "Crap" << endl;
     ipnt = 0;
     if (phase_M != -99)
      for (isp=1;isp<=nspp;isp++)
@@ -1050,7 +998,6 @@ PRELIMINARY_CALCS_SECTION
        }
      }
    }
-  cout << "END PRELIMINARY_CALCS_SECTION" << endl;
 
 // ==========================================================================
 // ==========================================================================
@@ -1286,7 +1233,6 @@ FUNCTION Get_Selectivity
        break;
        case 2 : // Survey asymptotic logistic (pollock, cod)
         {
-         //cout << "srv_sel_opt case 2" << endl;
          int isel_ch_tmp = 1 ; // selectivity change pointer can be incremented with n_sel_ch_srv and with srv
                               // in for loop to increment ipnt,isel_ch_tmp for multiple species
          for (iyr=styr;iyr<=endyr;iyr++) // this for loop not used, see comment below
@@ -1880,7 +1826,6 @@ FUNCTION evaluate_the_objective_function
   obj_fun     += sum(obj_comps);
   obj_fun     += dummy2*dummy2;
   if (current_phase() == Terminal_phase)
-    cout << "ration_pen = " << ration_pen << endl;
 
   cout << "obj_fun: " << obj_fun << " Iteration: " << count_iters << " Phase: " << current_phase() << endl;
   cout << obj_comps << " " << Temp_obj  << endl;
