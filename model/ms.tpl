@@ -66,9 +66,11 @@ DATA_SECTION
   int fsh_sel_opt_tmp;       // Switch for type of fishery selectivity
   int srv_sel_opt_tmp;       // Switch for form of survey selectivity
   int styr_pred
+  !! styr_pred = 1960;
   int nyrs_pred;
   int PhaseDummy;
 
+  // Data file
   !! cout << "Reading data file" << endl << endl;
 
   init_int DebugOut
@@ -89,7 +91,6 @@ DATA_SECTION
 
   // Predation
   init_int with_pred          // 0:No predation; otherwise yes
-  !! styr_pred = 1960; // 1945
 
   // Functional response      // 1:linear; 2:Holling II; 3:Holling III
   init_int resp_type
@@ -103,41 +104,32 @@ DATA_SECTION
   init_ivector  l_bins(1,nspp);                   // Number of length bins
   init_ivector  nfsh_spp(1,nspp)                  // Number of fishing fleets per species
   !! nfsh = sum(nfsh_spp);                        // Total number of fleets, all species combinations
-  init_ivector  spp_fsh(1,nfsh);                  // Link between fleet and species
-
-  // Setup calcs
   !! FinalYr = endyr;
   !! first_rec_est = endyr;
   !! nyrs = endyr - styr + 1;
   !! tot_fsh_yr = nyrs * nfsh;                    // Total number of year*fleet*species combinations
+  init_ivector  spp_fsh(1,nfsh);                  // Link between fleet and species
 
   ivector  nages(1,nspp);                    // Age-range
   !!       nages = oldest_age + 1;           // Number of ages (by species)
   ivector  ncomps_fsh(1,nfsh)                // Number of age or length compositions per fishery
   ivector  nages_fsh(1,nfsh);                // Number of ages per fishery
-  ivector  styr_rec(1,nspp);                 // Start recruitment for fished cohorts
-  ivector  endyr_sp(1,nspp);                 // Last year
   ivector  styr_sp(1,nspp);                  // First year of spawning biomass (start catches)
+  ivector  styr_rec(1,nspp);                 // Start recruitment for fished cohorts
+  !!       styr_rec = (styr - nages) + 1;
+  !!       styr_sp  = styr_rec;
+  !!       first_rec_est = min(styr_rec);
+  ivector  endyr_sp(1,nspp);                 // Last year
+  !!       endyr_sp = endyr - 1;
   vector   offset_fsh(1,nfsh)                // Fleet-specific offsets
 
   !! for(ifsh = 1; ifsh <= nfsh; ifsh++)
   !!  {
   !!   isp = spp_fsh(ifsh);
-  !!   if (comp_type(isp) == 1) ncomps_fsh(ifsh)=nages(isp);
+  !!   if (comp_type(isp) == 1) ncomps_fsh(ifsh) = nages(isp);
   !!   else ncomps_fsh(ifsh) = l_bins(isp);
-  !!  }
-  !! for(ifsh = 1; ifsh <= nfsh; ifsh++)
-  !!  {
-  !!   isp = spp_fsh(ifsh);
   !!   nages_fsh(ifsh) = nages(isp);
   !!  }
-  !! for(isp = 1; isp <= nspp; isp++)
-  !!  {
-  !!   styr_rec(isp) = (styr - nages(isp)) + 1;
-  !!   if (styr_rec(isp) < first_rec_est) first_rec_est = styr_rec(isp);
-  !!   endyr_sp(isp) = endyr - 1;
-  !!  }
-  !! styr_sp  = styr_rec;
 
   // Fishery catch
   init_matrix catch_bio(1,nfsh,styr,endyr)            // Catch biomass
