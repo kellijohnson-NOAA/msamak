@@ -265,9 +265,6 @@ DATA_SECTION
   number offset_diet_w;                              // Scales multinomial likelihood to 1
   number offset_diet_l;                              // Scales multinomial likelihood to 1
 
-  init_int check;
-  !! cout << ".DAT Check = " << check << endl << endl;
-
   // Modelling options
   init_int SrType                                    // Stock-Recruit type: 2 Bholt, 1 Ricker
   init_vector steepnessprior(1,nspp)                 // Prior for steepness
