@@ -486,10 +486,6 @@ DATA_SECTION
   !! endyr_all = endyr_sp + 1;
   !! nyrs_pred = endyr - styr_pred + 1;
 
-  // Check
-  init_int check2;
-  !! cout << ".CTR Check = " << check2 << endl << endl;
-
   !! PhaseDummy = -1;
   !! if (with_pred == 0)
   !! {PhasePred1 = -3; PhasePred2 = -1; PhasePred3 = -1; }

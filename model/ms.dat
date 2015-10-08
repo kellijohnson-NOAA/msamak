@@ -1303,8 +1303,5 @@
 0.25 #curv_pen_srv(C) (gets converted to "8" in code)
 1000.1 #seldec_pen_srv(C)
 
-# check
-989898
-
 # End of file
 999
