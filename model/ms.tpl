@@ -163,10 +163,6 @@ DATA_SECTION
   !!   isp = spp_srv(isrv);
   !!   if (comp_type(isp) == 1) ncomps_srv(isrv)=nages(isp);
   !!   else ncomps_srv(isrv) = l_bins(isp);
-  !!  }
-  !! for(isrv = 1; isrv <= nsrv; isrv++)
-  !!  {
-  !!   isp = spp_srv(isrv);
   !!   nages_srv(isrv) = nages(isp);
   !!  }
 
