@@ -612,9 +612,6 @@ PARAMETER_SECTION
   init_bounded_vector MEst(1,NEstNat,0.02,0.8,phase_M)             // Natural mortality (phase_M: 5, -4)
   init_bounded_vector log_gam_a(1,nspp,1.0e-10,19.9,PhasePred1);   // Predator selectivity
   init_bounded_vector log_gam_b(1,nspp,-5.2,10,PhasePred1);        // Predator selectivity
-  // init_matrix Q_other_est(1,nspp,1,nages);                         // Other prey biomass in predator diets
-  // 4AEP: Not sure how to implement a phase in init_matrix
-  // The code below is what Doug wrote, but I cannot get it to compile unless I change to the above code.
   init_vector_vector Q_other_est(1,nspp,1,nages,PhasePred3);
 
   init_vector logH_1(1,nspp_sq2,PhasePred2);                       // Predation functional form
