@@ -14,11 +14,11 @@
 0
 
 #### Phase
-# Reset all phases to zero (ResetPhasesToZero)
+# Reset all phases to zero, 1 overrides phases (ResetPhasesToZero)
 0
 # Discount first phase (Disc_first_phase)
 1
-# Discount any phase (Disc_any_phases)
+# Discount any phase, if 0 go to last phase (Disc_any_phases)
 1
 # Initial phase, usually 1 (Initial_phase)
 1
@@ -31,7 +31,7 @@
 
 #### Functional response
 # predator functional response (resp_type)
-1
+2
 
 #### Setup
 # First and last years (styr, endyr)
@@ -323,26 +323,26 @@
 50 50 50 50 50 #mackerel ATKA03.DAT
 40 40 40 40 40 #cod
 
-# oc_srv
-# oc_srv(pollock MODELA10_A.DAT)
+# Survey composition data
+# oc_srv (pollock MODELA10_A.DAT)
 0 0.0 0.090659945 0.141651508 0.247915914 0.111893619 0.033883225 0.044193947 0.027715709 0.070320383 0.032140459 0.044953049 0.0185979 0.059546418 0.039963794 0.036564131
 0 0.018676628 0.017910796 0.029283526 0.106610951 0.129128354 0.100551665 0.083777653 0.158330174 0.098263895 0.040123854 0.047327493 0.029681656 0.027452121 0.016418472 0.096462761
 0 0.016636955 0.01525693 0.043660698 0.041880269 0.047014857 0.075515174 0.108235885 0.088153285 0.103501756 0.085100273 0.090237492 0.070742043 0.092272817 0.041117514 0.080674053
-#oc_srv(mackerel ATKA03.DAT)
+# oc_srv (mackerel ATKA03.DAT)
 0 0.0 0.058 0.363 0.196 0.127 0.101 0.085 0.05 0.015 0.004 0.001 0.0 0.0 0.0 0.0
 0 0.0 0.048 0.561 0.091 0.173 0.054 0.058 0.01 0.004 0.0 0.0 0.0 0.0 0.0 0.0
 0 0.0 0.014 0.188 0.13 0.21 0.246 0.058 0.077 0.025 0.043 0.006 0.0 0.0 0.001 0.0
 0 0.0 0.102 0.222 0.179 0.231 0.071 0.036 0.049 0.067 0.01 0.01 0.003 0.008 0.0 0.0
 0 0.0 0.288 0.082 0.027 0.242 0.073 0.076 0.127 0.04 0.02 0.015 0.006 0.003 0.0 0.001
-# #oc_srv(cod Aleutian survey data)
+# oc_srv (cod Aleutian survey data)
 0 0 0.0016 0.0009 0.0327 0.1719 0.1481 0.0511 0.0464 0.0459 0.0709 0.0808 0.1049 0.0825 0.0673 0.0436 0.0265 0.0165 0.0053 0.0017 0.0012 0.0002 0 0
 0 0.095 0.2314 0.0137 0.0031 0.0217 0.0275 0.0365 0.0624 0.0447 0.051 0.0738 0.0769 0.075 0.0487 0.0406 0.0395 0.0339 0.0174 0.0051 0.0013 0.0006 0 0
 0 0 0.016 0.0998 0.0178 0.0348 0.0611 0.0339 0.0593 0.0906 0.1468 0.1457 0.0957 0.0574 0.0368 0.0278 0.0236 0.0212 0.0168 0.0112 0.0035 0 0 0
 0 0.008 0.0269 0.0023 0.0069 0.0146 0.0179 0.0619 0.1092 0.1303 0.1533 0.1564 0.113 0.0766 0.0536 0.0261 0.0175 0.0109 0.0068 0.0032 0.0039 0.0005 0 0
 0.0002 0.0031 0.0192 0.015 0.0263 0.0961 0.1456 0.0747 0.0945 0.0942 0.0945 0.0505 0.0424 0.049 0.0545 0.0605 0.0386 0.0222 0.0084 0.0073 0.002 0.0011 0 0
 
-# wt_srv
-# wt_srv(pollock MODELA10_A.DAT)
+# Survey weight at age
+# wt_srv (pollock MODELA10_A.DAT)
 0 0.137038229 0.382191551 0.654884572 0.901051238 1.101086843 1.254177594 1.36712965 1.448548268 1.506350672 1.546974255 1.575331305 1.595034972 1.60868314 1.618116663 1.624627525
 0 0.137038229 0.382191551 0.654884572 0.901051238 1.101086843 1.254177594 1.36712965 1.448548268 1.506350672 1.546974255 1.575331305 1.595034972 1.60868314 1.618116663 1.624627525
 0 0.098049947 0.302350689 0.535866648 0.746959726 0.917288013 1.046318416 1.140442094 1.207500939 1.254559008 1.287256948 1.309829542 1.325345397 1.3359804 1.343256368 1.34822824
@@ -369,7 +369,7 @@
 0 0.032664618 0.21476195 0.448787974 0.683378849 1.091260313 1.144674864 1.309191794 1.306204033 1.541515644 1.590557447 1.611487373 1.685958753 1.679546698 1.67212683 1.608236917
 0 0.032664618 0.21476195 0.448787974 0.683378849 1.091260313 1.144674864 1.309191794 1.306204033 1.541515644 1.590557447 1.611487373 1.685958753 1.679546698 1.67212683 1.608236917
 #
-#wt_srv(mackerel) (Table 15.6 2003 SAFE)
+# wt_srv (mackerel) (Table 15.6 2003 SAFE)
 0 0.1 0.1276 0.4205 0.6598 0.7557 0.7941 0.8095 0.8157 0.8181 0.8191 0.8195 0.8197 0.8197 0.8198 0.8198
 0 0.1 0.1276 0.4205 0.6598 0.7557 0.7941 0.8095 0.8157 0.8181 0.8191 0.8195 0.8197 0.8197 0.8198 0.8198
 0 0.1 0.1276 0.4205 0.6598 0.7557 0.7941 0.8095 0.8157 0.8181 0.8191 0.8195 0.8197 0.8197 0.8198 0.8198
@@ -396,7 +396,7 @@
 0 0.1 0.1276 0.4205 0.6598 0.7557 0.7941 0.8095 0.8157 0.8181 0.8191 0.8195 0.8197 0.8197 0.8198 0.8198
 0 0.1 0.1276 0.4205 0.6598 0.7557 0.7941 0.8095 0.8157 0.8181 0.8191 0.8195 0.8197 0.8197 0.8198 0.8198
 #
-#wt_srv(cod same as wt_fsh, wt_pop)
+# wt_srv (cod same as fishery weight at age)
 0 0.1 0.3 0.6 1.5 2.6 3.5 5.1 6.8 7.5 8.2 8.4 9.9
 0 0.1 0.3 0.6 1.5 2.6 3.5 5.1 6.8 7.5 8.2 8.4 9.9
 0 0.1 0.3 0.6 1.5 2.6 3.5 5.1 6.8 7.5 8.2 8.4 9.9
@@ -424,26 +424,28 @@
 0 0.1 0.3 0.6 1.5 2.6 3.5 5.1 6.8 7.5 8.2 8.4 9.9
 
 #### Biological parameters
-# Population Weight at Age #wt_pop(pollock MODELA10_A.DAT)
+# Population Weight at Age
+# wt_pop (pollock MODELA10_A.DAT)
 0 0.04 0.21 0.41 0.69 0.89 1.09 1.25 1.33 1.4 1.48 1.51 1.64 1.54 1.51 1.59
-# wt_pop(mackerel ATKA03.DAT)
+# wt_pop (mackerel ATKA03.DAT)
 0 0.1 0.1276 0.4205 0.6598 0.7557 0.7941 0.8095 0.8157 0.8181 0.8191 0.8195 0.8197 0.8197 0.8198 0.8198
-# wt_pop(cod same as wt_fsh, wt_srv)
+# wt_pop (cod same as wt_fsh, wt_srv)
 0 0.1 0.3 0.6 1.5 2.6 3.5 5.1 6.8 7.5 8.2 8.4 9.9
 #
-# Maturity at Age #maturity(pollock Table 1A.13 2003 SAFE)
+# Maturity at Age
+# maturity (pollock Table 1A.13 2003 SAFE)
 0 0.0000 0.0080 0.2890 0.6410 0.8420 0.9010 0.9470 0.9630 0.9700 0.9780 0.9840 0.9900 1.0000 1.0000 1.0000
-# maturity(mackerel Table 15.7 2003 SAFE)
+# maturity (mackerel Table 15.7 2003 SAFE)
 0 0 0.0370 0.2240 0.6880 0.9440 0.9920 0.9990 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000 1.0000
-# maturity(cod interpolated from length-at-age and maturity-at-length)
+# maturity (cod interpolated from length-at-age and maturity-at-length)
 0 0.001 0.005 0.019 0.09 0.3 0.514 0.75 0.88 0.92 0.94 0.95 0.97
 
 # Month of Spawning
-3 #spawnmo(pollock MODELA10_A.DAT)
-8 #spawnmo(mackerel ATKA03.DAT)
-2 #spawnmo(cod winter spawner)
+3 #spawnmo (pollock MODELA10_A.DAT)
+8 #spawnmo (mackerel ATKA03.DAT)
+2 #spawnmo (cod winter spawner)
 
-# init_3darray al_key(1,nspp,1,nages,1,l_bins);
+# Age length key as a 3d array (1, nspp, 1, nages, 1, l_bins);
 # al_key pollock (calculated from mean length-at-age and variance)
 0.0023    0.9953    0.0023    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
 0.0000    0.0002    0.1402    0.7772    0.0823    0.0001    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
@@ -494,9 +496,12 @@
 0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0001    0.0008    0.0059    0.0277    0.0867    0.1805    0.2500    0.2304    0.1414    0.0577    0.0157    0.0028    0.0004
 
 #### Biological parameters
-# pred_l_bin
+# Predation length bins
+# pred_l_bin pollock
 2.5 7.5 12.5 17.5 22.5 27.5 32.5 37.5 42.5 47.5 52.5 57.5 62.5 67.5 72.5 77.5
+# pred_l_bin mackerel
 2.5 7.5 12.5 17.5 22.5 27.5 32.5 37.5 42.5 47.5 52.5 57.5 62.5
+# pred_l_bin cod
 2.5 7.5 12.5 17.5 22.5 27.5 32.5 37.5 42.5 47.5 52.5 57.5 62.5 67.5 72.5 77.5 82.5 87.5 92.5 97.5 102.5 107.5 112.5 117.5
 
 # repeated last value to match nages
@@ -532,10 +537,10 @@
 1985 1986 1987 1990 1991 1993 1994 1995 1996 1997 1998 2000 2001 2002 2003
 1985 1987 1991 1994
 
-#stoms_wt (number of stomachs sampled for prey wts in each pred length by sampling year)
-# init_3darray stoms_wt(1,nspp,1,l_bins,1,nyrs_stomwts);
-#stoms_wt pollock
-#1982 1983 1986 1987 1988 1990 1991 1992 1993 1994 1995 1996 1997 2000 2001 2002 2003 # poll
+# Stomach weights
+# number of stomachs sampled for prey wts in each pred length by sampling year
+# A 3d array (1, nspp, 1, l_bins, 1, nyrs_stomwts);
+# stoms_wt pollock
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 #0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 0 #0
  0 0 0 0 0 0 0 0 0 13 0 0 20 106 23 69 0 #9
@@ -552,8 +557,7 @@
  0 11 0 1 0 0 20 0 2 24 0 0 3 28 0 32 0 #14
  0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 # 70 to 75 cm
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # 75 to 80 cm
-#stoms_wt mackerel
-#1986 1987 1988 1990 1991 1994 1997 1999 2000 2001 2002 # mack
+# stoms_wt mackerel
  0 0 0 0 0 0 0 0 0 0 0 #0
  0 0 0 0 0 0 0 0 0 0 0 #0
  0 0 0 1 0 0 0 0 15 0 0 #0
@@ -567,8 +571,7 @@
  0 3 0 0 0 0 0 0 11 0 0 # 50 to 55 cm (no predation on modeled prey)
  0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0
-#stoms_wt cod
-#1983 1984 1985 1986 1987 1988 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 # cod
+# stoms_wt cod
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 #0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 #0
  0 0 0 0 0 0 0 4 0 0 13 0 0 0 0 0 1 0 0 0 #0
@@ -596,9 +599,9 @@
 #0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 # 120 to 125 cm
 #0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 
-# stoms_ln_prey (number of pred stomachs by pred length examined with prey of any size)
-#pollpoll stoms_ln_prey
-# 1986 1987 1988 1990 1991 1994 2001 2003
+# Stomach lengths of prey
+# number of pred stomachs by pred length examined with prey of any size
+# stoms_ln_prey pollpoll
  0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0
@@ -615,8 +618,7 @@
  0 0 0 0 0 2 0 0
  0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0
-#pollmack stoms_ln_prey
-# 1994 2000 2002
+# stoms_ln_prey pollmack
  0 0 0
  0 0 0
  0 0 0
@@ -633,8 +635,7 @@
  1 0 1
  0 0 0
  0 0 0
-# pollcod stoms_ln_prey
-# 1991
+# stoms_ln_prey pollcod
  0
  0
  0
@@ -651,8 +652,7 @@
  0
  0
  0
-# mackpoll stoms_ln_prey
-# 1986 1987 1991
+# stoms_ln_prey mackpoll
  0 0 0 # (0,5]
  0 0 0
  0 0 0
@@ -666,8 +666,7 @@
  0 0 0
  0 0 0
  0 0 0
-# mackmack stoms_ln_prey
-# 2001
+# stoms_ln_prey mackmack
  0
  0
  0
@@ -681,8 +680,7 @@
  0
  0
  0
-# mackcod stoms_ln_prey
-# 1994
+# stoms_ln_prey mackcod
  0
  0
  0
@@ -696,8 +694,7 @@
  0
  0
  0
-# codpoll stoms_ln_prey
-# 1985 1986 1987 1988 1990 1991 1993 1994 1997 1998 2000 2002 2003
+# stoms_ln_prey codpoll
  0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -722,8 +719,7 @@
  1 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 1 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 #(115,120]
-#codmack stoms_ln_prey
-# 1985 1986 1987 1990 1991 1993 1994 1995 1996 1997 1998 2000 2001 2002 2003
+# stoms_ln_prey codmack
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -748,8 +744,7 @@
  0 0 0 0 0 0 0 0 0 0 2 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 2 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 #(115,120]
-# codcod stoms_ln_prey
-# 1985 1987 1991 1994
+# stoms_ln_prey codcod
  0 0 0 0
  0 0 0 0
  0 0 0 0
@@ -790,8 +785,9 @@
 # i_wt_yrs_all
  17 17 17 17 11 11 11 11 20 20 20 20
 
-# diet_w_dat: fraction of total prey weight for given prey in each predator length X sample year
-# init_3darray diet_w_dat(1,nspp_sq2,1,rr_lens,1,i_wt_yrs_all);
+# Diet weights
+# fraction of total prey weight for given prey in each predator length X sample year
+# A 3d array (1, nspp_sq2, 1, rr_lens, 1, i_wt_yrs_all);
 # diet_w_dat (poll_poll)
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -942,7 +938,7 @@
 0 0 0 0 0 0.9624202 0 0 0 0 0 0 0 0 0 0 0 0 0.5094104 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 #0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-# diet_w_dat.c.mack
+# diet_w_dat cod_mack
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -968,7 +964,7 @@
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.7780608 0 0.5418437 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 #0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.9030167 0 0 0 0 0
-# diet_w_dat.c.cod
+# diet_w_dat cod_cod
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1022,10 +1018,10 @@
 #0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.09698329 0 0 0 0 0
 
 #####################
-# diet_l_dat: pred length X prey length. For each predator length, fraction of prey of a particular length to all lengths of that prey in that predator size
-# init_3darray diet_l_dat(1,nspp_sq,1,r_lens,1,k_lens);
+# Diet length data: pred length X prey length.
+# For each predator length, fraction of prey of a particular length to all lengths of that prey in that predator size
+# A 3d array (1, nspp_sq, 1, r_lens, 1, k_lens);
 # diet_l_dat (poll_poll)
-# (0,5] (5,10] (10,15] (15,20] (20,25] (25,30] (30,35] (35,40] (40,45] (45,50] (50,55] (55,60] (60,65] (65,70]
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1043,7 +1039,6 @@
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # diet_l_dat poll_mack
-# mack (0,5] (5,10] (10,15] (15,20] (20,25] (25,30] (30,35] (35,40] (40,45] (45,50]
  0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1061,7 +1056,6 @@
  0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0
 # diet_l_dat poll_cod
-# cod (0,5] (5,10] (10,15] (15,20] (20,25] (25,30] (30,35] (35,40] (40,45] (45,50] (50,55] (55,60] (60,65] (65,70] (70,75] (75,80] (80,85] (85,90] (90,95] (95,100] (100,105] (105,110] (110,115] (115,120]
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (0,5] poll
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1079,7 +1073,6 @@
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # diet_l_dat mack_poll
-# poll (0,5] (5,10] (10,15] (15,20] (20,25] (25,30] (30,35] (35,40] (40,45] (45,50] (50,55] (55,60] (60,65] (65,70]
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1094,7 +1087,6 @@
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # diet_l_dat mack_mack
-# mack (0,5] (5,10] (10,15] (15,20] (20,25] (25,30] (30,35] (35,40] (40,45] (45,50]
  0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1108,8 +1100,7 @@
  0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0
-# diet_l_dat mack_ cod
-# cod (0,5] (5,10] (10,15] (15,20] (20,25] (25,30] (30,35] (35,40] (40,45] (45,50] (50,55] (55,60] (60,65] (65,70] (70,75] (75,80] (80,85] (85,90] (90,95] (95,100] (100,105] (105,110] (110,115] (115,120]
+# diet_l_dat mack_cod
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (0,5] mack
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1124,7 +1115,6 @@
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # diet_l_dat cod_poll
-# poll (0,5] (5,10] (10,15] (15,20] (20,25] (25,30] (30,35] (35,40] (40,45] (45,50] (50,55] (55,60] (60,65] (65,70]
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1150,7 +1140,6 @@
  0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 # diet_l_dat cod_mack
-# mack (0,5] (5,10] (10,15] (15,20] (20,25] (25,30] (30,35] (35,40] (40,45] (45,50]
  0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1176,7 +1165,6 @@
  0 0 0 0 0.5 0 0.5 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0
 # diet_l_dat cod_cod
-# cod (0,5] (5,10] (10,15] (15,20] (20,25] (25,30] (30,35] (35,40] (40,45] (45,50] (50,55] (55,60] (60,65] (65,70] (70,75] (75,80] (80,85] (85,90] (90,95] (95,100] (100,105] (105,110] (110,115] (115,120]
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 # (0,5] cod
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1205,7 +1193,7 @@
 #### Modelling options
 # .CTR values (pollock from MODELA10_A.CTR, mackerel from ATKA03.CTR, cod assigned)
 #
-#Stock-Recruit Type (single value)
+# SrType Stock recruit type, a single value used for all spp
 2
 # steepnessprior (by sp)
 0.6 0.8 0.6
@@ -1220,7 +1208,8 @@
 #phase_sigmar (single value)
 -5
 #styr_rec_est (by sp)
-1983 1979 1983 # mackerel recruit estimates started in 1977 in assessment
+# mackerel recruit estimates started in 1977 in assessment
+1983 1979 1983
 #endyr_rec_est (by sp)
 2003 2003 2003
 
@@ -1228,7 +1217,7 @@
 0.3 0.3 0.37
 #cvnatmortprior (by sp)
 0.1 0.05 0.1
-# phase M
+# natmortphase2 phase M
 1 1 1
 #qprior (by srv)
 1.0 1.0 1.0
@@ -1246,17 +1235,28 @@
 0.05 0.05 0.05
 
 # Phases
- 6 # phase_M
- 1 # phase_Rzero
- 2 # phase_fmort
- 1 # phase_fmort1
--9 # phase_LogRec
- 2 # phase_RecDev
- 4 # phase_SelFshCoff
- 4 # phase_SelSuvCoff
- 1 # Phasepred1 (log_gam_a, log_gam_b)
- 1 # PhasePred2 (H_1, H_2, H_3)
- 8 # Phasepred3 (Q_other)
+# phase_M
+6
+# phase_Rzero
+1
+# phase_fmort
+2
+# phase_fmort1
+1
+# phase_LogRec
+-9
+# phase_RecDev
+2
+# phase_SelFshCoff
+4
+# phase_SelSuvCoff
+4
+# Phasepred1 (log_gam_a, log_gam_b)
+1
+# PhasePred2 (H_1, H_2, H_3)
+1
+# Phasepred3 (Q_other)
+8
 
 ### Fishery Selectivity
 #fsh_sel_opt (by fsh)
@@ -1265,16 +1265,18 @@
 #nselages_in_fsh (by fsh)
 12 10 10 10 10
 #phase_sel_fsh
-2 2 2 2 2 # in assessments, pollock was phase 3 and mackerel phase 4
+# in assessments, pollock was phase 3 and mackerel phase 4
+2 2 2 2 2
 #curv_pen_fsh (by fsh)
 0.2 0.4083 0.2 0.2 0.2
 #seldec_pen_fsh (by fsh)
 200 1000 1000 1000 1000
-#sel_change_in_fsh (by fsh)
+# Change in fishery selectivity
 #matrix: rows == fishery; columns == start year : end year
 #values > 0 enable time-varying selectivity blocks
 #  and determine the prior on smoothness for time-varying selectivity
 #  implemented in the likelihood function as lambda_{selectivity}
+#sel_change_in_fsh (by fsh)
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7 0.7
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -1286,24 +1288,35 @@
 #1 == non-parametric age specific selectivity
 #2 == asymptotic logistic selectivity
  1 1 1
-#sel_change_in_srv (by srv)
+
 #matrix: rows == survey; columns == start year : end year
 #values > 0 enable time-varying selectivity blocks
 #  and determine the prior on smoothness for time-varying selectivity
 #  implemented in the likelihood function as lambda_{selectivity}
+# sel_change_in_srv (by srv)
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-3 5 5 #phase_sel_srv(by srv)
-10 #nselages_in_srv(M)
-0.25 #curv_pen_srv(M) (gets converted to "8" in code)
-1000.1 #seldec_pen_srv(M)
-10 #nselages_in_srv(M)
-0.25 #curv_pen_srv(M) (gets converted to "8" in code)
-1000.1 #seldec_pen_srv(M)
-10 #nselages_in_srv(C)
-0.25 #curv_pen_srv(C) (gets converted to "8" in code)
-1000.1 #seldec_pen_srv(C)
+#phase_sel_srv(by srv)
+3 5 5
+#nselages_in_srv
+10
+#curv_pen_srv (gets converted to "8" in code)
+0.25
+#seldec_pen_srv
+1000.1
+#nselages_in_srv
+10
+#curv_pen_srv (gets converted to "8" in code)
+0.25
+#seldec_pen_srv
+1000.1
+#nselages_in_srv
+10
+#curv_pen_srv(C) (gets converted to "8" in code)
+0.25
+#seldec_pen_srv(C)
+1000.1
 
 # End of file
 999
