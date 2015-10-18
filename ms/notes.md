@@ -27,6 +27,15 @@ The msamak can then be downloaded from its own
 [github](https://github.com/kellijohnson/msamak.git "msamak github") repository.
 The model then must be built using ADMB.
 
+## Time series
+
+* 1960 - predation begins
+* 1979 - model begins
+* 1979 - mackerel recruitment estimation begins
+* 1983 - cod recruitment estimation begins
+* 1983 - pollock recruitment estimation begins
+* 2003 - model ends
+
 ## Selectivity
 
 The relative proportion of the population at age that is available to the sampling method.
@@ -117,6 +126,10 @@ distribution which is what is used in AMAK.
 Additionally, $q$ is fixed at one in the model for each survey. Prior to the last phase
 if the estimate of $q$ is different than one the likelihood is weighted heavily such that
 the survey fits are increased in subsequent phases.
+
+## Change log
+
+* 2015-10-06: Fixed bug in $R_0$.
 
 # Task list
 
