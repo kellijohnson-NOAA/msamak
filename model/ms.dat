@@ -1196,7 +1196,7 @@
 # SrType Stock recruit type, a single value used for all spp
 2
 # steepnessprior (by sp)
-0.6 0.8 0.6
+0.7 0.8 1.0
 #cvsteepnessprior (by sp)
 0.2 300 300
 #phase_srec (single value)
