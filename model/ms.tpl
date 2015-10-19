@@ -638,7 +638,6 @@ PARAMETER_SECTION
   vector gam_a(1,nspp);
   vector gam_b(1,nspp);
   vector M(1,nspp);
-  init_vector mean_log_rec(1,nspp,phase_LogRec);                     // Log(mean recruitment) (phase = 1)
   init_bounded_vector steepness(1,nspp,0.21,Steepness_UB,phase_srec) // Steepness (phase_srec: -6, -6)
   init_bounded_vector log_Rzero(1,nspp,-100,100,phase_Rzero)         // Log(R0) (phase_Rzero = 2) : init_vector in NRM -dhk apr 28 09
   init_bounded_vector rec_dev(1,n_est_recs,-15,2,phase_RecDev);      // All species combined (rec devs, phase = 2)
@@ -928,7 +927,6 @@ PRELIMINARY_CALCS_SECTION
     steepness = steepnessprior;
     log_sigmar = log_sigmarprior;
     if (phase_Rzero != -99) log_Rzero = R_guess;
-    if (phase_LogRec != -99) mean_log_rec = 0;
     if (phase_fmort1 != -99) log_avg_fmort = -6.0;
     if (phase_RecDev != -99) rec_dev = 0;
     if (phase_SelFshCoff != -99) log_selcoffs_fsh = 0;
@@ -1332,7 +1330,7 @@ FUNCTION Get_Bzero
      natage(isp,iyr,1) = Rzero(isp);
     else
      {
-      natage(isp,iyr,1)  = Rzero(isp)*mfexp(rec_dev_spp(isp,iyr) + mean_log_rec(isp))+1.0e-10;//-dhk July 12 09
+      natage(isp,iyr,1)  = Rzero(isp)*mfexp(rec_dev_spp(isp,iyr))+1.0e-10;//-dhk July 12 09
       mod_rec(isp,iyr) = natage(isp,iyr,1);
      }
 
@@ -1785,10 +1783,6 @@ FUNCTION evaluate_the_objective_function
     diet_wt_Like();
     diet_len_Like();
    }
-  if (active(log_Rzero))
-   for(isp=1; isp<=nspp; isp++)
-    obj_fun += .5 * square(mean_log_rec(isp)); // penalty to constrain Rzero when active
-  Temp_obj = obj_fun;
 
   obj_comps.initialize();
   obj_comps(1) = sum(catch_like);
@@ -1919,9 +1913,6 @@ FUNCTION dvar_vector SRecruit(const dvar_vector& Stmp)
       RecTmp = elem_prod(Stmp , 1. / ( alpha(i_sp) + beta(i_sp) * Stmp));        //Beverton-Holt form
       break;
     case 3:
-      RecTmp = Rzero(isp)*mfexp(mean_log_rec(i_sp));                    //Avg recruitment
-      break;
-    case 4:
       RecTmp = elem_prod(Stmp , mfexp( alpha(i_sp)  - Stmp * beta(i_sp))) ; //Old Ricker form
       break;
     }
@@ -2518,13 +2509,6 @@ REPORT_SECTION
    for (isp=1;isp<=nspp;isp++)
     {
       report << M(isp);
-      if (isp<nspp)   report << ", ";
-      else if (isp == nspp) report << ")" << endl;
-    }
-  report << "mean_log_rec<- c(";
-   for (isp=1;isp<=nspp;isp++)
-    {
-      report << mean_log_rec(isp);
       if (isp<nspp)   report << ", ";
       else if (isp == nspp) report << ")" << endl;
     }
