@@ -60,18 +60,15 @@ om <- function(dirom = "om", dirout = "sample",
   # Read in estimated values
   source(estimates)
   data <- dat_read(infile)
-  est.ON <- TRUE          # T if estimating parameters
   maxDietN <- FALSE       # F for full diet weightings, F for max 20
 
   # Manipulate data
 
-  # Read from pin file
-  if (est.ON) {
-    data$pin <- 1
-    # Reset Phases to zero
-    # Set to 1 to override phases
-    data$ResetPhasesToZero <- 0
-  }
+  # Do not read from pin file
+  data$pin <- 0
+  # Reset Phases to zero
+  # Set to 1 to override phases
+  data$ResetPhasesToZero <- 0
 
   # predation: "1, 1" or "1, 0" for est_0
   # Discount first phase
