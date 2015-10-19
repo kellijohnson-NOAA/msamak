@@ -6,8 +6,8 @@
 #' @param verbose
 
 sim <- function(iteration = 1:5,
-  nom = 100, nem = list(1, 50, 100, 200, 1000),
-  dirom = "model",
+  nom = 100, nem = list(1, 100, 200, 1000),
+  dirom = "om",
   verbose = FALSE) {
 
   originaldir <- getwd()
@@ -24,7 +24,7 @@ sim <- function(iteration = 1:5,
   for (i in iteration) {
     set.seed(i + 100)
     om(dirom = dirom, dirout = as.character(i), fndat_in = "ms.dat",
-       fndat_out = "ms.dat",
+      fndat_out = "ms.dat",
       rndm.index = nom[1], rndm.compfsh = nom[2], rndm.compsrv = nom[3],
       rndm.diets = nom[4], verbose = verbose)
   }

@@ -30,7 +30,7 @@
 #' @param verbose A logical value defining how output should be printed to
 #'   the screen.
 
-om <- function(dirom = "model", dirout = "sample",
+om <- function(dirom = "om", dirout = "sample",
   fndat_in = "ms.dat", fndat_out = "sample.dat",
   rndm.index = TRUE, rndm.compfsh = TRUE, rndm.compsrv = TRUE,
   rndm.diets = TRUE,
