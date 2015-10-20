@@ -42,16 +42,8 @@ g <- ggplot(data = x,
         legend.text = element_text(size = 7, face = "bold"),
         plot.title = element_text(lineheight = 0.8, size = 10)
    )
-if (!is.null(text)) {
-  g <- g +
-  geom_text(aes(x, y, label = lab),
-    data = data.frame(x = 35, y = Inf,
-    lab = round(c(get("steepness", envir = om),
-    get("steepness", envir = sample)), digits = 3),
-    pos = rep(speciesnames, length(folder)),
-    folder = rep(folder, each = 3)), vjust = 2.5)
-}
+
   g
 }
 # plotts(folder = c("om"), value = "Sp_Biom")
-# plotts(folder = c("om", "sample"), value = "pred_rec", text = TRUE)
+# plotts(folder = c("om", "sample"), value = "pred_rec")
