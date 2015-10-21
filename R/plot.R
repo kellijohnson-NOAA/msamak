@@ -1,5 +1,6 @@
-
-plotts <- function(x, ylab, plot.data = TRUE) {
+#' @example
+#' plotts(formatval(getval("Sp_Biom")), "Spawning biomass")
+plotts <- function(x, ylab, plot.data = TRUE, environment = om) {
 
 levels(x$em) <- levels(x$em)[c(0, order(as.numeric(sapply(strsplit(
   grep("_", unique(x$em), value = TRUE), "_"), "[", 1)))) + 1]
@@ -21,8 +22,8 @@ g <- ggplot(data = x,
         plot.title = element_text(lineheight = 0.8, size = 10)
    )
   if(!is.null(plot.data)) {
-    allyears <- min(get("styr_rec", om)):get("endyr", om)
-    fsh <- apply(t(sapply(get("yrs_fsh_comp", om),
+    allyears <- min(get("styr_rec", environment)):get("endyr", environment)
+    fsh <- apply(t(sapply(get("yrs_fsh_comp", environment),
       function(x) allyears %in% x)), 1, function(x) seq(allyears)[x])
     fsh <- data.frame("time" = unlist(fsh),
         "fsh" = rep(seq(sapply(fsh, length)), sapply(fsh, length)),
@@ -32,7 +33,7 @@ g <- ggplot(data = x,
         "val" = rep(unique(sapply(ggplot_build(g)$panel$ranges, "[[", 7)[2,]),
             c(sapply(fsh, length)[1:2], sum(sapply(fsh, length)[3:5]))) *
             rep(seq(0.8, 0.95, length.out = NROW(fsh)), sapply(fsh, length)))
-    srv <- apply(t(sapply(get("yrs_srv_comp", om),
+    srv <- apply(t(sapply(get("yrs_srv_comp", environment),
       function(x) allyears %in% x)), 1, function(x) seq(allyears)[x])
     srv <- data.frame("time" = unlist(srv),
         "srv" = rep(seq(sapply(srv, length)), sapply(srv, length)),
@@ -48,6 +49,5 @@ g <- ggplot(data = x,
   scale_shape_manual(values = c(0, 15), labels = c("fishery", "survey"))
 
   }
-  g
+  return(g)
 }
-# plotts(formatval(getval("Sp_Biom")), "Spawning biomass")
