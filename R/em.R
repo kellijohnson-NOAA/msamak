@@ -28,7 +28,7 @@ em <- function(dirom, n,
   ignore <- file.copy(infile, file.path(dirname(infile), "sample.dat"))
   data <- dat_read(infile)
 
-  if (n[1] != FALSE) data$obs_srv$se <- n[1] / 100
+  if (n[1] != FALSE) data$obs_srv$se <- 1 / n[1]
   if (n[2] != FALSE) {
     for (ifsh in seq(sum(data$nfsh))) {
       data$comp_fsh[[ifsh]][, "nsamp"] <- n[2]
