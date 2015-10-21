@@ -49,6 +49,30 @@ sim(iteration = 1:5,
 
 
 #' Create plots
-plot_weightatage(file.path(dirms, "wegithatage.jpeg"))
+plot_weightatage(file.path(dirms, "weightatage.png"))
+plot_sample(environment = om, save = file.path(dirms, "sample.png"),
+  width = 7, height = 4)
+plot_ts(subset(formatval(getval("Sp_Biom")), em == "om"),
+ "Spawning biomass", save = file.path(dirms, "om.png"),
+ width = 9, textsize = 15)
 
+plot_ts(formatval(getval("Sp_Biom")), "Spawning biomass",
+  save = file.path(dirms, "spb.png"), width = 9)
+plot_ts(formatval(getval("pred_rec")), "Recruitment",
+  save = file.path(dirms, "rec.png"), width = 9)
+plot_ts(formatval(getval("pred_srv")), "Survey",
+  save = file.path(dirms, "srv.png"), width = 9)
+temp <- formatval(getval("F"))
+plot_ts(temp[paste0(temp$age, as.numeric(temp$species)) %in%
+  c(161, 162, 132, 133, 134, 135), ], "Fully selected F",
+  plot.data = NULL,
+  save = file.path(dirms, "f.png"), width = 9)
+rm(temp)
+
+plot_sc(formatval(getval("log_Rzero")), "log R_zero",
+  save = file.path(dirms, "rzero.png"), width = 9)
+plot_sc(formatval(getval("Bzero")), "B_zero",
+  save = file.path(dirms, "bzero.png"), width = 9)
+plot_sc(formatval(getval("M")), "M",
+  save = file.path(dirms, "m.png"), width = 9)
 #' End of file.
