@@ -35,6 +35,7 @@ getval <- function(value = "pred_rec", dir = NULL,
       nameem <- c(nameem, ii)
     }
   }
+  nameem <- sapply(strsplit(nameem, "_"), "[", 1)
   attributes(ts) <- list("iteration" = nameiteration, "em" = nameem)
   return(ts)
 }
