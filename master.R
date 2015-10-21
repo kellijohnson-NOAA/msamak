@@ -60,7 +60,7 @@ plot_ts(formatval(getval("Sp_Biom")), "Spawning biomass",
   save = file.path(dirms, "spb.png"), width = 9)
 plot_ts(formatval(getval("pred_rec")), "Recruitment",
   save = file.path(dirms, "rec.png"), width = 9)
-plot_ts(formatval(getval("pred_srv")), "Survey",
+plot_ts(formatval(getval("pred_srv")), "Survey", plot.data = NULL,
   save = file.path(dirms, "srv.png"), width = 9)
 temp <- formatval(getval("F"))
 plot_ts(temp[paste0(temp$age, as.numeric(temp$species)) %in%
