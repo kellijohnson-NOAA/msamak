@@ -1,8 +1,8 @@
 #' Master script to run msamak
 
-dirmaster <- "d:/msamak"
+dirmaster <- file.path("d:", "msamak")
 if (!file.exists(dirmaster)) {
-  dirmaster <- "c:/msamak"
+  dirmaster <- file.path("c:", "msamak")
 }
 setwd(dirmaster)
 
