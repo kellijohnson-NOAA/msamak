@@ -176,10 +176,10 @@ dat_read <- function(fn_in, verbose = FALSE) {
   info$spawnmo <- grep("spawnmo", datin, value = TRUE)
 
   # Age length key
-  info$al_key <- getval("al_key", "pred_l_bin")
+  info$al_key <- getval("al_key", "lbinwidth")
 
   # Predator length bins
-  info$pred_l_bin <- getval("pred_l_bin", "omega_vB")
+  info$lbinwidth <- getval("lbinwidth", "omega_vB")
 
   # von Bertalanffy parameters
   info$omega_vB <- getval("omega_vB", "omega_sigma")
@@ -197,7 +197,6 @@ dat_read <- function(fn_in, verbose = FALSE) {
   info$max_SS_w <- getval("max_SS_w")
   info$min_SS_l <- getval("min_SS_l")
   info$max_SS_l <- getval("max_SS_l")
-  info$i_wt_yrs_all <- getval("i_wt_yrs_all")
 
   # Diet
   info$diet_w_dat <- getval("diet_w_dat", "diet_l_dat")
@@ -212,7 +211,6 @@ dat_read <- function(fn_in, verbose = FALSE) {
   info$cvsigmarprior <- getval("cvsigmarprior")
   info$phase_sigmar <- getval("phase_sigmar")
   info$styr_rec_est <- getval("styr_rec_est")
-  info$endyr_rec_est <- getval("endyr_rec_est")
   info$natmortprior <- getval("natmortprior")
   info$cvnatmortprior <- getval("cvnatmortprior")
   info$natmortphase2 <- getval("natmortphase2")

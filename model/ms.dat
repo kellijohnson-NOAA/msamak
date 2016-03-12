@@ -309,7 +309,7 @@
 343.195 104.887 198.15 105.473 144.781 157.262 #mackerel Tables 15.4, 15.5 2003 SAFE
 29.778 30.993 66.524 25.532 33.695 10.499 23.553 12.018 #cod no Table, Aleutian survey data
 
-#### Survey age data
+#### Survey composition data
 # Number of Surveys (nyrs_srv_age)
 3 #pollock
 5 #mackerel
@@ -496,13 +496,9 @@
 0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0001    0.0008    0.0059    0.0277    0.0867    0.1805    0.2500    0.2304    0.1414    0.0577    0.0157    0.0028    0.0004
 
 #### Biological parameters
-# Predation length bins
-# pred_l_bin pollock
-2.5 7.5 12.5 17.5 22.5 27.5 32.5 37.5 42.5 47.5 52.5 57.5 62.5 67.5 72.5 77.5
-# pred_l_bin mackerel
-2.5 7.5 12.5 17.5 22.5 27.5 32.5 37.5 42.5 47.5 52.5 57.5 62.5
-# pred_l_bin cod
-2.5 7.5 12.5 17.5 22.5 27.5 32.5 37.5 42.5 47.5 52.5 57.5 62.5 67.5 72.5 77.5 82.5 87.5 92.5 97.5 102.5 107.5 112.5 117.5
+# Predation length bin width
+# lbinwidth
+5 5 5
 
 # repeated last value to match nages
 # omega_vB (pollock from von Bertalanffy parameters)
@@ -781,9 +777,6 @@
 
 # max_SS_l
 2000 2000 2000 2000 2000 2000 2000 2000 2000
-
-# i_wt_yrs_all
- 17 17 17 17 11 11 11 11 20 20 20 20
 
 # Diet weights
 # fraction of total prey weight for given prey in each predator length X sample year
@@ -1210,8 +1203,6 @@
 #styr_rec_est (by sp)
 # mackerel recruit estimates started in 1977 in assessment
 1983 1979 1983
-#endyr_rec_est (by sp)
-2003 2003 2003
 
 #natmortprior (by sp)
 0.3 0.3 0.37
