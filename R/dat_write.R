@@ -149,7 +149,7 @@ dat_write <- function(info, fn_out, verbose = FALSE) {
   wll("al_key")
 
   # Predator length bins
-  wll("pred_l_bin")
+  wl("lbinwidth")
 
   # von Bertalanffy parameters
   wll("omega_vB")
@@ -172,7 +172,6 @@ dat_write <- function(info, fn_out, verbose = FALSE) {
   wl("max_SS_w")
   wl("min_SS_l")
   wl("max_SS_l")
-  wl("i_wt_yrs_all")
 
   # Diet
   wll("diet_w_dat")
@@ -187,7 +186,6 @@ dat_write <- function(info, fn_out, verbose = FALSE) {
   wl("cvsigmarprior")
   wl("phase_sigmar")
   wl("styr_rec_est")
-  wl("endyr_rec_est")
   wl("natmortprior")
   wl("cvnatmortprior")
   wl("natmortphase2")

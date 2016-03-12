@@ -2,7 +2,7 @@
 // Author: Kelli Faye Johnson
 // Date  : 2016-03-10
 // Title : Multi-species stock assessment model for Alaska
-// Notes : All .tpl files must have DATA_ PARAMETER_ and PROCUDURE_SECTIONS
+// Notes : All .tpl files must have DATA_ PARAMETER_ and PROCEDURE_SECTIONS
 //         Sections are noted by lines containing // of 80 character width
 //         Subsections are noted by // Name and ====================
 //         To comment to the screen use: "!! cout << "Text" << endl << endl;"
@@ -72,6 +72,8 @@ DATA_SECTION
   !! styr_pred = 1960;
   int nyrs_pred;
   int PhaseDummy;
+  number offset_diet_w;      // Scales multinomial likelihood to 1
+  number offset_diet_l;      // Scales multinomial likelihood to 1
 
   // Data file
   // ====================
@@ -116,6 +118,7 @@ DATA_SECTION
 
   ivector  nages(1,nspp);                    // Age-range
   !!       nages = oldest_age + 1;           // Number of ages (by species)
+                                             // Must add 1 bc maxage + age0 for correct number of bins
   ivector  ncomps_fsh(1,nfsh)                // Number of age or length compositions per fishery
   ivector  nages_fsh(1,nfsh);                // Number of ages per fishery
   ivector  styr_sp(1,nspp);                  // First year of spawning biomass (start catches)
@@ -141,6 +144,7 @@ DATA_SECTION
   init_3darray wt_fsh(1,nfsh,styr,endyr,1,nages_fsh)  // Weight-at-age in the catch
 
   // Fishery composition
+  // ====================
   init_ivector nyrs_fsh_comp(1,nfsh)                  // Number of years of age data (by fleet)
   init_imatrix yrs_fsh_comp(1,nfsh,1,nyrs_fsh_comp)   // Years with age data
   init_matrix nsmpl_fsh(1,nfsh,1,nyrs_fsh_comp)       // Effective sample sizes
@@ -160,19 +164,20 @@ DATA_SECTION
   init_matrix obs_srv(1,nsrv,1,nyrs_srv)     // The survey indices
   init_matrix obs_se_srv(1,nsrv,1,nyrs_srv)  // The survey standard errors
 
-  ivector ncomps_srv(1,nsrv);   // Number of age or length compositions per survey
-  ivector nages_srv(1,nsrv);    // Number of ages per survey
+  // Survey composition
+  // ====================
+  ivector nyrs_srv_age(1,nsrv);   // Number of age or length compositions per survey
+  ivector yrs_srv_age(1,nsrv);    // Number of ages per survey
   vector  offset_srv(1,nsrv);   // Offsets for the likelihood
 
   !! for(isrv = 1; isrv <= nsrv; isrv++)
   !!  {
   !!   isp = spp_srv(isrv);
-  !!   if (comp_type(isp) == 1) ncomps_srv(isrv)=nages(isp);
-  !!   else ncomps_srv(isrv) = l_bins(isp);
-  !!   nages_srv(isrv) = nages(isp);
+  !!   if (comp_type(isp) == 1) nyrs_srv_age(isrv)=nages(isp);
+  !!   else nyrs_srv_age(isrv) = l_bins(isp);
+  !!   yrs_srv_age(isrv) = nages(isp);
   !!  }
 
-  // Survey age data
   init_ivector nyrs_srv_comp(1,nsrv)                   // Number of years of age data for surveys
   !! tot_yr_srv_age = sum(nyrs_srv_comp);              // Number of years of age data for surveys (all species)
   init_imatrix yrs_srv_comp(1,nsrv,1,nyrs_srv_comp)    // Years with survey data
@@ -197,7 +202,7 @@ DATA_SECTION
   !!     }
   !!  }
 
-  init_3darray oc_srv(1,nsrv,1,nyrs_srv_comp,1,ncomps_srv);// Survey age or length composition data
+  init_3darray oc_srv(1,nsrv,1,nyrs_srv_comp,1,nyrs_srv_age);// Survey age or length composition data
   init_3darray  wt_srv(1,nsrv,styr,endyr,1,nages)       // Weight-at-age (survey)
 
   // Biological parameters
@@ -220,6 +225,10 @@ DATA_SECTION
   !! nspp_sq = nspp * nspp;        // number pred X prey
   !! nspp_sq2 = nspp * (nspp + 1); // number pred X (prey + "other")
   // indices using l_bins or nages for each pred-prey combination:
+  // todo: document this section of code better as I do not understand
+  // what is happening. I think kk_ages pertains the number of age bins
+  // for each species with an other category in there.
+
   ivector  r_lens(1,nspp_sq);
   ivector  k_lens(1,nspp_sq);
   ivector  r_ages(1,nspp_sq);
@@ -253,7 +262,15 @@ DATA_SECTION
   !!    }
   !!  }
 
-  init_matrix pred_l_bin(1,nspp,1,l_bins);           // mid-points of 5cm length bins
+  init_vector lbinwidth(1,nspp);                     // width of predator bins for each species
+  matrix pred_l_bin(1,nspp,1,l_bins);                // mid-points of length bins
+  !! for (isp = 1; isp<=nspp; isp++)
+  !! {
+  !!  for (ksp=1; ksp<=l_bins(isp); ksp++)
+  !!  {
+  !!   pred_l_bin(isp, ksp) = ksp * lbinwidth(isp) - (lbinwidth(isp) / 2.0);
+  !!  }
+  !! }
   init_matrix omega_vB(1,nspp,1,nages);              // von_Bertalanffy ration
   init_vector omega_sigma(1,nspp);                   // von-Bertalanffy sigma (data weight)
   init_ivector nyrs_stomwts(1,nspp);                 // Number of years with predator stomach weight samples
@@ -261,22 +278,48 @@ DATA_SECTION
   init_imatrix yrs_stomwts(1,nspp,1,nyrs_stomwts);   // Years with predator stomach weights
   init_imatrix yrs_stomlns(1,nspp_sq,1,nyrs_stomlns); // Years with predator stomach lengths
   init_3darray stoms_w_N(1,nspp,1,l_bins,1,nyrs_stomwts); // Number of stomachsXpred_lenXyear with prey weights
+                                                     // a 3d array of 1:number of species x
+                                                     // 1:number of length bins for the predator species x
+                                                     // 1:number of years where weights were recorded.
   init_3darray  stoms_l_N(1,nspp_sq,1,r_lens,1,nyrs_stomlns);  // Number of stomachsXpred_lenXyear with prey lengths
+                                                     // a 3d array of 1:number of species x
+                                                     // 1:number of length bins for the given predator species x
+                                                     // 1:number of years where lengths of prey were
+                                                     // recorded for the given predator
+                                                     // species stomach for the given prey species
   init_vector min_SS_w(1,nspp);                      // minimum sample size stomach weights
   init_vector max_SS_w(1,nspp);                      // maximum sample size stomach weights
   init_vector min_SS_l(1,nspp_sq);                   // minimum sample size stomach lengths
   init_vector max_SS_l(1,nspp_sq);                   // maximum sample size stomach lengths
-  init_ivector i_wt_yrs_all(1,nspp_sq2);             // nyrs_stomwts for each predator species
+  ivector i_wt_yrs_all(1,nspp_sq2);                  // nyrs_stomwts for each predator species
+  !! rk_sp = 0;
+  !! for (rsp=1; rsp<=nspp; rsp++)
+  !!  {
+  !!   for (ksp=1; ksp<=nspp+1; ksp++)
+  !!    {
+  !!     rk_sp += 1;
+  !!     i_wt_yrs_all(rk_sp) = nyrs_stomwts(rsp);
+  !!    }
+  !!  }
+
   init_3darray diet_w_dat(1,nspp_sq2,1,rr_lens,1,i_wt_yrs_all); // Prey weight fraction data
+                                                     // fraction of total prey weight for given prey in
+                                                     // each predator length X sample year
+                                                     // Sums total to 1 for a given length bin across all
+                                                     // prey types for a single predator. The sum will equal
+                                                     // zero if no prey weights were recorded in that year.
+                                                     // Prey includes other prey, which is why nspp_sq2
   init_3darray diet_l_dat(1,nspp_sq,1,r_lens,1,k_lens); // Prey length fraction data
-  number offset_diet_w;                              // Scales multinomial likelihood to 1
-  number offset_diet_l;                              // Scales multinomial likelihood to 1
+                                                     // The 3d array stores predator length x prey length bin
+                                                     // for each predator x prey combination (no other)
+                                                     // where each row sums to one if there were samples
+                                                     // for that predator x prey combination in any year.
 
   // Modelling options
   // ====================
   init_int SrType                                    // Stock-Recruit type: 2 Bholt, 1 Ricker
   init_vector steepnessprior(1,nspp)                 // Prior for steepness
-  init_vector cvsteepnessprior(1,nspp)
+  init_vector cvsteepnessprior(1,nspp)               // Prior for cv on steepness
   init_int phase_srec                                // Phase for steepness
   init_vector sigmarprior(1,nspp)                    // Prior for sigma-R
   vector log_sigmarprior(1,nspp)
@@ -284,31 +327,32 @@ DATA_SECTION
   init_vector cvsigmarprior(1,nspp)
   init_int phase_sigmar                              // Phase for sigma-R
   init_ivector styr_rec_est(1,nspp)                  // Start year for recruitment estimate
-  init_ivector endyr_rec_est(1,nspp)                 // End year for recruitment estimate
+  ivector endyr_rec_est(1,nspp);                     // End year for recruitment estimate
   ivector nrecs_est(1,nspp);                         // Number of estimated recruitments
 
   !! n_est_recs = 0;
-  !! for(isp=1; isp<=nspp; isp++)
+  !! for (isp=1; isp<=nspp; isp++)
   !!  {
+  !!   endyr_rec_est(isp) = endyr;
   !!   nrecs_est(isp) = endyr_rec_est(isp)-styr_rec_est(isp)+1;
   !!   n_est_recs += endyr_rec_est(isp)- styr_rec(isp)+1;
   !!  }
 
   init_vector natmortprior(1,nspp)                   // Prior for M
-  init_vector cvnatmortprior(1,nspp)
+  init_vector cvnatmortprior(1,nspp)                 // Prior for cv on M
   init_ivector natmortphase2(1,nspp)                 // Allows some Ms to be estimated and others not
-
   !! NEstNat = 0;
   !! for (isp=1;isp<=nspp;isp++) if (natmortphase2(isp) > 0) NEstNat += 1;
-  init_vector qprior(1,nsrv)                         // Prior for survey-q
-  vector log_qprior(1,nsrv)
+
+  init_vector qprior(1,nsrv);                        // Prior for survey-q
+  vector log_qprior(1,nsrv);
   !! log_qprior = log(qprior);
-  init_matrix cvqprior(1,nspp,1,nsrv_spp)
-  init_ivector phase_q(1,nsrv)                       // Phase for survey-q
-  init_ivector q_age_min(1,nsrv)                     // Minimum age for variable survey selectivity
-  init_ivector q_age_max(1,nsrv)                     // Maximum age for variable survey selectivity
-  init_vector cv_catchbiomass(1,nspp)                // Penalty on catch biomass
-  init_vector sd_ration(1,nspp)                      // Denominator in ration_like
+  init_matrix cvqprior(1,nspp,1,nsrv_spp);           // Prior for cv on q
+  init_ivector phase_q(1,nsrv);                      // Phase for survey-q
+  init_ivector q_age_min(1,nsrv);                    // Minimum age for variable survey selectivity
+  init_ivector q_age_max(1,nsrv);                    // Maximum age for variable survey selectivity
+  init_vector cv_catchbiomass(1,nspp);               // Penalty on catch biomass
+  init_vector sd_ration(1,nspp);                     // Denominator in ration_like
 
   // Phases
   // ====================
@@ -392,7 +436,7 @@ DATA_SECTION
   init_ivector phase_sel_srv(1,nsrv)                 // Phase for survey selectivity
   vector sel_slp_in_srv(1,nsrv)                      // Survey selectivity slope
   vector sel_inf_in_srv(1,nsrv)                      // Survey selectivity inflection
-  ivector nselages_in_srv(1,nsrv)                    //  Number of age classes with selectivities by survey
+  ivector nselages_in_srv(1,nsrv)                    // Number of age classes with selectivities by survey
   vector curv_pen_srv(1,nsrv)                        // Penalty of curvature of survey selectivity
   vector seldec_pen_srv(1,nsrv)                      // Penalty on declining selectivity with age
   vector logsel_slp_in_srv(1,nsrv);                  // Slope of logistic selectivity for survey
@@ -530,21 +574,18 @@ DATA_SECTION
   !!    }
   !!  }
 
-  //number LowerBoundH2;
-  //number UpperBoundH2;
   number LowerBoundH3;
   number UpperBoundH3;
   number LowerBoundH4;
   number UpperBoundH4;
-  //!! LowerBoundH2 = -30.0;
-  //!! UpperBoundH2 =   20.0;
   !! LowerBoundH3 = -30.0;
   !! UpperBoundH3 =  -0.000001;
   !! LowerBoundH4 =  -0.1;
   !! UpperBoundH4 =   20.0;
   !! if (resp_type == 7) UpperBoundH3 = -0.00001;
-  //!! if (resp_type == 6) UpperBoundH3 = 0.99999;
 
+  // End of reading in the data file.
+  // ====================
   init_int end_dat
  LOCAL_CALCS
    if (end_dat != 999)
@@ -698,8 +739,8 @@ PARAMETER_SECTION
   3darray sel_srv(1,nsrv,styr,endyr,1,nages)               // Survey selectivity
   matrix avgsel_srv(1,nsrv,1,n_sel_ch_srv);                // Average selectivity
   matrix pred_srv(1,nsrv,styr,endyr)                       // Predicted index
-  3darray eac_srv(1,nsrv,1,nyrs_srv_comp,1,nages_srv)      // Predicted survey numbers at age
-  3darray ec_srv(1,nsrv,1,nyrs_srv_comp,1,ncomps_srv)      // Predicted catch-at-length or age (depends on composition data)
+  3darray eac_srv(1,nsrv,1,nyrs_srv_comp,1,yrs_srv_age)      // Predicted survey numbers at age
+  3darray ec_srv(1,nsrv,1,nyrs_srv_comp,1,nyrs_srv_age)      // Predicted catch-at-length or age (depends on composition data)
   vector q_srv(1,nsrv)                                     // Survey q
 
   // Predation variables
@@ -2403,10 +2444,10 @@ REPORT_SECTION
   report << endl;
 
 
-  report << "ncomps_srv <- c(";
+  report << "nyrs_srv_age <- c(";
    for (isrv=1;isrv<=nsrv;isrv++)
     {
-     report << ncomps_srv(isrv);
+     report << nyrs_srv_age(isrv);
      if(isrv<nsrv)
       {
         report << ", ";
@@ -3094,7 +3135,7 @@ REPORT_SECTION
           else
             istart = 1;
 
-          for (icmp=istart;icmp<=ncomps_srv (isp);icmp++)
+          for (icmp=istart;icmp<=nyrs_srv_age (isp);icmp++)
             {
               report << ", " << ec_srv(isrv,iyr,icmp);
             }
@@ -3104,7 +3145,7 @@ REPORT_SECTION
   for (isrv=1;isrv<=nsrv;isrv++)
     {
       isp = spp_srv(isrv);
-      report << "dim(ec_srv[[" << isrv << "]])<-c(" <<   ncomps_srv(isp);
+      report << "dim(ec_srv[[" << isrv << "]])<-c(" <<   nyrs_srv_age(isp);
       report << ", " << nyrs_srv_comp(isrv) << ")" << endl;
       report << "ec_srv[[" << isrv << "]]<-t(ec_srv[[" << isrv << "]])" << endl;
     }
@@ -3150,7 +3191,7 @@ REPORT_SECTION
           else
             istart = 1;
 
-          for (icmp=istart;icmp<=ncomps_srv (isp);icmp++)
+          for (icmp=istart;icmp<=nyrs_srv_age (isp);icmp++)
             {
               report << ", " << oc_srv(isrv,iyr,icmp);
             }
@@ -3160,7 +3201,7 @@ REPORT_SECTION
   for (isrv=1;isrv<=nsrv;isrv++)
     {
       isp = spp_srv(isrv);
-      report << "dim(oc_srv[[" << isrv << "]])<-c(" <<   ncomps_srv(isp);
+      report << "dim(oc_srv[[" << isrv << "]])<-c(" <<   nyrs_srv_age(isp);
       report << ", " << nyrs_srv_comp(isrv) << ")" << endl;
       report << "oc_srv[[" << isrv << "]]<-t(oc_srv[[" << isrv << "]])" << endl;
     }
