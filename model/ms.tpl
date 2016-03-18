@@ -66,8 +66,6 @@ DATA_SECTION
   int PhasePredH3;
   int PhasePredH4;
   int phase_SelSrvCoff2;
-  int fsh_sel_opt_tmp;       // Switch for type of fishery selectivity
-  int srv_sel_opt_tmp;       // Switch for form of survey selectivity
   int styr_pred
   !! styr_pred = 1960;
   int nyrs_pred;
@@ -1197,8 +1195,7 @@ FUNCTION Get_Selectivity
   for (ifsh = 1; ifsh <= nfsh; ifsh++)
    {
     isp = spp_fsh(ifsh);
-    int fsh_sel_opt_tmp = fsh_sel_opt(ifsh);
-    switch (fsh_sel_opt_tmp)
+    switch (fsh_sel_opt(ifsh))
      {
       case 1 : // Fishery selectivity coefficients for POLLOCK, MACKEREL, COD
        {
