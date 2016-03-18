@@ -883,14 +883,16 @@ PRELIMINARY_CALCS_SECTION
     }
 
   // Find mean length-at-age for gamma selectivity
+  // checked: yes
   // ====================
+  mean_laa = 0;
   for (rsp=1;rsp<=nspp;rsp++)
-   for (iage=1;iage<=nages(rsp);iage++)
-    {
-     mean_laa(rsp,iage) = 0;
-     for (rln=1;rln<=l_bins(rsp);rln++)
-      mean_laa(rsp,iage) += al_key(rsp,iage,rln)*pred_l_bin(rsp,rln);
-    }
+   {
+    for (iage=1;iage<=nages(rsp);iage++)
+     {
+       mean_laa(rsp,iage) += al_key(rsp,iage) * pred_l_bin(rsp);
+     }
+   }
 
   // Compute years having time-varying selectivities
   // ====================
