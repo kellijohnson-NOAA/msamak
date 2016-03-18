@@ -74,6 +74,8 @@ DATA_SECTION
   int PhaseDummy;
   number offset_diet_w;      // Scales multinomial likelihood to 1
   number offset_diet_l;      // Scales multinomial likelihood to 1
+  number smallF;             // Used in R_guess as a small fishing mortality
+  !! smallF = 0.05;
 
   // Data file
   // ====================
@@ -816,27 +818,49 @@ PRELIMINARY_CALCS_SECTION
 ///////////////////////////////////////////////////////////////////////////////
   cout << "Begin PRELIMINARY_CALCS_SECTION" << endl << endl;
 
-  double btmp,ctmp,TotN,LogH1Low;
-  int nagestmp, iyrs,Itot,II,iage;
+  double TotN, LogH1Low;
+  int nagestmp, iyrs, Itot, II, iage;
 
   // Penalty on the curvature of fishery selectivity (only used if opt_fsh_sel=1)
   // ====================
   curv_pen_fsh = 1./ (square(curv_pen_fsh)*2);
 
-  // Compute an initial guess for Rzero based on exploitation
+  // R_guess
+  // R_guess is an initial guess for log_Rzero, derived from the prior on M.
+  // Based on equilibrium theory, the mean catch should be equal to the
+  // mean recruitment because each year the fishery should only catch
+  // the extras needed to replace itself.
+  // JI: 0.02 gets logR in the ballpark by Biomass scale ~ catch / F, for small F
+  // todo: potentially remove (4)
+  // 1. Calculate the survivorship curve using the recursive equation:
+  //   age_1 = 1
+  //   age_>1 = l_[a-1] * exp(-M_a - F_a)
+  //   age_0 = age_1 / exp(-M_a - F_a) # Not in amak b/c age zero are not recruited
+  // 2. Calculate the mean biomass of catches across all years and ages for a
+  // given species and divide by smallF, amak used 0.02.
+  // 3. Divide (2) by (1)
+  // 4. Divide (3) by exp(M), amak did not do this step.
   // ====================
    for (isp=1; isp<=nspp; isp++)
     {
-     nagestmp = nages(isp);
-     btmp = 0.0; ctmp=   0.0;
-     dvector ntmp(1,nagestmp);
-     ntmp(1) = 1.0/exp(-natmortprior(isp)-.05);
-     for (int a = 2; a <= nagestmp; a++)
-      ntmp(a) = ntmp(a-1)*exp(-natmortprior(isp)-.05);
-     btmp = wt_pop(isp) * ntmp;
-     ctmp = mean(catch_bio(isp));
-     R_guess(isp) = log((ctmp/.05 )/btmp/exp(-natmortprior(isp)) ) ;
+     dvector ntmp(1, nages(isp));
+     ntmp(1) = 1.0/exp(-natmortprior(isp) - smallF);
+     for (int a = 2; a <= nages(isp); a++) {
+      ntmp(a) = ntmp(a-1) * exp(-natmortprior(isp) - smallF);
+     }
+     R_guess(isp) = log(
+       (mean(catch_bio(isp)) / smallF) /
+       (wt_pop(isp) * ntmp) /
+       exp(-natmortprior(isp))
+       );
+     cout << "R_guess without last divisor" << endl << endl;
+     cout << log(
+       (mean(catch_bio(isp)) / smallF) /
+       (wt_pop(isp) * ntmp)
+       ) << endl << endl;
     }
+     cout << "R_guess" << endl << endl;
+     cout << R_guess << endl << endl;
 
   // Compute fishery offsets to be used in FUNCTION Age_Like
   // ====================
