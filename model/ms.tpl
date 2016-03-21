@@ -996,20 +996,33 @@ PRELIMINARY_CALCS_SECTION
     if (phase_fmort1 != -99) log_avg_fmort = -6.0;
     if (phase_RecDev != -99) rec_dev = 0;
     if (phase_SelFshCoff != -99) log_selcoffs_fsh = 0;
-    if (phase_SelSrvCoff != -99) log_selcoffs_srv = 0;
     if (phase_fmort != -99) fmort_dev_est = 0;
 
     for (isrv=1;isrv<=nsrv;isrv++) log_q_srv(isrv) = log_qprior(isrv);
-    if ( phase_SelSrvCoff != -99)
+    if (phase_SelSrvCoff != -99)
      {
+      log_selcoffs_srv = 0;
       ipnt = 0;
-      for (isrv=1;isrv<=nsrv;isrv++)
-       if (srv_sel_opt(isrv) == 2)
-        {
-         ipnt += 1;
-         logsel_slope_srv_par(ipnt) = logsel_slp_in_srv(isrv);
-         sel50_srv_par(ipnt) = sel_inf_in_srv(isrv);
-        }
+      for (isrv = 1; isrv <= nsrv; isrv++)
+       {
+        if (srv_sel_opt(isrv) == 1)
+         {
+          isp = spp_srv(isrv);
+          for (iage = 1; iage <= nselages_srv(isrv,1); iage++)
+           {
+            ipnt += 1;
+            // Set the initial selectivity values for the survey based on the ages
+            // that are included in the survey selectivity
+            log_selcoffs_srv(ipnt) = -log(1.0+mfexp(-log(19)*((double(iage)-8.0)/5.0)));
+           }
+         }
+        if (srv_sel_opt(isrv) == 2)
+         {
+          ipnt += 1;
+          logsel_slope_srv_par(ipnt) = logsel_slp_in_srv(isrv);
+          sel50_srv_par(ipnt) = sel_inf_in_srv(isrv);
+         }
+       }
      }
 
      if (PhasePred3x!= -99)
