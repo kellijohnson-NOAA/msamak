@@ -1196,7 +1196,27 @@ FUNCTION Get_Selectivity
     isp = spp_fsh(ifsh);
     switch (fsh_sel_opt(ifsh))
      {
-      case 1 : // Fishery selectivity coefficients for POLLOCK, MACKEREL, COD
+      case 1 : // Fishery selectivity coefficients
+               // Age-specific selectivity curves are parameterized to constrain
+               // deviation between ages, and avoid over-parameterizing the model.
+               // Deviates between ages are constrained
+               // by difference equation approximation to the first, second, and
+               // third derivatives of the curve.
+               // A weighting factor $\lambda_g^s$ is used to allow for an increase
+               // or decrease in the influence of the selectivity curvature constraints.
+               // The weighting factor is added to the first difference to put a higher
+               // penalty for ages which the growth rate is lower and the length
+               // distributions are similar between ages. The weighting factor can be
+               // modified to determine how weighting differs as a function of mean
+               // length at age, because selectivity is more than likely at a least
+               // in part determined by length as well as age.
+               // Penalties are based on the logarithm of the selectivity parameters
+               // to avoid scale-related problems and improve estimation stability.
+               // 1. Initialize fishery selectivity at 1.
+               // 2. Determine next age, up to max age that selectivity is estimated.
+               // 3. Use (2) for all older ages
+               // 4. Divide by the mean, which is the same as subtracting the log(mean)
+               // 5. To constrain the mean of the parameters to one.
        {
         if (phase_SelFshCoff > 0 || phase_selcoff_fsh(ifsh) == -99)
          {
@@ -1206,6 +1226,9 @@ FUNCTION Get_Selectivity
            {
             if (iyr==yrs_sel_ch_fsh(ifsh,isel_ch_tmp))
              {
+             // This loop will only be entered once if there is not time-varying
+             // selectivity, else it will be entered once per year with
+             // time-varying selectivity.
               sel_coffs_tmp.initialize();
               for (iage=1;iage<=nselages_fsh(ifsh,isel_ch_tmp);iage++)
                 {
@@ -1224,6 +1247,9 @@ FUNCTION Get_Selectivity
        }
       break;
       case 2 : // Fishery asymptotic logistic NOT USED FOR POLLOCK, MACKEREL, COD
+               // Logistic selectivity reduces the number of parameters needed,
+               // but may overly constrain the functional form of the selectivity
+               // curve, and thus lead to biased results (Haist et al., 1999).
                // ===========================
         {
           cout << "case 2 Fishery asymptotic logistic not coded" << endl;
@@ -1285,7 +1311,7 @@ FUNCTION Get_Selectivity
        case 2 : // Survey asymptotic logistic (pollock, cod)
         {
          int isel_ch_tmp = 1 ; // selectivity change pointer can be incremented with n_sel_ch_srv and with srv
-                              // in for loop to increment ipnt,isel_ch_tmp for multiple species
+                               // in for loop to increment ipnt,isel_ch_tmp for multiple species
          for (iyr=styr;iyr<=endyr;iyr++) // this for loop not used, see comment below
            {
             if (iyr==yrs_sel_ch_srv(isrv,isel_ch_tmp))
