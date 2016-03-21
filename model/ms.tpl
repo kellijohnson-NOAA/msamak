@@ -1241,7 +1241,7 @@ FUNCTION Get_Selectivity
             max_sel_age = nselages_fsh(ifsh,isel_ch_tmp);
             log_sel_fsh(ifsh,iyr)(1,max_sel_age) = sel_coffs_tmp;
             log_sel_fsh(ifsh,iyr)(max_sel_age,nages(isp)) = log_sel_fsh(ifsh,iyr,max_sel_age);
-            log_sel_fsh(ifsh,iyr) -= log(mean(mfexp(log_sel_fsh(ifsh,iyr) )));
+            log_sel_fsh(ifsh,iyr) -= log(mean(mfexp(log_sel_fsh(ifsh,iyr))));
            }
          }
        }
@@ -1351,7 +1351,6 @@ FUNCTION Get_Mortality
   dvariable Temp,Temp1;
 
   // Extract the rec_devs
-  //int rec_adv.initialize();
   penal_rec_dev.initialize();
   int rec_adv = 0;
   for (isp = 1; isp <= nspp; isp++)
@@ -1359,7 +1358,7 @@ FUNCTION Get_Mortality
     {
      rec_adv += 1;
      rec_dev_spp(isp,iyr) = rec_dev(rec_adv);
-     Temp = (rec_dev(rec_adv)+6.5)/8.5;
+     Temp = (rec_dev(rec_adv) + 6.5) / 8.5;
      Temp1 = 10;
      for (ii=1;ii<=10;ii++)
       Temp1 *= Temp;
@@ -1367,7 +1366,7 @@ FUNCTION Get_Mortality
     }
 
   // Extract the qs
-  for (isrv=1;isrv<=nsrv;isrv++) q_srv(isrv) = mfexp(log_q_srv(isrv) );
+  for (isrv=1;isrv<=nsrv;isrv++) q_srv(isrv) = mfexp(log_q_srv(isrv));
 
   // Extract the Fs (only for years WITH data)
   int F_adv = 0; //DHK initialize?
@@ -1416,8 +1415,7 @@ FUNCTION Get_Bzero
   // Extract all the recruitments
   for (isp=1;isp<=nspp;isp++)
    for (iyr=styr_pred;iyr<=endyr;iyr++)
-    if (iyr < styr_rec(isp))
-     natage(isp,iyr,1) = Rzero(isp);
+    if (iyr < styr_rec(isp)) natage(isp,iyr,1) = Rzero(isp);
     else
      {
       natage(isp,iyr,1)  = Rzero(isp)*mfexp(rec_dev_spp(isp,iyr))+1.0e-10;//-dhk July 12 09
@@ -1483,71 +1481,69 @@ FUNCTION AltStart
      {
       NN(isp,1) = Rzero(isp);
       for (age=2; age<=nages(isp); age++)
-        NN(isp,age) = NN(isp,age-1)*mfexp(-Zlast(isp,age-1));
-      NN(isp,nages(isp)) /= (1.-mfexp(-Zlast(isp,nages(isp)))+1.0e-10); // - dhk 28 June 09
+       {
+        NN(isp,age) = NN(isp,age-1) * mfexp(-Zlast(isp,age-1));
+       }
+      NN(isp,nages(isp)) /= (1. - mfexp(-Zlast(isp,nages(isp))) + 1.0e-10);
      }
 
     // Mortality as a function of predator AGE (Eqn 3b)
-    for (ksp=1;ksp<=nspp;ksp++)
-     for (age=1;age<=nages(ksp);age++)
+    for (ksp=1; ksp<=nspp; ksp++)
+     for (age=1; age<=nages(ksp); age++)
       {
        Zcurr(ksp,age) = M(ksp);
        if (with_pred > 0)
-        for (rsp=1;rsp<=nspp;rsp++)
+        for (rsp=1; rsp<=nspp; rsp++)
          {
-          ksp_type = (rsp-1)*(nspp+1)+ksp;
-          rk_sp = (rsp-1)*nspp+ksp;
-          for (ru=1;ru<=nages(rsp);ru++)
+          ksp_type = (rsp - 1) * (nspp + 1) + ksp;
+          rk_sp = (rsp - 1) * nspp + ksp;
+          for (ru=1; ru<=nages(rsp); ru++)
            {
-            Term = H_1(ksp_type)*(1 + H_1a(rsp)*H_1b(rsp)/(double(ru)+H_1b(rsp)+1.0e-10));
-            Zcurr(ksp,age) += Term*NN(rsp,ru)*gam_ua(rk_sp,ru,age) + 1.0e-10;   // - dhk 30 June 09
-                                                                                // removed fabs() 1 July 09
+            Term = H_1(ksp_type) *
+                   (1 + H_1a(rsp) * H_1b(rsp) / (double(ru) + H_1b(rsp) + 1.0e-10));
+            Zcurr(ksp,age) += Term * NN(rsp,ru) * gam_ua(rk_sp,ru,age) + 1.0e-10;
            }
          }
       }
-      // added fabs() to calculation of Zcurr -dhk June 24 08
-
-    // returned Zlast_pen back from here - dhk July 1 09
 
     // Average the Za
-    for (isp=1;isp<=nspp;isp++)
-     for(age=1;age<=nages(isp);age++)
-       Zlast(isp,age) = sqrt(sqrt(Zcurr(isp,age)*Zlast(isp,age)))*sqrt(Zlast(isp,age)); // -dhk 8 July 09
-      //Zlast(isp,age) = sqrt(Zcurr(isp,age)*Zlast(isp,age) + 1.0e-10); // -dhk 1 July 09
+    // DK: also tried sqrt(Zcurr(isp,age)*Zlast(isp,age) + 1.0e-10), whcih does not equal
+    // what is currently done.
+    for (isp=1; isp<=nspp; isp++)
+     for (age=1; age<=nages(isp); age++)
+      Zlast(isp,age) = sqrt(sqrt(Zcurr(isp,age) * Zlast(isp,age))) * sqrt(Zlast(isp,age));
+
     }
 
-  // moved Zlast_pen from here -dhk 27 June 2009
-  // Zlast penalty (moved back here 1 July 2009 -dhk)
     for (isp=1;isp<=nspp;isp++)
      {
       Zlast_pen(isp) = 0;
       for (age=1;age<=nages(isp);age++)
-       Zlast_pen(isp) += 100*square(Zcurr(isp,age)-Zlast(isp,age) + 1.0e-10); // -dhk removed fabs() July 11 08
-                                                                              // -dhk added 1.0e-10 July 9 09
-     } // Zlast_pen location shouldn't matter now with itno removed -dhk July 2 09
-
-
-  // Copy final NN into natage(,styr_pred,)
-  for (isp=1;isp<=nspp;isp++)
-   for (age=1;age<=nages(isp);age++)
-     natage(isp,styr_pred,age) = NN(isp,age);
+       {
+        // Calculate a penalty term for the difference between the current Z
+        // and the last Z per species per age.
+        Zlast_pen(isp) += 100 * square(Zcurr(isp,age) - Zlast(isp,age) + 1.0e-10);
+        // Copy final NN into natage(,styr_pred,)
+        natage(isp,styr_pred,age) = NN(isp,age);
+       }
+     }
 
   // Calculate equilibrium N predators and prey in styr_pred for each species X age
  N_pred_eq.initialize();
  N_prey_eq.initialize();
- for (rsp=1;rsp<=nspp;rsp++)
-  for (ru=1;ru<=nages(rsp);ru++)
-    N_pred_yr(rsp,ru) = 1.0e-10; // -dhk 12 June 2009
+ for (rsp=1; rsp<=nspp; rsp++)
+  for (ru=1; ru<=nages(rsp); ru++)
+    N_pred_yr(rsp,ru) = 1.0e-10;
  rk_sp=0;
-  for (rsp=1;rsp<=nspp;rsp++)
-   for (ksp=1; ksp<=nspp;ksp++)
+  for (rsp=1; rsp<=nspp; rsp++)
+   for (ksp=1; ksp<=nspp; ksp++)
     {
-     rk_sp = rk_sp+1;
-     for (ru=1;ru<=nages(rsp);ru++)
-       for (age=1;age<=nages(ksp);age++)
+     rk_sp = rk_sp + 1;
+     for (ru=1; ru<=nages(rsp); ru++)
+       for (age=1; age<=nages(ksp); age++)
          N_pred_eq(rsp,ru) += natage(rsp,styr_pred,ru) * gam_ua(rk_sp,ru,age);
-     for (age=1;age<=nages(ksp);age++)
-       for (ru=1;ru<=nages(rsp);ru++)
+     for (age=1; age<=nages(ksp); age++)
+       for (ru=1; ru<=nages(rsp); ru++)
          N_prey_eq(ksp,age) += natage(ksp,styr_pred,age) * gam_ua(rk_sp,ru,age);
     }
 
