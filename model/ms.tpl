@@ -1051,20 +1051,7 @@ PRELIMINARY_CALCS_SECTION
         }
      }
 
-    if (phase_SelSrvCoff != -99)
-     {
-      ipnt = 0;
-      for (isrv = 1; isrv <= nsrv; isrv++)
-       if (srv_sel_opt(isrv) == 1)
-       {
-        isp =spp_srv(isrv);
-        for (iage=1;iage<=nselages_srv(isrv,1);iage++)
-         {
-          ipnt += 1;
-          log_selcoffs_srv(ipnt) = -log(1.0+mfexp(-log(19)*((double(iage)-8.0)/5.0) ));
-         }
-       }
-     }
+
    }
 
 ///////////////////////////////////////////////////////////////////////////////
