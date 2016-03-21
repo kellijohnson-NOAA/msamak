@@ -1146,6 +1146,11 @@ FUNCTION DoAll
   // ====================
 FUNCTION gamma_selectivity
   // ====================
+  // The selectivity of predators of spp r and age u for prey of spp k and age a
+  // is modeled using a gamma function, and is length based:
+  // = (\frac{G_{k,a}^{r,u}}{\bar{G^r}})^{\alpha^r - 1} * e^{-(G_{k,a}^{r,u} - \bar{G^r}) / \beta^r}
+  // where alpha and beta are the parameters of the predation selectivity function for spp r.
+
   dvariable x_l_ratio;       // Log(mean(predLen@age)/mean(preyLen@age))
   dvariable LenOpt;          // Value of x_l_ratio where selectivity = 1
   dvariable gsum;
@@ -1169,8 +1174,9 @@ FUNCTION gamma_selectivity
           if(mean_laa(rsp,r_age) > mean_laa(ksp,k_age))
            {
             x_l_ratio = log(mean_laa(rsp,r_age)/mean_laa(ksp,k_age));
-            gam_ua(rk_sp,r_age,k_age) = 1.0e-10 +  (1.0e-10 +gam_a(rsp)-1) * log(x_l_ratio/LenOpt+1.0e-10) -
-                                    (1.0e-10 + x_l_ratio-LenOpt)/gam_b(rsp); // -dhk June 26 2009
+            gam_ua(rk_sp,r_age,k_age) = 1.0e-10 +
+              (1.0e-10 +gam_a(rsp)-1) * log(x_l_ratio/LenOpt + 1.0e-10) -
+              (1.0e-10 + x_l_ratio - LenOpt) / gam_b(rsp); // -dhk June 26 2009
             ncnt += 1;
             gsum += mfexp(gam_ua(rk_sp,r_age,k_age));
            }
@@ -1179,8 +1185,8 @@ FUNCTION gamma_selectivity
          }
         for (k_age = 1; k_age <= nages(ksp); k_age++)
          if(mean_laa(rsp,r_age) > mean_laa(ksp,k_age))
-          gam_ua(rk_sp,r_age,k_age) = 1.0e-10 + mfexp(gam_ua(rk_sp,r_age,k_age) - log(1.0e-10 + gsum/double(ncnt)));
-                                       // -dhk June 26 2009
+          gam_ua(rk_sp,r_age,k_age) = 1.0e-10 + mfexp(gam_ua(rk_sp,r_age,k_age) -
+            log(1.0e-10 + gsum/double(ncnt)));
        }
      }
    }
