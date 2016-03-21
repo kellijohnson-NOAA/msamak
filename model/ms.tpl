@@ -1025,9 +1025,8 @@ PRELIMINARY_CALCS_SECTION
        }
      }
 
-     if (PhasePred3x!= -99)
-      for (rsp=1; rsp<=nspp; rsp++)
-        Q_other_est(rsp) = log(10000);
+    if (PhasePred3x != -99)
+      for (rsp=1; rsp<=nspp; rsp++) Q_other_est(rsp) = log(10000);
     if (PhasePred2 != -99)
      {
       if (with_pred == 0)
