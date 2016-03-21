@@ -1391,6 +1391,9 @@ FUNCTION Get_Mortality
    for (age=1;age<=nages(rsp);age++)
     Q_other_u(rsp,age) = mfexp(Q_other_est(rsp,age));
 
+  // If doing Pope's approximation
+  // todo: remove surv and natmort, b/c they are not used elsewhere.
+  // todo: change 1.0e-10 to a constant number
   surv    = mfexp(-1.0 * M);
   natmort = M;
   for (isp = 1; isp <= nspp; isp++) Z(isp) = M(isp);
