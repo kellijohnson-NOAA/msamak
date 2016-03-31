@@ -100,7 +100,6 @@ DATA_SECTION
   init_ivector  l_bins(1,nspp);                   // Number of length bins
   init_ivector  nfsh_spp(1,nspp)                  // Number of fishing fleets per species
   !! nfsh = sum(nfsh_spp);                        // Total number of fleets, all species combinations
-  !! endyr = endyr;
   !! nyrs = endyr - styr + 1;
   init_ivector  spp_fsh(1,nfsh);                  // Link between fleet and species
 
