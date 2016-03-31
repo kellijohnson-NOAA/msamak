@@ -508,9 +508,6 @@
 # omega_vB (cod from von Bertalanffy parameters)
 0 0.017699088 0.012982752 0.010922589 0.009819646 0.009164612 0.008751405 0.008480754 0.008299083 0.008175127 0.008089603 0.008030141 0.008
 
-# omega_sigma (assumed)
-0.0005 0.0005 0.0005
-
 #nyrs_stomwts (number of years predator stomach weights recorded)
 17 11 20
 
