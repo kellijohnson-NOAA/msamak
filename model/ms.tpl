@@ -17,7 +17,6 @@ DATA_SECTION
   !!CLASS ofstream mceval("mceval.dat")
   !!CLASS ofstream McFile1("SSBMCMC.Out");
   !!CLASS ofstream McFile2("RECMCMC.Out");
-  !!CLASS ofstream TempFile("Temp.Out");
 
   // Declare constants
   // ====================
