@@ -523,7 +523,7 @@ DATA_SECTION
 
   !! PhaseDummy = -1;
   !! if (with_pred == 0)
-  !! {PhasePred1 = -3; PhasePred2 = -1; PhasePred3 = -1; }
+  !! {PhasePred1 = -3; PhasePred2 = -1; PhasePred3 = -1;}
   !! if (ResetPhasesToZero==1)
   !!  {
   !!   cout << "Resetting all phases" << endl;
@@ -540,8 +540,6 @@ DATA_SECTION
   !!   phase_Rzero = -99;
   !!   phase_fmort = -99;
   !!   phase_fmort1 = -99;
-  !!   for (ifsh=1;ifsh<=nfsh;ifsh++) phase_selcoff_fsh(ifsh) = -99;
-  !!   for (isp = 1; isp <= nspp; isp++) phase_selcoff_srv(isp) = -99;
   !!   phase_LogRec = -99;
   !!   phase_RecDev = -99;
   !!   phase_SelFshCoff = -99;
@@ -553,6 +551,13 @@ DATA_SECTION
   !!   for (ifsh = 1; ifsh <= nfsh; ifsh++)
   !!    {
   !!     phase_selcoff_fsh(ifsh) = -99;
+  !!    }
+  !!  }
+  !! if (phase_SelSrvCoff == -99)
+  !!  {
+  !!   for (isrv = 1; isrv <= nfsh; isrv++)
+  !!    {
+  !!     phase_selcoff_srv(isrv) = -99;
   !!    }
   !!  }
 
