@@ -17,53 +17,63 @@ DATA_SECTION
   !!CLASS ofstream mceval("mceval.dat")
   !!CLASS ofstream McFile1("SSBMCMC.Out");
   !!CLASS ofstream McFile2("RECMCMC.Out");
+  !!CLASS ofstream TempFile("Temp.Out");
 
   // Declare constants
   // ====================
-  int count_iters             // Count the number of estimation iterations
+  int mcmcmode
+  !! mcmcmode = 0;
+  int mcflag
+  !! mcflag   = 1;
+  int count_iters
   !! count_iters = 0;
+  int FinalYr;                // Terminal year of model
   int nyrs;                   // Total n years
   int nfsh;                   // Total n fleets
   int nsrv;                   // Total n surveys
-  int nyrs_srvagedata         // Total n years of survey age-data
-  int n_est_recs;             // Total number of recruitment estimates
-  int n_est_M;                // Total number of species for which M is estimated
-  int nspp_sq;                // Number of predator x prey combinations
-  int nspp_sq2;               // Number of predator x prey + other combinations
-  int nyrs_pred;              // Number of years of predation
-  int styr_pred;              // Start year of predation todo: calculate styr_pred
-  !! styr_pred = 1960;
-  int first_rec_est;          // First year recruitment is estimated
-  int age;                    // Counter
+  int tot_yr_fsh_comp         // Total n years of fishery age-data
+  int tot_yr_srv              // Total n years of survey index data
+  int tot_yr_srv_age          // Total n years of survey age-data
+  int tot_fsh_yr              // Total n catch data
+  int tot_srv_yr              // Total n survey data
   int isp;                    // Counter
   int iyr;                    // Counter
   int ifsh;                   // Counter
   int isrv;                   // Counter
   int icmp;                   // Counter for report
+  int i_lage;                 // Counter for report
   int iage;                   // Counter
   int ipnt;                   // Pointer
   int istart;                 // Placeholder
   int IyrPred;                // Year for Compute_Predation
   int rk_sp;                  // Predation sp X sp
-  int rksp;                   // PredPrey index
   int r_age;                  // Predator age
-  int k_age;                  // Prey age
-  int r_ln;                   // Pred length
-  int k_ln;                   // Prey length
   int rsp;                    // Predator species
+  int rksp;                   // PredPrey index
   int ksp;                    // Prey species
+  int rln;                    // Pred length
+  int kln;                    // Prey length
+  int ru;                     // Pred age
+  int stm_yr;                 // Year with diet length data
+  int k_age;                  // Prey age
+  int first_rec_est;
+  int nspp_sq;
+  int nspp_sq2;
+  int n_est_recs;
+  int NEstNat;                // Number of species for which M is estimated
   int PhasePredH1a;
   int PhasePredH2;
   int PhasePredH3;
   int PhasePredH4;
   int phase_SelSrvCoff2;
+  int styr_pred
+  !! styr_pred = 1960;
+  int nyrs_pred;
   int PhaseDummy;
   number offset_diet_w;      // Scales multinomial likelihood to 1
   number offset_diet_l;      // Scales multinomial likelihood to 1
   number smallF;             // Used in R_guess as a small fishing mortality
   !! smallF = 0.05;
-  number constant;           // Used to prevent numerical issues
-  !! constant = 1.0e-10;
 
   // Data file
   // ====================
@@ -100,8 +110,10 @@ DATA_SECTION
   init_ivector  l_bins(1,nspp);                   // Number of length bins
   init_ivector  nfsh_spp(1,nspp)                  // Number of fishing fleets per species
   !! nfsh = sum(nfsh_spp);                        // Total number of fleets, all species combinations
-  !! endyr = endyr;
+  !! FinalYr = endyr;
+  !! first_rec_est = endyr;
   !! nyrs = endyr - styr + 1;
+  !! tot_fsh_yr = nyrs * nfsh;                    // Total number of year*fleet*species combinations
   init_ivector  spp_fsh(1,nfsh);                  // Link between fleet and species
 
   ivector  nages(1,nspp);                    // Age-range
@@ -137,13 +149,16 @@ DATA_SECTION
   init_imatrix yrs_fsh_comp(1,nfsh,1,nyrs_fsh_comp)   // Years with age data
   init_matrix nsmpl_fsh(1,nfsh,1,nyrs_fsh_comp)       // Effective sample sizes
   init_3darray oc_fsh(1,nfsh,1,nyrs_fsh_comp,1,ncomps_fsh); // Fishery age or length composition data
+  !! tot_yr_fsh_comp = sum(nyrs_fsh_comp);            // Number of years of age data (over fleets)
 
   // Survey index
   // ====================
   init_ivector nsrv_spp(1,nspp)              // Number of surveys per species
   !! nsrv = sum(nsrv_spp);                   // Total number of survey-species combinations
   init_ivector spp_srv(1,nsrv);              // Link between survey and species
+  !! tot_srv_yr = nyrs * nsrv;               // Total number of year*survey*species combinations
   init_ivector nyrs_srv(1,nsrv)              // Number of years of index data for surveys
+  !! tot_yr_srv = sum(nyrs_srv);             // Number of years of idnex data for surveys (all species)
   init_imatrix yrs_srv(1,nsrv,1,nyrs_srv)    // Years with survey data
   init_vector mo_srv(1,nsrv)                 // Timing of the survey
   init_matrix obs_srv(1,nsrv,1,nyrs_srv)     // The survey indices
@@ -164,11 +179,11 @@ DATA_SECTION
   !!  }
 
   init_ivector nyrs_srv_comp(1,nsrv)                   // Number of years of age data for surveys
-  !! nyrs_srvagedata = sum(nyrs_srv_comp);             // Number of years of age data for surveys (all species)
+  !! tot_yr_srv_age = sum(nyrs_srv_comp);              // Number of years of age data for surveys (all species)
   init_imatrix yrs_srv_comp(1,nsrv,1,nyrs_srv_comp)    // Years with survey data
   init_matrix nsmpl_srv(1,nsrv,1,nyrs_srv_comp)        // Effective sample sizes
   matrix age_matrix(1,nspp,1,nages);                   // Ages for use in the model
-  ivector max_srv_age(1,nyrs_srvagedata);
+  ivector max_srv_age(1,tot_yr_srv_age);
 
   !! for (isp=1; isp <= nspp; isp++)
   !!  {
@@ -223,9 +238,9 @@ DATA_SECTION
   ivector  kk_ages(1,nspp_sq2);
 
   !! rk_sp = 0;
-  !! for (rsp = 1; rsp <= nspp; rsp++)
+  !! for (rsp=1; rsp<=nspp; rsp++)
   !!  {
-  !!   for (ksp = 1; ksp <= nspp; ksp++)
+  !!   for (ksp=1; ksp<=nspp; ksp++)
   !!    {
   !!     rk_sp = rk_sp+1;
   !!     r_lens(rk_sp) = l_bins(rsp);
@@ -235,7 +250,7 @@ DATA_SECTION
   !!    }
   !!  }
   !! rk_sp = 0;
-  !! for (rsp = 1; rsp <= nspp; rsp++)
+  !! for (rsp=1; rsp<=nspp; rsp++)
   !!  {
   !!   for (ksp=1; ksp<=nspp+1; ksp++)
   !!    {
@@ -278,7 +293,7 @@ DATA_SECTION
   init_vector max_SS_l(1,nspp_sq);                   // maximum sample size stomach lengths
   ivector i_wt_yrs_all(1,nspp_sq2);                  // nyrs_stomwts for each predator species
   !! rk_sp = 0;
-  !! for (rsp = 1; rsp <= nspp; rsp++)
+  !! for (rsp=1; rsp<=nspp; rsp++)
   !!  {
   !!   for (ksp=1; ksp<=nspp+1; ksp++)
   !!    {
@@ -316,17 +331,18 @@ DATA_SECTION
   ivector nrecs_est(1,nspp);                         // Number of estimated recruitments
 
   !! n_est_recs = 0;
-  !! for (isp = 1; isp <= nspp; isp++)
+  !! for (isp=1; isp<=nspp; isp++)
   !!  {
-  !!   nrecs_est(isp) = endyr - styr_rec_est(isp) + 1;
-  !!   n_est_recs += endyr - styr_rec(isp) + 1;
+  !!   endyr_rec_est(isp) = endyr;
+  !!   nrecs_est(isp) = endyr_rec_est(isp)-styr_rec_est(isp)+1;
+  !!   n_est_recs += endyr_rec_est(isp)- styr_rec(isp)+1;
   !!  }
 
   init_vector natmortprior(1,nspp)                   // Prior for M
   init_vector cvnatmortprior(1,nspp)                 // Prior for cv on M
   init_ivector natmortphase2(1,nspp)                 // Allows some Ms to be estimated and others not
-  !! n_est_M = 0;
-  !! for (isp = 1; isp <= nspp; isp++) if (natmortphase2(isp) > 0) n_est_M += 1;
+  !! NEstNat = 0;
+  !! for (isp=1;isp<=nspp;isp++) if (natmortphase2(isp) > 0) NEstNat += 1;
 
   init_vector qprior(1,nsrv);                        // Prior for survey-q
   vector log_qprior(1,nsrv);
@@ -543,7 +559,7 @@ DATA_SECTION
   !!   phase_fmort = -99;
   !!   phase_fmort1 = -99;
   !!   for (ifsh=1;ifsh<=nfsh;ifsh++) phase_selcoff_fsh(ifsh) = -99;
-  !!   for (isp = 1; isp <= nspp; isp++) phase_selcoff_srv(isp) = -99;
+  !!   for (isp=1;isp<=nspp;isp++) phase_selcoff_srv(isp) = -99;
   !!   phase_LogRec = -99;
   !!   phase_RecDev = -99;
   !!   phase_SelFshCoff = -99;
@@ -644,8 +660,8 @@ PARAMETER_SECTION
 
   // Estimated parameters by species, fishery, or survey
   // =====================
-  init_bounded_vector MEst(1,n_est_M,0.02,0.8,phase_M)             // Natural mortality (phase_M: 5, -4)
-  init_bounded_vector log_gam_a(1,nspp,constant,19.9,PhasePred1);   // Predator selectivity
+  init_bounded_vector MEst(1,NEstNat,0.02,0.8,phase_M)             // Natural mortality (phase_M: 5, -4)
+  init_bounded_vector log_gam_a(1,nspp,1.0e-10,19.9,PhasePred1);   // Predator selectivity
   init_bounded_vector log_gam_b(1,nspp,-5.2,10,PhasePred1);        // Predator selectivity
   init_vector_vector Q_other_est(1,nspp,1,nages,PhasePred3);
 
@@ -734,17 +750,17 @@ PARAMETER_SECTION
   matrix   N_prey_eq(1,nspp,1,nages)                       // Effective numbers of prey for each age of predator
   matrix   N_pred_yr(1,nspp,1,nages)                       // Effective numbers of predators for each age of prey (IyrPred)
   matrix   N_prey_yr(1,nspp,1,nages)                       // Effective numbers of prey for each age of predator
-  3darray  N_pred_eqs(1,nspp,styr_pred,endyr,1,nages)    // save N_pred_eq for all yrs
-  3darray  N_prey_eqs(1,nspp,styr_pred,endyr,1,nages)    // save N_prey_eq for all yrs
-  3darray  N_pred_yrs(1,nspp,styr_pred,endyr,1,nages)    // save N_pred_yr for all yrs
-  3darray  N_prey_yrs(1,nspp,styr_pred,endyr,1,nages)    // save N_prey_yr for all yrs
-  3darray  Pred_r(1,nspp,styr_pred,endyr,1,nages)        // save Pred_ratio values
-  3darray  Prey_r(1,nspp,styr_pred,endyr,1,nages)        // save Prey_ratio values
-  4darray  pred_resp(1,nspp_sq2,styr_pred,endyr,1,rr_ages,1,kk_ages) // Predator functional response
-  3darray  Pmort_ua(1,nspp_sq,styr_pred,endyr,1,k_ages)  // Predation mortality on prey age a by all predators age u
-  4darray  Vmort_ua(1,nspp_sq,1,r_ages,styr_pred,endyr,1,k_ages) // Predation mortality on prey age a by single predator age u
-  4darray  eaten_la(1,nspp_sq,1,r_lens,styr_pred,endyr,1,k_ages) // Number of prey of age a eaten by predator length l
-  4darray  eaten_ua(1,nspp_sq,1,r_ages,styr_pred,endyr,1,k_ages) // Number of prey of age a eaten by predator age u
+  3darray  N_pred_eqs(1,nspp,styr_pred,FinalYr,1,nages)    // save N_pred_eq for all yrs
+  3darray  N_prey_eqs(1,nspp,styr_pred,FinalYr,1,nages)    // save N_prey_eq for all yrs
+  3darray  N_pred_yrs(1,nspp,styr_pred,FinalYr,1,nages)    // save N_pred_yr for all yrs
+  3darray  N_prey_yrs(1,nspp,styr_pred,FinalYr,1,nages)    // save N_prey_yr for all yrs
+  3darray  Pred_r(1,nspp,styr_pred,FinalYr,1,nages)        // save Pred_ratio values
+  3darray  Prey_r(1,nspp,styr_pred,FinalYr,1,nages)        // save Prey_ratio values
+  4darray  pred_resp(1,nspp_sq2,styr_pred,FinalYr,1,rr_ages,1,kk_ages) // Predator functional response
+  3darray  Pmort_ua(1,nspp_sq,styr_pred,FinalYr,1,k_ages)  // Predation mortality on prey age a by all predators age u
+  4darray  Vmort_ua(1,nspp_sq,1,r_ages,styr_pred,FinalYr,1,k_ages) // Predation mortality on prey age a by single predator age u
+  4darray  eaten_la(1,nspp_sq,1,r_lens,styr_pred,FinalYr,1,k_ages) // Number of prey of age a eaten by predator length l
+  4darray  eaten_ua(1,nspp_sq,1,r_ages,styr_pred,FinalYr,1,k_ages) // Number of prey of age a eaten by predator age u
   3darray  Q_mass_l(1,nspp_sq2,styr_pred,endyr,1,rr_lens)  // Mass of prey consumed by length l of predator
   3darray  Q_mass_u(1,nspp_sq2,styr_pred,endyr,1,rr_ages)  // Mass of prey consumed by age u of predator
   3darray  omega_hat(1,nspp,styr_pred,endyr,1,nages)       // Daily ration by predator age each year
@@ -800,6 +816,9 @@ PRELIMINARY_CALCS_SECTION
 ///////////////////////////////////////////////////////////////////////////////
   cout << "Begin PRELIMINARY_CALCS_SECTION" << endl << endl;
 
+  double TotN, LogH1Low;
+  int nagestmp, iyrs, Itot, II, iage;
+
   // Penalty on the curvature of fishery selectivity (only used if opt_fsh_sel=1)
   // ====================
   curv_pen_fsh = 1./ (square(curv_pen_fsh)*2);
@@ -820,7 +839,7 @@ PRELIMINARY_CALCS_SECTION
   // 3. Divide (2) by (1)
   // 4. Divide (3) by exp(M), amak did not do this step.
   // ====================
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1; isp<=nspp; isp++)
     {
      dvector ntmp(1, nages(isp));
      ntmp(1) = 1.0/exp(-natmortprior(isp) - smallF);
@@ -865,7 +884,7 @@ PRELIMINARY_CALCS_SECTION
   // checked: yes
   // ====================
   mean_laa = 0;
-  for (rsp = 1; rsp <= nspp; rsp++)
+  for (rsp=1;rsp<=nspp;rsp++)
    {
     for (iage=1;iage<=nages(rsp);iage++)
      {
@@ -893,22 +912,22 @@ PRELIMINARY_CALCS_SECTION
   // set min & max sample size for stomach prey wts, lns
   // ====================
   for (rsp=1;rsp <= nspp; rsp++)
-    for (r_ln=1;r_ln<=l_bins(rsp);r_ln++)
-      for (iyr = 1; iyr <= nyrs_stomwts(rsp); iyr++)
+    for (rln=1;rln<=l_bins(rsp);rln++)
+      for (iyrs=1;iyrs<=nyrs_stomwts(rsp);iyrs++)
        {
-        if (stoms_w_N(rsp,r_ln,iyr) <= min_SS_w(rsp))
-          stoms_w_N(rsp,r_ln,iyr) = 0;
-        if (stoms_w_N(rsp,r_ln,iyr) > max_SS_w(rsp))
-          stoms_w_N(rsp,r_ln,iyr) = max_SS_w(rsp);
+        if (stoms_w_N(rsp,rln,iyrs) <= min_SS_w(rsp))
+          stoms_w_N(rsp,rln,iyrs) = 0;
+        if (stoms_w_N(rsp,rln,iyrs) > max_SS_w(rsp))
+          stoms_w_N(rsp,rln,iyrs) = max_SS_w(rsp);
        }
   for (rk_sp=1;rk_sp <= nspp_sq; rk_sp++)
-    for (r_ln=1;r_ln<=r_lens(rk_sp);r_ln++)
-      for (iyr=1;iyr<=nyrs_stomlns(rk_sp);iyr++)
+    for (rln=1;rln<=r_lens(rk_sp);rln++)
+      for (iyrs=1;iyrs<=nyrs_stomlns(rk_sp);iyrs++)
        {
-        if (stoms_l_N(rk_sp,r_ln,iyr) <= min_SS_l(rk_sp))
-          stoms_l_N(rk_sp,r_ln,iyr) = 0;
-        if (stoms_l_N(rk_sp,r_ln,iyr) > max_SS_l(rk_sp))
-          stoms_l_N(rk_sp,r_ln,iyr) = max_SS_l(rk_sp);
+        if (stoms_l_N(rk_sp,rln,iyrs) <= min_SS_l(rk_sp))
+          stoms_l_N(rk_sp,rln,iyrs) = 0;
+        if (stoms_l_N(rk_sp,rln,iyrs) > max_SS_l(rk_sp))
+          stoms_l_N(rk_sp,rln,iyrs) = max_SS_l(rk_sp);
        }
 
   // Offset for diet (weights)
@@ -916,19 +935,19 @@ PRELIMINARY_CALCS_SECTION
   offset_diet_w = 0;
   for (rsp=1;rsp <= nspp; rsp++)
    {
-     for (iyr=1; iyr<= nyrs_stomwts(rsp); iyr++)
+     for (iyrs=1; iyrs<= nyrs_stomwts(rsp); iyrs++)
       {
-        for (r_ln=1;r_ln<=l_bins(rsp);r_ln++)
+        for (rln=1;rln<=l_bins(rsp);rln++)
          {
-          if (stoms_w_N(rsp,r_ln,iyr) > 0)
+          if (stoms_w_N(rsp,rln,iyrs) > 0)
            {
             for (ksp=1;ksp <=(nspp+1);ksp++)
              {
               rk_sp = (rsp-1)*(nspp+1)+ksp;
-              if (diet_w_dat(rk_sp,r_ln,iyr) > 0)
+              if (diet_w_dat(rk_sp,rln,iyrs) > 0)
                {
-                offset_diet_w += -1*stoms_w_N(rsp,r_ln,iyr)*diet_w_dat(rk_sp,r_ln,iyr) *
-                  log(diet_w_dat(rk_sp,r_ln,iyr)+ constant);
+                offset_diet_w += -1*stoms_w_N(rsp,rln,iyrs)*diet_w_dat(rk_sp,rln,iyrs) *
+                  log(diet_w_dat(rk_sp,rln,iyrs)+ 1.0e-10);
                }
              }
            }
@@ -944,19 +963,20 @@ PRELIMINARY_CALCS_SECTION
    for (ksp = 1; ksp <= nspp; ksp++)
     {
      rk_sp = rk_sp + 1;
-     for (r_ln = 1; r_ln <= l_bins(rsp); r_ln++)
+     for (rln = 1; rln <= l_bins(rsp); rln++)
       {
-       if (int(sum(stoms_l_N(rk_sp,r_ln))) > 0)
-        for (k_ln=1;k_ln<=l_bins(ksp);k_ln++)
-         if (diet_l_dat(rk_sp,r_ln,k_ln) > 0)
-          offset_diet_l += -1*int(sum(stoms_l_N(rk_sp,r_ln)))*diet_l_dat(rk_sp,r_ln,k_ln)*log(diet_l_dat(rk_sp,r_ln,k_ln)+ constant);
+       Itot = int(sum(stoms_l_N(rk_sp,rln)));
+       if (Itot > 0)
+        for (kln=1;kln<=l_bins(ksp);kln++)
+         if (diet_l_dat(rk_sp,rln,kln) > 0)
+          offset_diet_l += -1*Itot*diet_l_dat(rk_sp,rln,kln)*log(diet_l_dat(rk_sp,rln,kln)+ 1.0e-10);
       }
     }
 
   if (phase_SelFshCoff == -99)
    for (ifsh=1;ifsh<=nfsh;ifsh++) phase_selcoff_fsh(ifsh) = -99;
   if (phase_SelSrvCoff == -99)
-   for (isp = 1; isp <= nspp; isp++) phase_selcoff_srv(isp) = -99;
+   for (isp=1;isp<=nspp;isp++) phase_selcoff_srv(isp) = -99;
 
   // Initial values for M, steepness, sigmar, R0, etc
   // ====================
@@ -964,7 +984,7 @@ PRELIMINARY_CALCS_SECTION
    {
     ipnt = 0;
     if (phase_M != -99)
-     for (isp = 1; isp <= nspp; isp++)
+     for (isp=1;isp<=nspp;isp++)
       if (natmortphase2(isp) > 0)
        {
         ipnt++;
@@ -1006,7 +1026,7 @@ PRELIMINARY_CALCS_SECTION
      }
 
     if (PhasePred3x != -99)
-      for (rsp = 1; rsp <= nspp; rsp++) Q_other_est(rsp) = log(10000);
+      for (rsp=1; rsp<=nspp; rsp++) Q_other_est(rsp) = log(10000);
     if (PhasePred2 != -99)
      {
       if (with_pred == 0)
@@ -1065,7 +1085,7 @@ FUNCTION DoAll
   // If M is not estimated then the estimated value is set equal to the
   // prior for M for that species
   ipnt = 0;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
    if (natmortphase2(isp) <= 0)
     M(isp) = natmortprior(isp);
    else
@@ -1104,18 +1124,18 @@ FUNCTION DoAll
   evaluate_the_objective_function();
 
   // Store the yearly spawning biomass
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
    for (iyr=styr_sp(isp);iyr<=endyr_all(isp);iyr++)
     SSBOut(isp,iyr) = Sp_Biom(isp,iyr);
 
   // Perform mcmc
   if (mceval_phase())
    {
-    for (isp = 1; isp <= nspp; isp++)
+    for (isp=1;isp<=nspp;isp++)
      for (iyr=styr_sp(isp);iyr<=endyr_all(isp);iyr++)
        McFile1 << Sp_Biom(isp,iyr) << " ";
     McFile1 << endl;
-    for (isp = 1; isp <= nspp; isp++)
+    for (isp=1;isp<=nspp;isp++)
      for (iyr=styr_pred;iyr<=endyr;iyr++)
        McFile2 << natage(isp,iyr,1) << " ";
     McFile2 << endl;
@@ -1135,27 +1155,28 @@ FUNCTION gamma_selectivity
   dvariable LenOpt;          // Value of x_l_ratio where selectivity = 1
   dvariable gsum;
   int ncnt;
+  int r_age,k_age;
 
   gam_ua.initialize();
   rk_sp = 0;
   for (rsp = 1; rsp <= nspp; rsp++)
    {
-    LenOpt = constant + (gam_a(rsp)-1)*gam_b(rsp);
+    LenOpt = 1.0e-10 + (gam_a(rsp)-1)*gam_b(rsp);
     for (ksp = 1; ksp <= nspp; ksp++)
      {
       rk_sp = rk_sp +1;
       for (r_age = 2; r_age <= nages(rsp); r_age++)
        {
-        ncnt = 0; gsum = constant;
+        ncnt = 0; gsum = 1.0e-10;
         for (k_age = 1; k_age <= nages(ksp); k_age++)
          {
           // if prey are smaller than predator:
           if(mean_laa(rsp,r_age) > mean_laa(ksp,k_age))
            {
             x_l_ratio = log(mean_laa(rsp,r_age)/mean_laa(ksp,k_age));
-            gam_ua(rk_sp,r_age,k_age) = constant +
-              (constant +gam_a(rsp)-1) * log(x_l_ratio/LenOpt + constant) -
-              (constant + x_l_ratio - LenOpt) / gam_b(rsp); // -dhk June 26 2009
+            gam_ua(rk_sp,r_age,k_age) = 1.0e-10 +
+              (1.0e-10 +gam_a(rsp)-1) * log(x_l_ratio/LenOpt + 1.0e-10) -
+              (1.0e-10 + x_l_ratio - LenOpt) / gam_b(rsp); // -dhk June 26 2009
             ncnt += 1;
             gsum += mfexp(gam_ua(rk_sp,r_age,k_age));
            }
@@ -1164,8 +1185,8 @@ FUNCTION gamma_selectivity
          }
         for (k_age = 1; k_age <= nages(ksp); k_age++)
          if(mean_laa(rsp,r_age) > mean_laa(ksp,k_age))
-          gam_ua(rk_sp,r_age,k_age) = constant + mfexp(gam_ua(rk_sp,r_age,k_age) -
-            log(constant + gsum/double(ncnt)));
+          gam_ua(rk_sp,r_age,k_age) = 1.0e-10 + mfexp(gam_ua(rk_sp,r_age,k_age) -
+            log(1.0e-10 + gsum/double(ncnt)));
        }
      }
    }
@@ -1173,7 +1194,7 @@ FUNCTION gamma_selectivity
   // ====================
 FUNCTION Get_Selectivity
   // ====================
-  int max_sel_age;
+  int iage,max_sel_age;
 
   ipnt = 0;
   for (ifsh = 1; ifsh <= nfsh; ifsh++)
@@ -1209,7 +1230,7 @@ FUNCTION Get_Selectivity
           dvar_vector sel_coffs_tmp(1,nselages_fsh(ifsh,isel_ch_tmp));
           for (iyr=styr;iyr<=endyr;iyr++)
            {
-            if (iyr == yrs_sel_ch_fsh(ifsh,isel_ch_tmp))
+            if (iyr==yrs_sel_ch_fsh(ifsh,isel_ch_tmp))
              {
              // This loop will only be entered once if there is not time-varying
              // selectivity, else it will be entered once per year with
@@ -1332,19 +1353,20 @@ FUNCTION Get_Selectivity
   //=====================
 FUNCTION Get_Mortality
   //=====================
+  int age,ii;
   dvariable Temp,Temp1;
 
   // Extract the rec_devs
   penal_rec_dev.initialize();
-  int ipnt = 0;
+  int rec_adv = 0;
   for (isp = 1; isp <= nspp; isp++)
    for (iyr = styr_rec(isp); iyr <= endyr; iyr++)
     {
-     ipnt += 1;
-     rec_dev_spp(isp,iyr) = rec_dev(ipnt);
-     Temp = (rec_dev(ipnt) + 6.5) / 8.5;
+     rec_adv += 1;
+     rec_dev_spp(isp,iyr) = rec_dev(rec_adv);
+     Temp = (rec_dev(rec_adv) + 6.5) / 8.5;
      Temp1 = 10;
-     for (int ii = 1; ii <= 10; ii++)
+     for (ii=1;ii<=10;ii++)
       Temp1 *= Temp;
      penal_rec_dev += Temp1;
     }
@@ -1353,24 +1375,25 @@ FUNCTION Get_Mortality
   for (isrv=1;isrv<=nsrv;isrv++) q_srv(isrv) = mfexp(log_q_srv(isrv));
 
   // Extract the Fs (only for years WITH data)
-  ipnt = 0;
+  int F_adv = 0; //DHK initialize?
   for (ifsh=1;ifsh<=nfsh;ifsh++)
    for (iyr=styr;iyr<=endyr;iyr++)
     if (catch_bio(ifsh,iyr) > 10e-24) // 0 in NRM tpl -dhk apr 28 09
      {
-      ipnt += 1;
-      fmort_dev(ifsh,iyr) = fmort_dev_est(ipnt);
+      F_adv += 1;
+      fmort_dev(ifsh,iyr) = fmort_dev_est(F_adv);
      }
     else
      fmort_dev(ifsh,iyr) = -100; // changed from -1000 -dhk Sep 1 09
 
   // Extract the other prey biomass
   for (rsp = 1; rsp<=nspp; rsp++)
-   for (r_age = 1; r_age <= nages(rsp); r_age++)
-    Q_other_u(rsp,r_age) = mfexp(Q_other_est(rsp,r_age));
+   for (age=1;age<=nages(rsp);age++)
+    Q_other_u(rsp,age) = mfexp(Q_other_est(rsp,age));
 
   // If doing Pope's approximation
   // todo: remove surv and natmort, b/c they are not used elsewhere.
+  // todo: change 1.0e-10 to a constant number
   surv    = mfexp(-1.0 * M);
   natmort = M;
   for (isp = 1; isp <= nspp; isp++) Z(isp) = M(isp);
@@ -1380,7 +1403,7 @@ FUNCTION Get_Mortality
    {
     isp = spp_fsh(ifsh);
     ipnt += 1;
-    Fmort(isp) += mfexp(log_avg_fmort(ifsh) + fmort_dev(ifsh))+constant;
+    Fmort(isp) += mfexp(log_avg_fmort(ifsh) + fmort_dev(ifsh))+1.0e-10;
     for (iyr = styr; iyr <= endyr; iyr++)
      {
       F(ipnt,iyr) = mfexp(log_avg_fmort(ifsh) + fmort_dev(ifsh,iyr)) * sel_fsh(ifsh,iyr) + 1.0e-12;
@@ -1391,6 +1414,7 @@ FUNCTION Get_Mortality
   //=====================
 FUNCTION Get_Bzero
   //=====================
+  int ages;
 
   Rzero =  mfexp(log_Rzero);
   Sp_Biom.initialize();
@@ -1398,30 +1422,30 @@ FUNCTION Get_Bzero
   AltStart();    // Iteratively calculate natage in styr_pred
 
   // Extract all the recruitments
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
    for (iyr=styr_pred;iyr<=endyr;iyr++)
     if (iyr < styr_rec(isp)) natage(isp,iyr,1) = Rzero(isp);
     else
      {
-      natage(isp,iyr,1)  = Rzero(isp)*mfexp(rec_dev_spp(isp,iyr))+constant;//-dhk July 12 09
+      natage(isp,iyr,1)  = Rzero(isp)*mfexp(rec_dev_spp(isp,iyr))+1.0e-10;//-dhk July 12 09
       mod_rec(isp,iyr) = natage(isp,iyr,1);
      }
 
   // Project forward to "correct" the age-structure
-  for (iyr=styr_pred; iyr < styr; iyr++)
+  for (iyr=styr_pred; iyr<styr; iyr++)
    {
     IyrPred = iyr;
     Compute_Predation();
-    for (isp = 1; isp <= nspp; isp++)
+    for (isp=1; isp<=nspp; isp++)
      {
-      for (age = 2; age <= nages(isp); age++)
-        natage(isp,iyr+1,age) = natage(isp,iyr,age - 1) * S(isp,iyr,age - 1);
+      for (ages=2;ages<=nages(isp);ages++)
+        natage(isp,iyr+1,ages) = natage(isp,iyr,ages-1)*S(isp,iyr,ages-1);
       natage(isp,iyr+1,nages(isp))+=natage(isp,iyr,nages(isp))*S(isp,iyr,nages(isp));
      }
    }
 
   // Equilibrium is located - find the parameters of the s-r relationship
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1; isp<=nspp; isp++)
    {
     iyr = styr_rec(isp)-1;
     Bzero(isp) = elem_prod(natage(isp,iyr),pow(S(isp,iyr),spmo_frac(isp))) *
@@ -1447,7 +1471,7 @@ FUNCTION Get_Bzero
   //=====================
 FUNCTION AltStart
   //=====================
-  int isp,rsp,ksp,itno,age,ksp_type,rk_sp;
+  int isp,rsp,ksp,itno,age,ru,rln,ksp_type,rk_sp;
   dvar_matrix NN(1,nspp,1,nages);
   dvariable pred_effect,Term;
   dvariable ParA, ParB, ParC;
@@ -1455,7 +1479,7 @@ FUNCTION AltStart
   //Term.initialize(); // not initialized in NRM tpl -dhk apr 28 09
 
   // Initialize Z to M
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
    Zlast(isp) = M(isp);
 
   // Calculate Z averaged over 5 iterations
@@ -1465,49 +1489,49 @@ FUNCTION AltStart
     for (isp = 1; isp <= nspp; isp++)
      {
       NN(isp,1) = Rzero(isp);
-      for (age = 2; age <= nages(isp); age++)
+      for (age=2; age<=nages(isp); age++)
        {
         NN(isp,age) = NN(isp,age-1) * mfexp(-Zlast(isp,age-1));
        }
-      NN(isp,nages(isp)) /= (1. - mfexp(-Zlast(isp,nages(isp))) + constant);
+      NN(isp,nages(isp)) /= (1. - mfexp(-Zlast(isp,nages(isp))) + 1.0e-10);
      }
 
     // Mortality as a function of predator AGE (Eqn 3b)
-    for (ksp = 1; ksp <= nspp; ksp++)
-     for (k_age = 1; k_age <= nages(ksp); k_age++)
+    for (ksp=1; ksp<=nspp; ksp++)
+     for (age=1; age<=nages(ksp); age++)
       {
-       Zcurr(ksp,k_age) = M(ksp);
+       Zcurr(ksp,age) = M(ksp);
        if (with_pred > 0)
-        for (rsp = 1; rsp <= nspp; rsp++)
+        for (rsp=1; rsp<=nspp; rsp++)
          {
           ksp_type = (rsp - 1) * (nspp + 1) + ksp;
           rk_sp = (rsp - 1) * nspp + ksp;
-          for (r_age =1; r_age <= nages(rsp); r_age++)
+          for (ru=1; ru<=nages(rsp); ru++)
            {
             Term = H_1(ksp_type) *
-                   (1 + H_1a(rsp) * H_1b(rsp) / (double(r_age) + H_1b(rsp) + constant));
-            Zcurr(ksp,k_age) += Term * NN(rsp,r_age) * gam_ua(rk_sp,r_age,k_age) + constant;
+                   (1 + H_1a(rsp) * H_1b(rsp) / (double(ru) + H_1b(rsp) + 1.0e-10));
+            Zcurr(ksp,age) += Term * NN(rsp,ru) * gam_ua(rk_sp,ru,age) + 1.0e-10;
            }
          }
       }
 
     // Average the Za
-    // DK: also tried sqrt(Zcurr(isp,age)*Zlast(isp,age) + constant), whcih does not equal
+    // DK: also tried sqrt(Zcurr(isp,age)*Zlast(isp,age) + 1.0e-10), whcih does not equal
     // what is currently done.
-    for (isp = 1; isp <= nspp; isp++)
+    for (isp=1; isp<=nspp; isp++)
      for (age=1; age<=nages(isp); age++)
       Zlast(isp,age) = sqrt(sqrt(Zcurr(isp,age) * Zlast(isp,age))) * sqrt(Zlast(isp,age));
 
     }
 
-    for (isp = 1; isp <= nspp; isp++)
+    for (isp=1;isp<=nspp;isp++)
      {
       Zlast_pen(isp) = 0;
-      for (age = 1; age <= nages(isp); age++)
+      for (age=1;age<=nages(isp);age++)
        {
         // Calculate a penalty term for the difference between the current Z
         // and the last Z per species per age.
-        Zlast_pen(isp) += 100 * square(Zcurr(isp,age) - Zlast(isp,age) + constant);
+        Zlast_pen(isp) += 100 * square(Zcurr(isp,age) - Zlast(isp,age) + 1.0e-10);
         // Copy final NN into natage(,styr_pred,)
         natage(isp,styr_pred,age) = NN(isp,age);
        }
@@ -1516,36 +1540,37 @@ FUNCTION AltStart
   // Calculate equilibrium N predators and prey in styr_pred for each species X age
  N_pred_eq.initialize();
  N_prey_eq.initialize();
- for (rsp = 1; rsp <= nspp; rsp++)
-  for (r_age = 1; r_age <= nages(rsp); r_age++)
-    N_pred_yr(rsp,r_age) = constant;
+ for (rsp=1; rsp<=nspp; rsp++)
+  for (ru=1; ru<=nages(rsp); ru++)
+    N_pred_yr(rsp,ru) = 1.0e-10;
  rk_sp=0;
-  for (rsp = 1; rsp <= nspp; rsp++)
-   for (ksp = 1; ksp <= nspp; ksp++)
+  for (rsp=1; rsp<=nspp; rsp++)
+   for (ksp=1; ksp<=nspp; ksp++)
     {
      rk_sp = rk_sp + 1;
-     for (r_age = 1; r_age <= nages(rsp); r_age++)
-       for (k_age = 1; k_age <= nages(ksp); k_age++)
-         N_pred_eq(rsp,r_age) += natage(rsp,styr_pred,r_age) * gam_ua(rk_sp,r_age,k_age);
-     for (k_age = 1; k_age <= nages(ksp); k_age++)
-       for (r_age = 1; r_age <= nages(rsp); r_age++)
-         N_prey_eq(ksp,age) += natage(ksp,styr_pred,age) * gam_ua(rk_sp,r_age,k_age);
+     for (ru=1; ru<=nages(rsp); ru++)
+       for (age=1; age<=nages(ksp); age++)
+         N_pred_eq(rsp,ru) += natage(rsp,styr_pred,ru) * gam_ua(rk_sp,ru,age);
+     for (age=1; age<=nages(ksp); age++)
+       for (ru=1; ru<=nages(rsp); ru++)
+         N_prey_eq(ksp,age) += natage(ksp,styr_pred,age) * gam_ua(rk_sp,ru,age);
     }
 
   //=====================
 FUNCTION Get_Numbers_at_Age
   //=====================
+  int ages;
 
   // Project ahead
-  for (iyr = styr; iyr < endyr; iyr++)
+  for (iyr=styr;iyr<endyr;iyr++)
    {
      // Compute the predation (update Z)
      IyrPred = iyr;
      Compute_Predation();
-     for (isp = 1; isp <= nspp; isp++)
+     for (isp=1; isp<=nspp; isp++)
       {
-       for (age = 2; age <= nages(isp); age++)
-        natage(isp,iyr+1,age) = natage(isp,iyr,age-1)*S(isp,iyr,age-1);
+       for (ages=2;ages<=nages(isp);ages++)
+        natage(isp,iyr+1,ages) = natage(isp,iyr,ages-1)*S(isp,iyr,ages-1);
        natage(isp,iyr+1,nages(isp))+=natage(isp,iyr,nages(isp))*S(isp,iyr,nages(isp));
       }
    }
@@ -1553,8 +1578,8 @@ FUNCTION Get_Numbers_at_Age
   // SSB
   IyrPred = endyr;
   Compute_Predation();
-  for (isp = 1; isp <= nspp; isp++)
-   for (iyr = styr_rec(isp); iyr <= endyr; iyr++)
+  for (isp=1; isp<=nspp; isp++)
+   for (iyr=styr_rec(isp);iyr<=endyr;iyr++)
     Sp_Biom(isp,iyr)  = elem_prod(natage(isp,iyr),pow(S(isp,iyr),spmo_frac(isp))) *
                         elem_prod(wt_pop(isp),maturity(isp));
 
@@ -1579,25 +1604,25 @@ FUNCTION Compute_Predation
   // Calculate N predators and prey in IyrPred for each species X age
  N_pred_yr.initialize();
  N_prey_yr.initialize();
- for (rsp = 1; rsp <= nspp; rsp++)
-  for (r_age = 1; r_age <= nages(rsp); r_age++)
-    N_pred_yr(rsp,r_age) = constant; // -dhk 12 June 2009
+ for (rsp=1;rsp<=nspp;rsp++)
+  for (ru=1;ru<=nages(rsp);ru++)
+    N_pred_yr(rsp,ru) = 1.0e-10; // -dhk 12 June 2009
 
  rk_sp=0;
-  for (rsp = 1; rsp <= nspp; rsp++)
-   for (ksp = 1; ksp <= nspp; ksp++)
+  for (rsp=1;rsp<=nspp;rsp++)
+   for (ksp=1; ksp<=nspp;ksp++)
     {
      rk_sp = rk_sp+1;
-     for (r_age = 1; r_age <= nages(rsp); r_age++){
-       for (k_age = 1; k_age <= nages(ksp); k_age++)
-         N_pred_yr(rsp,r_age) += natage(rsp,IyrPred,r_age) * gam_ua(rk_sp,r_age,k_age);
-         N_pred_yrs(rsp,IyrPred,r_age) = N_pred_yr(rsp,r_age);
+     for (ru=1;ru<=nages(rsp);ru++){
+       for (age=1;age<=nages(ksp);age++)
+         N_pred_yr(rsp,ru) += natage(rsp,IyrPred,ru) * gam_ua(rk_sp,ru,age);
+       N_pred_yrs(rsp,IyrPred,ru) = N_pred_yr(rsp,ru);
        }
 
-     for (k_age = 1; k_age <= nages(ksp); k_age++){
-       for (r_age = 1; r_age <= nages(rsp); r_age++)
-         N_prey_yr(ksp,k_age) += natage(ksp,IyrPred,k_age) * gam_ua(rk_sp,r_age,k_age);
-       N_prey_yrs(ksp,IyrPred,k_age) = N_prey_yr(ksp,k_age);
+     for (age=1;age<=nages(ksp);age++){
+       for (ru=1;ru<=nages(rsp);ru++)
+         N_prey_yr(ksp,age) += natage(ksp,IyrPred,age) * gam_ua(rk_sp,ru,age);
+       N_prey_yrs(ksp,IyrPred,age) = N_prey_yr(ksp,age);
       }
     }
 
@@ -1605,8 +1630,8 @@ FUNCTION Compute_Predation
   rk_sp = 0;
   rksp = 0;
 
-  for (rsp = 1; rsp <= nspp; rsp++)
-   for (ksp = 1; ksp <= (nspp+1); ksp++)
+  for (rsp=1;rsp<=nspp;rsp++)
+   for (ksp=1;ksp<=(nspp+1);ksp++)
     {
      rk_sp += 1;
      if (ksp <= nspp)
@@ -1614,7 +1639,7 @@ FUNCTION Compute_Predation
      for (r_age=1;r_age<=nages(rsp);r_age++)
       for (k_age=1; k_age<=kk_ages(ksp); k_age++)
       {
-       Term = constant + H_1(rk_sp)*(1 + H_1a(rsp)*H_1b(rsp)/(double(r_age)+H_1b(rsp)+constant));
+       Term = 1.0e-10 + H_1(rk_sp)*(1 + H_1a(rsp)*H_1b(rsp)/(double(r_age)+H_1b(rsp)+1.0e-10));
 
      N_pred_eqs(rsp,IyrPred,r_age) = N_pred_eq(rsp,r_age);
 
@@ -1623,55 +1648,55 @@ FUNCTION Compute_Predation
      N_prey_eqs(ksp,IyrPred,k_age) = N_prey_eq(ksp,k_age);
 
          // Predator-prey ratios
-         Pred_ratio = (N_pred_yr(rsp,r_age)+constant)/(N_pred_eq(rsp,r_age)+constant);
-         Prey_ratio = (N_prey_yr(ksp,k_age)+constant)/(N_prey_eq(ksp,k_age)+constant);
+         Pred_ratio = (N_pred_yr(rsp,r_age)+1.0e-10)/(N_pred_eq(rsp,r_age)+1.0e-10);
+         Prey_ratio = (N_prey_yr(ksp,k_age)+1.0e-10)/(N_prey_eq(ksp,k_age)+1.0e-10);
          Pred_r(rsp,IyrPred,r_age) = Pred_ratio;
          Prey_r(ksp,IyrPred,k_age) = Prey_ratio;
 
 
 
          if (resp_type == 1 || current_phase() < PhasePred2-1)      // Holling Type I (linear)
-          pred_resp(rk_sp,IyrPred,r_age,k_age) = constant + Term;
+          pred_resp(rk_sp,IyrPred,r_age,k_age) = 1.0e-10 + Term;
          else
           if (resp_type == 2) // Holling Type II
            {
-            pred_resp(rk_sp,IyrPred,r_age,k_age) = constant + Term*(1+H_2(rksp)+constant) /
-              ( 1 + H_2(rksp) * Prey_ratio + constant);
+            pred_resp(rk_sp,IyrPred,r_age,k_age) = 1.0e-10 + Term*(1+H_2(rksp)+1.0e-10) /
+              ( 1 + H_2(rksp) * Prey_ratio + 1.0e-10);
            }
          else
           if (resp_type == 3) // Holling Type III
            {
-            pred_resp(rk_sp,IyrPred,r_age,k_age) = constant +
-              Term*(1+H_2(rksp))*pow((Prey_ratio + constant),H_4(rksp)) /
-              (1 + H_2(rksp) * pow((Prey_ratio + constant),H_4(rksp)) + constant );
+            pred_resp(rk_sp,IyrPred,r_age,k_age) = 1.0e-10 +
+              Term*(1+H_2(rksp))*pow((Prey_ratio + 1.0e-10),H_4(rksp)) /
+              (1 + H_2(rksp) * pow((Prey_ratio + 1.0e-10),H_4(rksp)) + 1.0e-10 );
            }
          else
           if (resp_type == 4) // predator interference
            {
-            pred_resp(rk_sp,IyrPred,r_age,k_age) = constant + Term*(1+H_2(rksp)+constant) /
-              ( 1 + H_2(rksp)*Prey_ratio + H_3(rksp)*(Pred_ratio-1) + constant);
+            pred_resp(rk_sp,IyrPred,r_age,k_age) = 1.0e-10 + Term*(1+H_2(rksp)+1.0e-10) /
+              ( 1 + H_2(rksp)*Prey_ratio + H_3(rksp)*(Pred_ratio-1) + 1.0e-10);
            }
          else
           if (resp_type == 5) // predator preemption
            {
-            pred_resp(rk_sp,IyrPred,r_age,k_age) = constant + Term*(1+H_2(rksp)+constant) /
-              ( (1+H_2(rksp)*Prey_ratio) * (1+H_3(rksp)*(Pred_ratio-1))+constant);
+            pred_resp(rk_sp,IyrPred,r_age,k_age) = 1.0e-10 + Term*(1+H_2(rksp)+1.0e-10) /
+              ( (1+H_2(rksp)*Prey_ratio) * (1+H_3(rksp)*(Pred_ratio-1))+1.0e-10);
            }
          else
           if (resp_type == 6) // Hassell-Varley
            {
-            pred_resp(rk_sp,IyrPred,r_age,k_age) = constant + Term*(2+H_2(rksp)+ constant) /
-              (1.0+ H_2(rksp)*Prey_ratio + pow((Prey_ratio+constant),H_4(rksp)) + constant );
+            pred_resp(rk_sp,IyrPred,r_age,k_age) = 1.0e-10 + Term*(2+H_2(rksp)+ 1.0e-10) /
+              (1.0+ H_2(rksp)*Prey_ratio + pow((Prey_ratio+1.0e-10),H_4(rksp)) + 1.0e-10 );
            }
          else
           if (resp_type == 7) // Ecosim
            {
-            pred_resp(rk_sp,IyrPred,r_age,k_age) = constant + Term /
-              (1 + H_3(rksp)*(Pred_ratio - 1 + constant));
+            pred_resp(rk_sp,IyrPred,r_age,k_age) = 1.0e-10 + Term /
+              (1 + H_3(rksp)*(Pred_ratio - 1 + 1.0e-10));
            }
         }
        else  // "other" is linear
-        pred_resp(rk_sp,IyrPred,r_age,1) = constant + Term;
+        pred_resp(rk_sp,IyrPred,r_age,1) = 1.0e-10 + Term;
       }            // end of r_ages, k_ages loop
                    // =========================
    }
@@ -1683,30 +1708,30 @@ FUNCTION Compute_Predation
      {
       ksp_type = (rsp-1)*(nspp+1)+ksp;
       rk_sp = (rsp-1)*nspp+ksp;
-      for (r_age=1;r_age<=nages(rsp);r_age++)
-       for (k_age = 1; k_age <= nages(ksp); k_age++)
+      for (ru=1;ru<=nages(rsp);ru++)
+       for (age=1;age<=nages(ksp);age++)
         {
-         pred_effect = pred_resp(ksp_type,IyrPred,r_age,k_age)*gam_ua(rk_sp,r_age,k_age);
-         Vmort_ua(rk_sp,r_age,IyrPred,k_age) = pred_effect*natage(rsp,IyrPred,r_age);
+         pred_effect = pred_resp(ksp_type,IyrPred,ru,age)*gam_ua(rk_sp,ru,age);
+         Vmort_ua(rk_sp,ru,IyrPred,age) = pred_effect*natage(rsp,IyrPred,ru);
         }
      }
 
    // Accumulate the total mortality (Equations 2a / 2b)
    rk_sp = 0;
-   for (rsp = 1; rsp <= nspp; rsp++)
-    for (ksp = 1; ksp <= nspp; ksp++)
+   for (rsp=1;rsp<=nspp;rsp++)
+    for (ksp=1;ksp<=nspp;ksp++)
      {
       rk_sp += 1;
-      for (r_age=1;r_age<=nages(rsp);r_age++)
-       Pmort_ua(rk_sp,IyrPred) += Vmort_ua(rk_sp,r_age,IyrPred);
+      for (ru=1;ru<=nages(rsp);ru++)
+       Pmort_ua(rk_sp,IyrPred) += Vmort_ua(rk_sp,ru,IyrPred);
       Z(ksp,IyrPred) += Pmort_ua(rk_sp,IyrPred);
      }
   }
 
 
   // Convert from total mortality to survival
-  for (isp = 1; isp <= nspp; isp++)
-   S(isp,IyrPred) = constant+mfexp(-1*Z(isp,IyrPred));//1.0e-30 in NRM tpl -dhk apr 28 09
+  for (isp=1; isp<=nspp; isp++)
+   S(isp,IyrPred) = 1.0e-10+mfexp(-1*Z(isp,IyrPred));//1.0e-30 in NRM tpl -dhk apr 28 09
 
  // Only continue if predation is on; Pmort is zero otherwise
  if (with_pred !=0)
@@ -1715,20 +1740,20 @@ FUNCTION Compute_Predation
 
     // Numbers eaten (of modeled prey species); Equations 7 and 8
    for (ksp = 1; ksp <= nspp; ksp++)
-    for (k_age = 1; k_age <= nages(ksp); k_age++)
+    for (age=1;age<=nages(ksp);age++)
     {
      // Relative number
-     NS_Z = natage(ksp,IyrPred,k_age)*(1-mfexp(-Z(ksp,IyrPred,k_age)))/Z(ksp,IyrPred,k_age);
+     NS_Z = natage(ksp,IyrPred,age)*(1-mfexp(-Z(ksp,IyrPred,age)))/Z(ksp,IyrPred,age);
      for (rsp = 1; rsp <= nspp; rsp++)
       {
        rk_sp = (rsp-1)*nspp+ksp;
 
        // Numbers eaten by predator age and length (Eqn 7a & 7b)
-       for (r_age = 1;r_age <= nages(rsp); r_age++)
+       for (ru = 1;ru <= nages(rsp); ru++)
         {
-         eaten_ua(rk_sp, r_age,IyrPred,k_age) = Vmort_ua(rk_sp,r_age,IyrPred,k_age)*NS_Z;
-         for (r_ln = 1; r_ln <= l_bins(rsp); r_ln++)
-          eaten_la(rk_sp,r_ln,IyrPred,k_age) += eaten_ua(rk_sp,r_age,IyrPred,k_age)*al_key(rsp,r_age,r_ln);
+         eaten_ua(rk_sp, ru,IyrPred,age) = Vmort_ua(rk_sp,ru,IyrPred,age)*NS_Z;
+         for (rln = 1; rln <= l_bins(rsp); rln++)
+          eaten_la(rk_sp,rln,IyrPred,age) += eaten_ua(rk_sp,ru,IyrPred,age)*al_key(rsp,ru,rln);
         }
       }
     }
@@ -1743,48 +1768,48 @@ FUNCTION Compute_Predation
        if (ksp <= nspp)
         {
          // Results by length (Eqn 8a)
-         for (r_ln = 1; r_ln <= l_bins(rsp); r_ln++)
+         for (rln = 1; rln <= l_bins(rsp); rln++)
           {
-           Q_mass_l(ksp_type,IyrPred,r_ln) = 0;
-           for (k_age = 1; k_age <= nages(ksp); k_age++)
-            Q_mass_l(ksp_type,IyrPred,r_ln) += eaten_la(kall_type,r_ln,IyrPred,k_age)*wt_pop(ksp,k_age);
+           Q_mass_l(ksp_type,IyrPred,rln) = 0;
+           for (age=1;age<=nages(ksp);age++)
+            Q_mass_l(ksp_type,IyrPred,rln) += eaten_la(kall_type,rln,IyrPred,age)*wt_pop(ksp,age);
           }
          // Results by age (Eqn 8b)
-         for (r_age = 1;r_age <= nages(rsp); r_age++)
+         for (ru = 1;ru <= nages(rsp); ru++)
           {
-           Q_mass_u(ksp_type,IyrPred,r_age) = 0;
-           for (k_age = 1; k_age <= nages(ksp); k_age++)
-            Q_mass_u(ksp_type,IyrPred,r_age) += eaten_ua(kall_type,r_age,IyrPred,k_age)*wt_pop(ksp,k_age);
+           Q_mass_u(ksp_type,IyrPred, ru) = 0;
+           for (age=1;age<=nages(ksp);age++)
+            Q_mass_u(ksp_type,IyrPred, ru) += eaten_ua(kall_type, ru,IyrPred,age)*wt_pop(ksp,age);
           }
         }
        else
         {
-         for (r_age = 1; r_age <= nages(rsp); r_age++)
+         for (ru = 1; ru <= nages(rsp); ru++)
           {
-           pred_effect = pred_resp(ksp_type,IyrPred,r_age,1);
-           Tmort = pred_effect * natage(rsp,IyrPred,r_age); // Eq.3b ======
-           Q_mass_u(ksp_type,IyrPred,r_age)  = Q_other_u(rsp,r_age)*(1.0-mfexp(-Tmort));
+           pred_effect = pred_resp(ksp_type,IyrPred,ru,1);
+           Tmort = pred_effect * natage(rsp,IyrPred,ru); // Eq.3b ======
+           Q_mass_u(ksp_type,IyrPred,ru)  = Q_other_u(rsp,ru)*(1.0-mfexp(-Tmort));
           }
-         for (r_ln=1;r_ln<=l_bins(rsp);r_ln++)
+         for (rln=1;rln<=l_bins(rsp);rln++)
           {
-           Q_mass_l(ksp_type,IyrPred,r_ln) = 0;
-           for (r_age=1;r_age<=nages(rsp);r_age++)
-             Q_mass_l(ksp_type,IyrPred,r_ln) += Q_mass_u(ksp_type,IyrPred,r_age)*al_key(rsp,r_age,r_ln);
+           Q_mass_l(ksp_type,IyrPred,rln) = 0;
+           for (ru=1;ru<=nages(rsp);ru++)
+             Q_mass_l(ksp_type,IyrPred,rln) += Q_mass_u(ksp_type,IyrPred,ru)*al_key(rsp,ru,rln);
           }
         }
       }
 
     // Total up the consumption by each predator and normalize (Eqn 15)
     for (rsp = 1; rsp <= nspp; rsp++)
-     for (r_ln=1;r_ln<=l_bins(rsp);r_ln++)
+     for (rln=1;rln<=l_bins(rsp);rln++)
       {
        rk_sp = (rsp-1)*(nspp+1);
        Q_ksum_l.initialize();
        for (ksp = 1; ksp <= (nspp+1); ksp++)
-        Q_ksum_l += Q_mass_l(rk_sp+ksp,IyrPred,r_ln) + constant; //1.e-20 in NRM tpl -dhk apr 28 09
+        Q_ksum_l += Q_mass_l(rk_sp+ksp,IyrPred,rln) + 1.0e-10; //1.e-20 in NRM tpl -dhk apr 28 09
        for (ksp = 1; ksp <= (nspp+1); ksp++)
        {
-        Q_hat(rk_sp+ksp,IyrPred,r_ln) = (constant+Q_mass_l(rk_sp+ksp,IyrPred,r_ln)/Q_ksum_l); // changed paranthesis -dhk apr 28 09
+        Q_hat(rk_sp+ksp,IyrPred,rln) = (1.0e-10+Q_mass_l(rk_sp+ksp,IyrPred,rln)/Q_ksum_l); // changed paranthesis -dhk apr 28 09
        }
       }
   }
@@ -1802,7 +1827,7 @@ FUNCTION Get_Survey_Predictions
     dvar_matrix natage_spp = natage(isp);
     for (iyr=styr; iyr<=endyr; iyr++)
     {
-     pred_srv(isrv,iyr) = constant + q_srv(isrv) * natage(isp,iyr) * elem_prod(sel_srv(isrv,iyr) , wt_srv(isrv,iyr));//-dhk apr 28 09
+     pred_srv(isrv,iyr) = 1.0e-10 + q_srv(isrv) * natage(isp,iyr) * elem_prod(sel_srv(isrv,iyr) , wt_srv(isrv,iyr));//-dhk apr 28 09
     }
     for (iyr=1; iyr<=nyrs_srv_comp(isrv); iyr++)
      {
@@ -1825,7 +1850,7 @@ FUNCTION Catch_at_Age
     for (iyr=styr; iyr<=endyr; iyr++)
      pred_catch(ifsh,iyr) = Ctmp(iyr)*wt_fsh(ifsh,iyr);
     for (iyr=1; iyr<=nyrs_fsh_comp(ifsh); iyr++)
-     eac_fsh(ifsh,iyr)=Ctmp(yrs_fsh_comp(ifsh,iyr))/(constant+sum(Ctmp(yrs_fsh_comp(ifsh,iyr))));
+     eac_fsh(ifsh,iyr)=Ctmp(yrs_fsh_comp(ifsh,iyr))/(1.0e-10+sum(Ctmp(yrs_fsh_comp(ifsh,iyr))));
    }
 
   //=====================
@@ -1900,7 +1925,7 @@ FUNCTION Rec_Like
 
   rec_like.initialize();
   if (active(rec_dev) || phase_RecDev == -99)
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1; isp<=nspp; isp++)
    {
     sigmar(isp)     =  mfexp(log_sigmar(isp));
     sigmarsq(isp)   =  square(sigmar(isp));
@@ -1909,8 +1934,8 @@ FUNCTION Rec_Like
     if (Disc_any_phases == 0 || current_phase() > 2-Initial_phase+1)
       {
         pred_rec(isp) = SRecruit(Sp_Biom(isp)(styr_rec(isp),endyr).shift(styr_rec(isp))(styr_rec(isp),endyr));
-        dvar_vector chi = log(elem_div(mod_rec(isp)(styr_rec_est(isp),endyr) ,
-                                  pred_rec(isp)(styr_rec_est(isp),endyr)));
+        dvar_vector chi = log(elem_div(mod_rec(isp)(styr_rec_est(isp),endyr_rec_est(isp)) ,
+                                  pred_rec(isp)(styr_rec_est(isp),endyr_rec_est(isp))));
         SSQRec   = norm2( chi ) ;
         m_sigmar(isp)   =  sqrt( SSQRec  / nrecs_est(isp));
         m_sigmarsq(isp) =  m_sigmar(isp) * m_sigmar(isp)   ;
@@ -1921,10 +1946,12 @@ FUNCTION Rec_Like
       {
         // Variance term for the parts not estimated by sr curve
         rec_like(isp,4) += .5*norm2( rec_dev_spp(isp)(styr_rec(isp),styr_rec_est(isp)) )/sigmarsq(isp) + (styr_rec_est(isp)-styr_rec(isp))*log(sigmar(isp)) ;
+        if (endyr>endyr_rec_est(isp))
+          rec_like(isp,4) += .5*norm2( rec_dev_spp(isp)(endyr_rec_est(isp),endyr  ) )/sigmarsq(isp) + (endyr-endyr_rec_est(isp))*log(sigmar(isp)) ;
       }
      else
       {
-        rec_like(isp,2) += norm2( rec_dev_spp(isp)( styr_rec_est(isp),endyr) ) ;
+        rec_like(isp,2) += norm2( rec_dev_spp(isp)( styr_rec_est(isp),endyr_rec_est(isp)) ) ;
       }
      rec_like(isp,2) += norm2( rec_dev_spp(isp)( styr_rec_est(isp),endyr) ) ;
    }
@@ -2041,7 +2068,8 @@ FUNCTION Sel_Like
             dvariable var_tmp = square(sel_change_in_fsh(ifsh,i_iyr ));
             sel_like_fsh(ifsh,2) += .5*norm2( log_sel_fsh(ifsh,i_iyr-1) - log_sel_fsh(ifsh,i_iyr) ) / var_tmp ;
            }
-         for (int j=seldecage(isp); j <= nselages_fsh(ifsh,1); j++)
+         int nagestmp = nselages_fsh(ifsh,1);
+         for (int j=seldecage(isp);j<=nagestmp;j++)
            {
             dvariable difftmp = log_sel_fsh(ifsh,i_iyr,j-1)-log_sel_fsh(ifsh,i_iyr,j) ;
             if (difftmp > 0.)
@@ -2068,7 +2096,8 @@ FUNCTION Sel_Like
              sel_like_srv(isrv,2)    += .5*norm2( log_sel_srv(isrv,i_iyr-1) - log_sel_srv(isrv,i_iyr) )
                                    / var_tmp ;
             }
-          for (int j=seldecage(isp); j <= nselages_srv(isrv,1);j++)
+          int nagestmp = nselages_srv(isrv,1);
+          for (int j=seldecage(isp);j<=nagestmp;j++)
             {
              dvariable difftmp = log_sel_srv(isrv,i_iyr,j-1)-log_sel_srv(isrv,i_iyr,j) ;
              if (difftmp > 0.)
@@ -2082,14 +2111,14 @@ FUNCTION Sel_Like
   // ====================
 FUNCTION ration
   // ====================
-  int jyr;
+  int jyr,age;
   dvariable n_avg,numer,denom;
 
   // Equations 9 and 10
   omega_hat_ave.initialize();
   omega_hat.initialize();
-  for (rsp = 1; rsp <= nspp; rsp++)
-   for (r_age = 1; r_age <= nages(rsp); r_age++)
+  for (rsp=1;rsp<=nspp;rsp++)
+   for (age=1;age<=nages(rsp);age++)
     {
      // Calculate year-specific values
      numer.initialize();
@@ -2098,35 +2127,36 @@ FUNCTION ration
      for (iyr=styr;iyr<=endyr;iyr++)
       {
        // Average abundance
-       //n_avg =constant + natage(rsp,iyr,r_age) * mfexp(-0.5*Z(rsp,iyr,r_age));
-       n_avg = constant + natage(rsp,iyr,r_age) * sqrt(S(isp,iyr,r_age));  // added constant -dhk June 24 08. not in NRM tpl -dhk apr 28 09
+       //n_avg =1.0e-10 + natage(rsp,iyr,age) * mfexp(-0.5*Z(rsp,iyr,age));
+       n_avg = 1.0e-10 + natage(rsp,iyr,age) * sqrt(S(isp,iyr,age));  // added 1.0e-10 -dhk June 24 08. not in NRM tpl -dhk apr 28 09
        // find total consumption by this age-class
        rk_sp = (rsp-1)*(nspp+1);
        for (ksp=1;ksp<=(nspp+1);ksp++)
-        omega_hat(rsp,iyr,r_age) += Q_mass_u(rk_sp+ksp,iyr,r_age);
+        omega_hat(rsp,iyr,age) += Q_mass_u(rk_sp+ksp,iyr,age);
 
-       numer += omega_hat(rsp,iyr,r_age)/365+constant;
+       numer += omega_hat(rsp,iyr,age)/365+1.0e-10;
        denom += n_avg;
 
        // normalize
-       omega_hat(rsp,iyr,r_age) /= (n_avg*365);
+       omega_hat(rsp,iyr,age) /= (n_avg*365);
 
       }
-     omega_hat_ave(rsp,r_age) = numer/denom;
+     omega_hat_ave(rsp,age) = numer/denom;
     }
 
   // ====================
 FUNCTION ration_Like
   // ====================
+  int ages;
   //ration_like.initialize(); // not initialized in NRM tpl -dhk apr 28 09
 
   // Likelihood (Eqn 11)
   for (rsp=1;rsp<=nspp; rsp++)
    {
     ration_like(rsp) = 0; // NRM tpl form -dhk apr 28 09
-    for (r_age = 2; r_age <= nages(rsp); r_age++) // don't include age zero in likelihood
-     ration_like(rsp) += 0.5 * square(log(omega_hat_ave(rsp,r_age)+constant) -
-                          log(omega_vB(rsp,r_age)))/square(sd_ration(rsp));
+    for (ages=2;ages<=nages(rsp);ages++) // don't include age zero in likelihood
+     ration_like(rsp) += 0.5 * square(log(omega_hat_ave(rsp,ages)+1.0e-10) -
+                          log(omega_vB(rsp,ages)))/square(sd_ration(rsp));
    }
    for(isp=1; isp<=nspp; isp++)
      //ration_pen(isp) = 0;
@@ -2144,25 +2174,25 @@ FUNCTION ration_Like
   // ====================
 FUNCTION diet_wt_Like
   // ====================
-  int iyr;
+  int iyrs;
 
   //loop_count = 0;
   // Likelihood (Eqn 14)
   diet_like1.initialize();
   for (rsp=1;rsp <= nspp; rsp++)
-   for (iyr=1; iyr<= nyrs_stomwts(rsp); iyr++)
+   for (iyrs=1; iyrs<= nyrs_stomwts(rsp); iyrs++)
     {
-     iyr = yrs_stomwts(rsp,iyr);
-     for (r_ln=1; r_ln<=l_bins(rsp); r_ln++)
-      if (stoms_w_N(rsp,r_ln,iyr) > 0)
+     iyr = yrs_stomwts(rsp,iyrs);
+     for (rln=1; rln<=l_bins(rsp); rln++)
+      if (stoms_w_N(rsp,rln,iyrs) > 0)
        for (ksp=1; ksp <=(nspp+1); ksp++)
         {
          rk_sp = (rsp-1)*(nspp+1)+ksp;
-         if (diet_w_dat(rk_sp,r_ln,iyr) > 0)
+         if (diet_w_dat(rk_sp,rln,iyrs) > 0)
           {
           diet_like1 +=
-               -1*stoms_w_N(rsp,r_ln,iyr)*diet_w_dat(rk_sp,r_ln,iyr) *
-                                  log(Q_hat(rk_sp,iyr,r_ln)+ constant);
+               -1*stoms_w_N(rsp,rln,iyrs)*diet_w_dat(rk_sp,rln,iyrs) *
+                                  log(Q_hat(rk_sp,iyr,rln)+ 1.0e-10);
          }
         }
      }
@@ -2175,6 +2205,7 @@ FUNCTION diet_len_Like
   dvariable Denom,TotN;
   Denom.initialize(); // -dhk june 30 08. not initialized in NRM tpl -dhk apr 28 09
   TotN.initialize();  // -dhk june 30 08. not initialized in NRM tpl -dhk apr 28 09
+  int Itot;
   int loop_count;
   loop_count = 0;
 
@@ -2187,28 +2218,29 @@ FUNCTION diet_len_Like
     {
      dvar_vector eaten_lmy(1,l_bins(ksp)); // no. of prey@length eaten by a predator length during iyr
      rk_sp = rk_sp + 1;
-     for (r_ln = 1; r_ln <= l_bins(rsp); r_ln++)
+     for (rln = 1; rln <= l_bins(rsp); rln++)
       {
-       TotN = sum(stoms_l_N(rk_sp,r_ln));
-       if (int(sum(stoms_l_N(rk_sp,r_ln))) > 0)
+       TotN = sum(stoms_l_N(rk_sp,rln));
+       Itot = int(sum(stoms_l_N(rk_sp,rln)));
+       if (Itot > 0)
         {
          // This is Equation 17
-         for (int stm_yr = 1; stm_yr <= nyrs_stomlns(rk_sp); stm_yr++)
-          if (stoms_l_N(rk_sp,r_ln,stm_yr) > 0)
+         for (stm_yr = 1; stm_yr <= nyrs_stomlns(rk_sp); stm_yr++)
+          if (stoms_l_N(rk_sp,rln,stm_yr) > 0)
            {
             iyr = yrs_stomlns(rk_sp,stm_yr);
-            eaten_lmy = eaten_la(rk_sp,r_ln,iyr) * al_key(ksp);
-            T_hat(rk_sp,r_ln) += stoms_l_N(rk_sp,r_ln,stm_yr)* eaten_lmy;
+            eaten_lmy = eaten_la(rk_sp,rln,iyr) * al_key(ksp);
+            T_hat(rk_sp,rln) += stoms_l_N(rk_sp,rln,stm_yr)* eaten_lmy;
            }
          // Renormalize the eaten vector
-         Denom = sum(T_hat(rk_sp,r_ln))+constant;
-         T_hat(rk_sp,r_ln) /= Denom;
+         Denom = sum(T_hat(rk_sp,rln))+1.0e-10;
+         T_hat(rk_sp,rln) /= Denom;
          // This is equation 16
-         for (k_ln=1;k_ln<=l_bins(ksp);k_ln++)
-          if (diet_l_dat(rk_sp,r_ln,k_ln) > 0)
+         for (kln=1;kln<=l_bins(ksp);kln++)
+          if (diet_l_dat(rk_sp,rln,kln) > 0)
           {
-           //if (T_hat(rk_sp,r_ln,k_ln) < constant) T_hat(rk_sp,r_ln,k_ln) = constant; // -dhk Jul 3 08. not in NRM tpl -dhk apr 28 09
-           diet_like2 += -TotN*diet_l_dat(rk_sp,r_ln,k_ln)*log(T_hat(rk_sp,r_ln,k_ln)+constant);
+           //if (T_hat(rk_sp,rln,kln) < 1.0e-10) T_hat(rk_sp,rln,kln) = 1.0e-10; // -dhk Jul 3 08. not in NRM tpl -dhk apr 28 09
+           diet_like2 += -TotN*diet_l_dat(rk_sp,rln,kln)*log(T_hat(rk_sp,rln,kln)+1.0e-10);
           }
         }
       }
@@ -2278,7 +2310,7 @@ REPORT_SECTION
   report << "styr_pred <- " << styr_pred << endl;
   report << "nyrs_pred <- " << nyrs_pred << endl;
   report << "styr_rec <- c(";
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1;isp<=nspp;isp++)
     {
      report << styr_rec(isp);
      if(isp<nspp)
@@ -2291,7 +2323,7 @@ REPORT_SECTION
       }
     }
   report << "oldest_age <- c(";
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1;isp<=nspp;isp++)
     {
      report << oldest_age(isp);
      if(isp<nspp)
@@ -2304,7 +2336,7 @@ REPORT_SECTION
       }
     }
   report << "l_bins <- c(";
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1;isp<=nspp;isp++)
     {
      report << l_bins(isp);
      if(isp<nspp)
@@ -2317,7 +2349,7 @@ REPORT_SECTION
       }
     }
   report << "nages <- c(";
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1;isp<=nspp;isp++)
     {
      report<< nages(isp);
      if(isp<nspp)
@@ -2343,7 +2375,7 @@ REPORT_SECTION
       }
     }
   report << "nfsh_spp <- c(";
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1;isp<=nspp;isp++)
     {
      report << nfsh_spp(isp);
      if(isp<nspp)
@@ -2356,7 +2388,7 @@ REPORT_SECTION
       }
     }
   report << "comp_type <- c(";
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1;isp<=nspp;isp++)
     {
      report << comp_type(isp);
      if(isp<nspp)
@@ -2497,7 +2529,7 @@ REPORT_SECTION
   // al_key
   // ====================
   report << endl << "al_key<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "al_key[[" << isp << "]] <- c(" << endl << al_key(isp,1,1);
       for (iage=1;iage<=nages(isp);iage++)  // ages per species
@@ -2514,7 +2546,7 @@ REPORT_SECTION
         }
           report  << endl << ")" << endl;
     }
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       isp = spp_fsh(isp);
       report << "dim(al_key[[" << isp << "]])<-c(" << l_bins(isp);
@@ -2554,7 +2586,7 @@ REPORT_SECTION
   // wt_pop matrices
   // ====================
   report << endl << "wt_pop<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "wt_pop[[" << isp << "]] <- c(" << endl <<wt_pop(isp,1);
       for (iage=2;iage<=nages(isp);iage++)
@@ -2569,35 +2601,35 @@ REPORT_SECTION
   // ====================
   report << " #### ESTIMATED BIOLOGICAL PARAMETERS #### " << endl;
   report << "M<-c(";
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1;isp<=nspp;isp++)
     {
       report << M(isp);
       if (isp<nspp)   report << ", ";
       else if (isp == nspp) report << ")" << endl;
     }
   report << "steepness<- c(";
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1;isp<=nspp;isp++)
     {
       report << steepness(isp);
       if (isp<nspp)   report << ", ";
       else if (isp == nspp) report << ")" << endl;
     }
   report << "log_Rzero<- c(";
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1;isp<=nspp;isp++)
     {
       report << log_Rzero(isp);
       if (isp<nspp)   report << ", ";
       else if (isp == nspp) report << ")" << endl;
     }
   report << "Bzero<- c(";
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1;isp<=nspp;isp++)
     {
       report << Bzero(isp);
       if (isp<nspp)   report << ", ";
       else if (isp == nspp) report << ")" << endl;
     }
   report << "rec_dev_spp <- list()" << endl;
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1;isp<=nspp;isp++)
     {
       report << "rec_dev_spp[[" << isp << "]] <- c(";
       for (iyr=styr_rec(isp);iyr<=endyr;iyr++)
@@ -2608,7 +2640,7 @@ REPORT_SECTION
       }
     }
   report << "log_sigmar<- c(";
-   for (isp = 1; isp <= nspp; isp++)
+   for (isp=1;isp<=nspp;isp++)
     {
       report << log_sigmar(isp);
       if (isp<nspp)   report << ", ";
@@ -2628,10 +2660,11 @@ REPORT_SECTION
       for (int iage=1;iage<=nselages_fsh(ifsh,iyr);iage++)
       {
         ipnt += 1;
+        i_lage =  nselages_fsh(ifsh,iyr);
         report << log_selcoffs_fsh(ipnt);
-        if (iage < nselages_fsh(ifsh,iyr))
+        if (iage < i_lage)
           report << ", ";
-        else if ((iage == nselages_fsh(ifsh,iyr)) && (iyr < n_sel_ch_fsh(ifsh)))
+        else if ((iage == i_lage) && (iyr < n_sel_ch_fsh(ifsh)))
           report << ", ";
       }
        report << ")" << endl;
@@ -2689,8 +2722,9 @@ REPORT_SECTION
         for (int iage=1;iage<=nselages_srv(isrv,iyr);iage++)
         {
          ipnt += 1;
+         i_lage =  nselages_srv(isrv,iyr);
          report << log_selcoffs_srv(ipnt);
-         if (iage < nselages_srv(isrv,iyr))  report << ", ";
+         if (iage < i_lage)  report << ", ";
         }
         report << ")" << endl;
        }
@@ -2698,8 +2732,9 @@ REPORT_SECTION
        {
         for (int iage=1;iage<=nselages_srv(isrv,iyr);iage++)
         {
+         i_lage =  nselages_srv(isrv,iyr);
          report << 0;
-         if (iage < nselages_srv(isrv,iyr))  report << ", ";
+         if (iage < i_lage)  report << ", ";
         }
         report << ")" << endl;
        }
@@ -2879,7 +2914,7 @@ REPORT_SECTION
   // Spawning biomass
   // ====================
   report << endl << "Sp_Biom<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
      report << "Sp_Biom[[" << isp << "]]<-c(" << endl << Sp_Biom(isp,styr);
      for (iyr=styr_sp(isp)+1; iyr<=endyr_all(isp); iyr++)
@@ -2892,7 +2927,7 @@ REPORT_SECTION
   // predicted recruits
   // ====================
   report << endl << "pred_rec<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
     iyr = styr_rec(isp);
     report << "pred_rec[[" << isp << "]]<-c(" << endl << pred_rec(isp,iyr);
@@ -2906,7 +2941,7 @@ REPORT_SECTION
   // numbers at age
   // ====================
   report << "natage <- list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "natage[[" << isp << "]] <- c(" << endl << natage(isp,styr,1);
       for (iyr=styr;iyr<=endyr;iyr++)
@@ -2923,7 +2958,7 @@ REPORT_SECTION
          }
       report  << endl << ")" << endl;
     }
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "dim(natage[[" << isp << "]])<-c(" << nages(isp) << ", " << nyrs << ")" << endl;
       report << "natage[[" << isp << "]]<-t(natage[[" << isp << "]])" << endl;
@@ -2932,7 +2967,7 @@ REPORT_SECTION
   // total mortality Z
   // ====================
   report << "Z <- list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "Z[[" << isp << "]] <- c(" << endl << Z(isp,styr,1);
       for (iyr=styr;iyr<=endyr;iyr++)
@@ -2949,7 +2984,7 @@ REPORT_SECTION
          }
       report  << endl << ")" << endl;
     }
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "dim(Z[[" << isp << "]])<-c(" << nages(isp) << ", " << nyrs << ")" << endl;
       report << "Z[[" << isp << "]]<-t(Z[[" << isp << "]])" << endl;
@@ -3048,7 +3083,7 @@ REPORT_SECTION
   // omega_hat
   // ====================
   report << endl << "omega_hat<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
     report << "omega_hat[[" << isp << "]] <- c(" << endl << omega_hat(isp,styr_pred,1);
      for (iyr=styr_pred; iyr <= endyr; iyr++)
@@ -3060,7 +3095,7 @@ REPORT_SECTION
      }
            report  << endl << ")" << endl;
     }
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "omega_hat[[" << isp << "]] <- omega_hat[[" << isp << "]]";
       report << "[2:length(omega_hat[[ " << isp << "]])]" << endl;
@@ -3072,7 +3107,7 @@ REPORT_SECTION
   // omega_vB
   // ====================
   report << endl << "omega_vB<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "omega_vB[[" << isp << "]] <- c(" << endl << omega_vB(isp,1);
       for (iage=2;iage <= nages(isp);iage++)
@@ -3231,11 +3266,11 @@ REPORT_SECTION
   for (isp=1; isp<=nspp_sq; isp++)
    {
     report << "gam_ua[[" << isp << "]]<-c(";
-    for (r_age=1; r_age<=r_ages(isp); r_age++)
+    for (ru=1; ru<=r_ages(isp); ru++)
      for (k_age=1; k_age<=k_ages(isp); k_age++)
       {
-        report << gam_ua(isp,r_age,k_age);
-        if (r_age < r_ages(isp)) report << ", ";
+        report << gam_ua(isp,ru,k_age);
+        if (ru < r_ages(isp)) report << ", ";
         else if (k_age < k_ages(isp)) report << ", ";
         else report << ")" << endl;
       }
@@ -3452,7 +3487,7 @@ REPORT_SECTION
    }
 
   report << "yrs_stomwts<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1; isp<=nspp; isp++)
    {
     report << "yrs_stomwts[[" << isp << "]]<-c(";
     for (icmp=1; icmp<=nyrs_stomwts(isp); icmp++)
@@ -3464,7 +3499,7 @@ REPORT_SECTION
    }
 
   report << endl << "omega_hat_ave<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "omega_hat_ave[[" << isp << "]] <- c(" << endl <<omega_hat_ave(isp,1);
       for (iage=2;iage<=nages(isp);iage++)
@@ -3476,7 +3511,7 @@ REPORT_SECTION
   report << endl;
 
   report << endl << "Q_other_u<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "Q_other_u[[" << isp << "]] <- c(" << endl << Q_other_u(isp,1);
       for (iage=2;iage<=nages(isp);iage++)
@@ -3487,7 +3522,7 @@ REPORT_SECTION
     }
 
   report << "N_pred_eq <-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "N_pred_eq[[" << isp << "]] <- c(" << endl << N_pred_eq(isp,1);
       for (iage=2;iage<=nages(isp);iage++)
@@ -3498,7 +3533,7 @@ REPORT_SECTION
     }
 
   report << "N_prey_eq <-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "N_prey_eq[[" << isp << "]] <- c(" << endl << N_prey_eq(isp,1);
       for (iage=2;iage<=nages(isp);iage++)
@@ -3509,7 +3544,7 @@ REPORT_SECTION
     }
 
   report << "N_pred_yr <-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "N_pred_yr[[" << isp << "]] <- c(" << endl << N_pred_yr(isp,1);
       for (iage=2;iage<=nages(isp);iage++)
@@ -3520,7 +3555,7 @@ REPORT_SECTION
     }
 
   report << "N_prey_yr <-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "N_prey_yr[[" << isp << "]] <- c(" << endl << N_prey_yr(isp,1);
       for (iage=2;iage<=nages(isp);iage++)
@@ -3534,10 +3569,10 @@ REPORT_SECTION
   // ====================
   // save N_pred_eq for all yrs
   report << endl << "N_pred_eqs<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
     report << "N_pred_eqs[[" << isp << "]] <- c(" << endl << N_pred_eqs(isp,styr_pred,1);
-     for (iyr=styr_pred; iyr <= endyr; iyr++)
+     for (iyr=styr_pred; iyr <= FinalYr; iyr++)
      {
        for (iage=1;iage<=nages(isp);iage++)  // ages per species
          {
@@ -3546,7 +3581,7 @@ REPORT_SECTION
      }
            report  << endl << ")" << endl;
     }
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "N_pred_eqs[[" << isp << "]] <- N_pred_eqs[[" << isp << "]]";
       report << "[2:length(N_pred_eqs[[ " << isp << "]])]" << endl;
@@ -3559,10 +3594,10 @@ REPORT_SECTION
   // ====================
   // save N_prey_eq for all yrs
   report << endl << "N_prey_eqs<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
     report << "N_prey_eqs[[" << isp << "]] <- c(" << endl << N_prey_eqs(isp,styr_pred,1);
-     for (iyr=styr_pred; iyr <= endyr; iyr++)
+     for (iyr=styr_pred; iyr <= FinalYr; iyr++)
      {
        for (iage=1;iage<=nages(isp);iage++)  // ages per species
          {
@@ -3571,7 +3606,7 @@ REPORT_SECTION
      }
            report  << endl << ")" << endl;
     }
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "N_prey_eqs[[" << isp << "]] <- N_prey_eqs[[" << isp << "]]";
       report << "[2:length(N_prey_eqs[[ " << isp << "]])]" << endl;
@@ -3583,10 +3618,10 @@ REPORT_SECTION
   // N_pred_yrs
   // ====================
   report << endl << "N_pred_yrs<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
     report << "N_pred_yrs[[" << isp << "]] <- c(" << endl << N_pred_yrs(isp,styr_pred,1);
-     for (iyr=styr_pred; iyr <= endyr; iyr++)
+     for (iyr=styr_pred; iyr <= FinalYr; iyr++)
      {
        for (iage=1;iage<=nages(isp);iage++)  // ages per species
          {
@@ -3595,7 +3630,7 @@ REPORT_SECTION
      }
            report  << endl << ")" << endl;
     }
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "N_pred_yrs[[" << isp << "]] <- N_pred_yrs[[" << isp << "]]";
       report << "[2:length(N_pred_yrs[[ " << isp << "]])]" << endl;
@@ -3607,10 +3642,10 @@ REPORT_SECTION
   // N_prey_yrs
   // ====================
   report << endl << "N_prey_yrs<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
     report << "N_prey_yrs[[" << isp << "]] <- c(" << endl << N_prey_yrs(isp,styr_pred,1);
-     for (iyr=styr_pred; iyr <= endyr; iyr++)
+     for (iyr=styr_pred; iyr <= FinalYr; iyr++)
      {
        for (iage=1;iage<=nages(isp);iage++)  // ages per species
          {
@@ -3619,7 +3654,7 @@ REPORT_SECTION
      }
            report  << endl << ")" << endl;
     }
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "N_prey_yrs[[" << isp << "]] <- N_prey_yrs[[" << isp << "]]";
       report << "[2:length(N_prey_yrs[[ " << isp << "]])]" << endl;
@@ -3631,7 +3666,7 @@ REPORT_SECTION
   // Pred_r
   // ====================
   report << endl << "Pred_r<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
     report << "Pred_r[[" << isp << "]] <- c(" << endl << Pred_r(isp,styr_pred,1);
      for (iyr=styr_pred; iyr <= endyr; iyr++)
@@ -3643,7 +3678,7 @@ REPORT_SECTION
      }
            report  << endl << ")" << endl;
     }
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "Pred_r[[" << isp << "]] <- Pred_r[[" << isp << "]]";
       report << "[2:length(Pred_r[[ " << isp << "]])]" << endl;
@@ -3655,7 +3690,7 @@ REPORT_SECTION
   // Prey_r
   // ====================
   report << endl << "Prey_r<-list()" << endl;
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
     report << "Prey_r[[" << isp << "]] <- c(" << endl << Prey_r(isp,styr_pred,1);
      for (iyr=styr_pred; iyr <= endyr; iyr++)
@@ -3667,7 +3702,7 @@ REPORT_SECTION
      }
            report  << endl << ")" << endl;
     }
-  for (isp = 1; isp <= nspp; isp++)
+  for (isp=1;isp<=nspp;isp++)
     {
       report << "Prey_r[[" << isp << "]] <- Prey_r[[" << isp << "]]";
       report << "[2:length(Prey_r[[ " << isp << "]])]" << endl;
