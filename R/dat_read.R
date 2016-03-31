@@ -182,7 +182,8 @@ dat_read <- function(fn_in, verbose = FALSE) {
   info$lbinwidth <- getval("lbinwidth", "omega_vB")
 
   # von Bertalanffy parameters
-  info$omega_vB <- getval("omega_vB", "nyrs_stomlns")
+  info$omega_vB <- getval("omega_vB", "omega_sigma")
+  info$omega_sigma <- getval("omega_sigma")
 
   # Stomach
   info$nyrs_stomwts <- getval("nyrs_stomwts")
