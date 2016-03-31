@@ -20,10 +20,6 @@ DATA_SECTION
 
   // Declare constants
   // ====================
-  int mcmcmode
-  !! mcmcmode = 0;
-  int mcflag
-  !! mcflag   = 1;
   int count_iters
   !! count_iters = 0;
   int FinalYr;                // Terminal year of model
