@@ -26,10 +26,16 @@ they are set at 2000.
 and `sd_ration` 
 are weighting factors for the catch and ration data. 
 Need to investigate these values.
+* Investigate the effects of removing exp(natmortprior) from the final divisor
+of R_guess. Amak does not do this, and you are just dividing by 1.2
+* Look at IyrPred and how it goes from iyr to endyr
 
 ### Future programming
 * Utilize logistic selectivity `srv_sel_opt(isrv) == 2`, but prior to its
 use the code needs to be checked.
+
+### Data
+* Maximum ages == 15, 15, 12 yet the stock assessments use 14, 11, 11
 
 ### Discussion
 * Inclusion of age zero fish in a stock assessment model is not typical.
