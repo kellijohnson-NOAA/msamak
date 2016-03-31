@@ -153,7 +153,6 @@ dat_write <- function(info, fn_out, verbose = FALSE) {
 
   # von Bertalanffy parameters
   wll("omega_vB")
-  wl("omega_sigma")
 
   # Stomach
   wl("nyrs_stomwts")

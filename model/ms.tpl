@@ -256,7 +256,6 @@ DATA_SECTION
   !!  }
   !! }
   init_matrix omega_vB(1,nspp,1,nages);              // von_Bertalanffy ration
-  init_vector omega_sigma(1,nspp);                   // von-Bertalanffy sigma (data weight)
   init_ivector nyrs_stomwts(1,nspp);                 // Number of years with predator stomach weight samples
   init_ivector nyrs_stomlns(1,nspp_sq);              // Number of years with predator stomach length samples
   init_imatrix yrs_stomwts(1,nspp,1,nyrs_stomwts);   // Years with predator stomach weights
