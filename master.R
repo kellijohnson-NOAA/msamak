@@ -1,4 +1,11 @@
-#' Master script to run msamak
+#' A simulation using Multi-species Assessment Method for Alaska (MSAMAK).
+
+#' The simulation includes an operating model and estimation method, which
+#' entails an estimation model and one of two data weighting algorithims.
+#' The first algorithm is based on McAllister and Ianelli (1997) and the
+#' second algorithm is based on Francis (2011) and accounts for correlation.
+
+#' Write more details here.
 
 dirmaster <- file.path("d:", "msamak")
 if (!file.exists(dirmaster)) {
