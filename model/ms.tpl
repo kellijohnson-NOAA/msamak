@@ -560,8 +560,6 @@ DATA_SECTION
   !!   phase_Rzero = -99;
   !!   phase_fmort = -99;
   !!   phase_fmort1 = -99;
-  !!   for (ifsh=1;ifsh<=nfsh;ifsh++) phase_selcoff_fsh(ifsh) = -99;
-  !!   for (isp=1;isp<=nspp;isp++) phase_selcoff_srv(isp) = -99;
   !!   phase_LogRec = -99;
   !!   phase_RecDev = -99;
   !!   phase_SelFshCoff = -99;
@@ -570,10 +568,11 @@ DATA_SECTION
   !!  }
   !! if (phase_SelFshCoff == -99)
   !!  {
-  !!   for (ifsh = 1; ifsh <= nfsh; ifsh++)
-  !!    {
-  !!     phase_selcoff_fsh(ifsh) = -99;
-  !!    }
+  !!   for (ifsh = 1; ifsh <= nfsh; ifsh++) phase_selcoff_fsh(ifsh) = -99;
+  !!  }
+  !! if (phase_SelSrvCoff == -99)
+  !!  {
+  !!   for (isrv = 1; isrv <= nsrv; isrv++) phase_selcoff_srv(isrv) = -99;
   !!  }
 
   number LowerBoundH3;
@@ -974,11 +973,6 @@ PRELIMINARY_CALCS_SECTION
           offset_diet_l += -1*Itot*diet_l_dat(rk_sp,rln,kln)*log(diet_l_dat(rk_sp,rln,kln)+ constant);
       }
     }
-
-  if (phase_SelFshCoff == -99)
-   for (ifsh=1;ifsh<=nfsh;ifsh++) phase_selcoff_fsh(ifsh) = -99;
-  if (phase_SelSrvCoff == -99)
-   for (isp=1;isp<=nspp;isp++) phase_selcoff_srv(isp) = -99;
 
   // Initial values for M, steepness, sigmar, R0, etc
   // ====================
