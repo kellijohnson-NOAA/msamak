@@ -17,14 +17,9 @@ DATA_SECTION
   !!CLASS ofstream mceval("mceval.dat")
   !!CLASS ofstream McFile1("SSBMCMC.Out");
   !!CLASS ofstream McFile2("RECMCMC.Out");
-  !!CLASS ofstream TempFile("Temp.Out");
 
   // Declare constants
   // ====================
-  int mcmcmode
-  !! mcmcmode = 0;
-  int mcflag
-  !! mcflag   = 1;
   int count_iters
   !! count_iters = 0;
   int FinalYr;                // Terminal year of model
@@ -802,7 +797,6 @@ PARAMETER_SECTION
   vector Zlast_pen(1,nspp);                                // Penalty on stability
   vector obj_comps(1,16)                                   // Values of likelihood components
   number penal_rec_dev;
-  //number Misc_penal;
   vector ration_pen(1,nspp);
   number mean_ohat;
 
