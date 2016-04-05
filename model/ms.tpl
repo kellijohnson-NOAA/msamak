@@ -324,15 +324,13 @@ DATA_SECTION
   init_vector cvsigmarprior(1,nspp)
   init_int phase_sigmar                              // Phase for sigma-R
   init_ivector styr_rec_est(1,nspp)                  // Start year for recruitment estimate
-  ivector endyr_rec_est(1,nspp);                     // End year for recruitment estimate
   ivector nrecs_est(1,nspp);                         // Number of estimated recruitments
 
   !! n_est_recs = 0;
   !! for (isp=1; isp<=nspp; isp++)
   !!  {
-  !!   endyr_rec_est(isp) = endyr;
-  !!   nrecs_est(isp) = endyr_rec_est(isp)-styr_rec_est(isp)+1;
-  !!   n_est_recs += endyr_rec_est(isp)- styr_rec(isp)+1;
+  !!   nrecs_est(isp) = endyr-styr_rec_est(isp)+1;
+  !!   n_est_recs += endyr - styr_rec(isp)+1;
   !!  }
 
   init_vector natmortprior(1,nspp)                   // Prior for M
@@ -1923,8 +1921,8 @@ FUNCTION Rec_Like
     if (Disc_any_phases == 0 || current_phase() > 2-Initial_phase+1)
       {
         pred_rec(isp) = SRecruit(Sp_Biom(isp)(styr_rec(isp),endyr).shift(styr_rec(isp))(styr_rec(isp),endyr));
-        dvar_vector chi = log(elem_div(mod_rec(isp)(styr_rec_est(isp),endyr_rec_est(isp)) ,
-                                  pred_rec(isp)(styr_rec_est(isp),endyr_rec_est(isp))));
+        dvar_vector chi = log(elem_div(mod_rec(isp)(styr_rec_est(isp),endyr ) ,
+                                  pred_rec(isp)(styr_rec_est(isp),endyr )));
         SSQRec   = norm2( chi ) ;
         m_sigmar(isp)   =  sqrt( SSQRec  / nrecs_est(isp));
         m_sigmarsq(isp) =  m_sigmar(isp) * m_sigmar(isp)   ;
@@ -1935,12 +1933,10 @@ FUNCTION Rec_Like
       {
         // Variance term for the parts not estimated by sr curve
         rec_like(isp,4) += .5*norm2( rec_dev_spp(isp)(styr_rec(isp),styr_rec_est(isp)) )/sigmarsq(isp) + (styr_rec_est(isp)-styr_rec(isp))*log(sigmar(isp)) ;
-        if (endyr>endyr_rec_est(isp))
-          rec_like(isp,4) += .5*norm2( rec_dev_spp(isp)(endyr_rec_est(isp),endyr  ) )/sigmarsq(isp) + (endyr-endyr_rec_est(isp))*log(sigmar(isp)) ;
       }
      else
       {
-        rec_like(isp,2) += norm2( rec_dev_spp(isp)( styr_rec_est(isp),endyr_rec_est(isp)) ) ;
+        rec_like(isp,2) += norm2( rec_dev_spp(isp)( styr_rec_est(isp),endyr) ) ;
       }
      rec_like(isp,2) += norm2( rec_dev_spp(isp)( styr_rec_est(isp),endyr) ) ;
    }
