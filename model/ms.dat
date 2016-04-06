@@ -16,10 +16,6 @@
 #### Phase
 # Reset all phases to zero, 1 overrides phases (ResetPhasesToZero)
 0
-# Initial phase, usually 1 (Initial_phase)
-1
-# Last phase of calculation (Terminal_phase)
-15
 
 #### Predation
 # Without (0) with (>0) predation (with_pred)
