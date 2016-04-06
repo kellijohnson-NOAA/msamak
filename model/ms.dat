@@ -567,9 +567,6 @@
 1 1 1 1 1
 #nselages_in_fsh (by fsh)
 12 10 10 10 10
-#phase_sel_fsh
-# in assessments, pollock was phase 3 and mackerel phase 4
-2 2 2 2 2
 #curv_pen_fsh (by fsh)
 0.2 0.4083 0.2 0.2 0.2
 #seldec_pen_fsh (by fsh)
@@ -600,8 +597,6 @@
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-#phase_sel_srv(by srv)
-3 5 5
 #nselages_in_srv
 10
 #curv_pen_srv (gets converted to "8" in code)

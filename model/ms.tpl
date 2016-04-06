@@ -315,7 +315,6 @@ DATA_SECTION
   // ====================
   init_ivector fsh_sel_opt(1,nfsh)                   // Options for fishery selectivity
   init_vector nselages_in_fsh(1,nfsh)                // Number of age classes with selectivities by fishery
-  init_ivector phase_sel_fsh(1,nfsh)                 // Phase for selectivity parameters
   init_vector curv_pen_fsh(1,nfsh)                   // Penalty on the curvature of selectivity
   init_vector seldec_pen_fsh(1,nfsh)                 // Penalty on declining selectivity with age
   ivector seldecage(1,nfsh);                         // midpoint of selected ages
@@ -328,14 +327,11 @@ DATA_SECTION
   init_matrix sel_change_in_fsh(1,nfsh,styr,endyr)   // Changes in fishery selectivity
   ivector n_sel_ch_fsh(1,nfsh);                      // Number of years of fishery selectivity changes
   imatrix yrs_sel_ch_tmp(1,nfsh,1,nyrs);             // The years of fishery selectivity changes
-  ivector phase_selcoff_fsh(1,nfsh);                 // Phase for fishery selectivity
-  !! phase_selcoff_fsh = phase_sel_fsh;
 
   // Survey selectivity
   // ====================
   init_ivector srv_sel_opt(1,nsrv)                   // Options for survey selectivity
   init_matrix sel_change_in_srv(1,nsrv,styr,endyr)   // Changes survey selectivity
-  init_ivector phase_sel_srv(1,nsrv)                 // Phase for survey selectivity
   vector sel_slp_in_srv(1,nsrv)                      // Survey selectivity slope
   vector sel_inf_in_srv(1,nsrv)                      // Survey selectivity inflection
   ivector nselages_in_srv(1,nsrv)                    // Number of age classes with selectivities by survey
@@ -345,8 +341,6 @@ DATA_SECTION
   vector sel_dinf_in_srv(1,nsrv);                    // maximum logistic selectivity for survey
   ivector n_sel_ch_srv(1,nsrv);                      // Number of years of survey selectivity changes
   imatrix yrs_sel_ch_tsrv(1,nsrv,1,nyrs);            // The years of survey selectivity changes
-  ivector phase_selcoff_srv(1,nsrv);                 // Phase for survey selectivity
-  !! phase_selcoff_srv = phase_sel_srv;
   !! nselages_in_srv = nages - 1;
 
  LOCAL_CALCS
@@ -359,7 +353,6 @@ DATA_SECTION
       *(ad_comm::global_datafile) >> nselages_in_srv(isrv);
       *(ad_comm::global_datafile) >> curv_pen_srv(isrv);
       *(ad_comm::global_datafile) >> seldec_pen_srv(isrv);
-      phase_selcoff_srv(isrv) = phase_sel_srv(isrv);
       logsel_slp_in_srv(isrv) = 0.0;
       sel_inf_in_srv(isrv)    = 0.0;
       sel_dinf_in_srv(isrv)   = 0.0;
@@ -368,14 +361,10 @@ DATA_SECTION
      {
       *(ad_comm::global_datafile) >> sel_slp_in_srv(isrv);
       *(ad_comm::global_datafile) >> sel_inf_in_srv(isrv);
-      phase_selcoff_srv(isrv) = -1;
       logsel_slp_in_srv(isrv) = log(sel_slp_in_srv(isrv));
       sel_dinf_in_srv(isrv)   = 0.0;
      }
-    if (phase_selcoff_srv(isrv) > 0)
-     {
-      curv_pen_srv(isrv) = 1. / (square(curv_pen_srv(isrv)) * 2);
-     }
+
    }
  END_CALCS
 
@@ -466,14 +455,6 @@ DATA_SECTION
   !!   phase_SelSrvCoff = -99;
   !!   phase_SelSrvCoff2 = -99; // not in NRM tpl -dhk april 28 09
   !!  }
-  !! if (phase_SelFshCoff == -99)
-  !!  {
-  !!   for (ifsh = 1; ifsh <= nfsh; ifsh++) phase_selcoff_fsh(ifsh) = -99;
-  !!  }
-  !! if (phase_SelSrvCoff == -99)
-  !!  {
-  !!   for (isrv = 1; isrv <= nsrv; isrv++) phase_selcoff_srv(isrv) = -99;
-  !!  }
 
   number LowerBoundH3;
   number UpperBoundH3;
@@ -490,7 +471,7 @@ DATA_SECTION
   init_int end_dat
  LOCAL_CALCS
    if (end_dat != 999)
-    {cout << "Error reading main data, end_dat=" << end_dat << endl; exit(1);}
+    {cout << "Error reading main data, end_dat=" << end_dat <<  endl; exit(1);}
    else
     cout << "Finished reading main data" << endl << endl;
  END_CALCS
@@ -629,10 +610,10 @@ DATA_SECTION
  LOCAL_CALCS
   if (with_pred > 0)
   {
-   end_dat = 0;
-   *(ad_comm::global_datafile) >> end_dat;
-   if (end_dat != 999)
-    {cout << "Error reading diet data " << end_dat << endl; exit(1);}
+   int end_pred;
+   *(ad_comm::global_datafile) >> end_pred;
+   if (end_pred != 999)
+    {cout << "Error reading diet data " << end_pred << endl; exit(1);}
    else
     cout << "Finished reading diet data" << endl << endl;
 
@@ -721,19 +702,19 @@ PARAMETER_SECTION
   vector gam_a(1,nspp);
   vector gam_b(1,nspp);
   vector M(1,nspp);
-  init_bounded_vector steepness(1,nspp,0.21,Steepness_UB,phase_srec) // Steepness (phase_srec: -6, -6)
-  init_bounded_vector log_Rzero(1,nspp,-100,100,phase_Rzero)         // Log(R0) (phase_Rzero = 2) : init_vector in NRM -dhk apr 28 09
+  init_bounded_vector steepness(1,nspp,0.21,Steepness_UB,phase_srec) // Steepness
+  init_bounded_vector log_Rzero(1,nspp,-100,100,phase_Rzero)         // Log(R0)
   init_bounded_vector rec_dev(1,n_est_recs,-15,2,phase_RecDev);      // All species combined (rec devs, phase = 2)
-  init_vector log_sigmar(1,nspp,phase_sigmar);                       // Sigma(R) (phase_sigmar = -5, -4)
-  init_vector log_selcoffs_fsh(1,Nselfshpars,phase_SelFshCoff)       // Log (selectivity coefficients) (phase_selcoff_fsh: 3, 4)
-  init_number_vector log_q_srv(1,nsrv,phase_q)                       // Survey-q (phase_q: -6, -4)
-  init_vector log_selcoffs_srv(1,Nselsrvpars,phase_SelSrvCoff);      // Survey selectivity coefficients (phase_selcoff_srv: -1, 5)
-  init_vector logsel_slope_srv_par(1,Nselsrvlogs,phase_SelSrvCoff2)  // Selectivity slope ( 3, -1)
-  init_vector sel50_srv_par(1,Nselsrvlogs,phase_SelSrvCoff2)         // Length-at-50%-selectivity ( 3, -1)
-  matrix logsel_slope_srv(1,nsrv,1,n_sel_ch_srv)                     // Selectivity slope ( 3, -1)
-  matrix sel50_srv(1,nsrv,1,n_sel_ch_srv)                            // Length-at-50%-selectivity ( 3, -1)
+  init_vector log_sigmar(1,nspp,phase_sigmar);                       // Sigma(R)
+  init_vector log_selcoffs_fsh(1,Nselfshpars,phase_SelFshCoff)       // Log (selectivity coefficients)
+  init_number_vector log_q_srv(1,nsrv,phase_q)                       // Survey-q
+  init_vector log_selcoffs_srv(1,Nselsrvpars,phase_SelSrvCoff);      // Survey selectivity coefficients
+  init_vector logsel_slope_srv_par(1,Nselsrvlogs,phase_SelSrvCoff2)  // Selectivity slope
+  init_vector sel50_srv_par(1,Nselsrvlogs,phase_SelSrvCoff2)         // Length-at-50%-selectivity
+  matrix logsel_slope_srv(1,nsrv,1,n_sel_ch_srv)                     // Selectivity slope
+  matrix sel50_srv(1,nsrv,1,n_sel_ch_srv)                            // Length-at-50%-selectivity
   init_bounded_vector fmort_dev_est(1,NFdevs,-12,8,phase_fmort)      // Fishing mortality deviations
-  init_bounded_vector log_avg_fmort(1,nfsh,-10,2,phase_fmort1)       // Average F (phase = 1)
+  init_bounded_vector log_avg_fmort(1,nfsh,-10,2,phase_fmort1)       // Average F
   init_number dummy(PhaseDummy);
   init_number dummy2(Terminal_phase);
 
@@ -862,6 +843,8 @@ PRELIMINARY_CALCS_SECTION
   // Penalty on the curvature of fishery selectivity (only used if opt_fsh_sel=1)
   // ====================
   curv_pen_fsh = 1./ (square(curv_pen_fsh)*2);
+  for(isrv = 1; isrv <= nsrv; isrv++)
+    curv_pen_srv(isrv) = 1. / (square(curv_pen_srv(isrv)) * 2);
 
   // R_guess
   // R_guess is an initial guess for log_Rzero, derived from the prior on M.
@@ -1101,7 +1084,6 @@ FUNCTION DoAll
   // Assign natural mortality
   // If M is not estimated then the estimated value is set equal to the
   // prior for M for that species
-  cout << natmortphase2 << endl;
   ipnt = 0;
   for (isp=1;isp<=nspp;isp++)
    if (natmortphase2(isp) <= 0)
@@ -1242,7 +1224,7 @@ FUNCTION Get_Selectivity
                // 4. Divide by the mean, which is the same as subtracting the log(mean)
                // 5. To constrain the mean of the parameters to one.
        {
-        if (phase_SelFshCoff > 0 || phase_selcoff_fsh(ifsh) == -99)
+        if (phase_SelFshCoff > 0)
          {
           int isel_ch_tmp = 1 ;
           dvar_vector sel_coffs_tmp(1,nselages_fsh(ifsh,isel_ch_tmp));
@@ -1307,7 +1289,7 @@ FUNCTION Get_Selectivity
      switch (srv_sel_opt(isrv))
       {
        case 1 : // Survey selectivity coefficients (mackerel)
-       if (phase_selcoff_srv(isrv) > 0 || phase_selcoff_srv(isrv) == -99)
+       if (phase_SelSrvCoff > 0)
         {
          int isel_ch_tmp = 1 ;
          dvar_vector sel_coffs_tmp(1,nselages_srv(isrv,isel_ch_tmp));
@@ -2095,7 +2077,7 @@ FUNCTION Sel_Like
   for (isrv=1;isrv<=nsrv;isrv++)  //SURVEYS
    {                              //=======
     isp = spp_fsh(isrv);
-    if (phase_selcoff_srv(isrv) > 0 || phase_SelSrvCoff == -99)
+    if (phase_SelSrvCoff > 0)
      {
        for (iyr=1;iyr<=n_sel_ch_srv(isrv);iyr++)
         {
