@@ -63,7 +63,6 @@ DATA_SECTION
   int PhasePredH2;
   int PhasePredH3;
   int PhasePredH4;
-  int phase_SelSrvCoff2;
   int styr_pred
   !! styr_pred = 1960;
   int nyrs_pred;
@@ -306,7 +305,6 @@ DATA_SECTION
   !! if (resp_type > 5)  PhasePredH3 = PhasePred2 + 1;
   !! if (resp_type == 3 || resp_type == 6) PhasePredH4 = PhasePred2 + 2;
   !! if (resp_type == 4 || resp_type == 5) PhasePredH3 = PhasePred2 + 2;
-  !! phase_SelSrvCoff2 = phase_SelSrvCoff;
 
   vector catchbiomass_pen(1,nspp)                    // Convert cv_catchbiomass to penalty
   !! catchbiomass_pen = 1.0 / (2 * square(cv_catchbiomass));
@@ -453,7 +451,6 @@ DATA_SECTION
   !!   phase_RecDev = -99;
   !!   phase_SelFshCoff = -99;
   !!   phase_SelSrvCoff = -99;
-  !!   phase_SelSrvCoff2 = -99; // not in NRM tpl -dhk april 28 09
   !!  }
 
   number LowerBoundH3;
@@ -629,42 +626,23 @@ PARAMETER_SECTION
   // Fishery selectivity parameters combined over species
   // ====================
   !! int Nselfshpars = 0;
-  !! for (ifsh=1; ifsh <= nfsh; ifsh++)
-  !!  {
-  !!   for (iyr=1;iyr<=n_sel_ch_fsh(ifsh);iyr++)
-  !!    {
-  !!     for (iage=1;iage<=nselages_fsh(ifsh,iyr);iage++)
-  !!      {
+  !! for (ifsh = 1; ifsh <= nfsh; ifsh++)
+  !!   for (iyr = 1; iyr <= n_sel_ch_fsh(ifsh); iyr++)
+  !!     for (iage = 1; iage <= nselages_fsh(ifsh,iyr); iage++)
   !!       Nselfshpars += 1;
-  !!      }
-  !!    }
-  !!  }
+
 
   // Survey selectivity parameters combined over species
   // =====================
   !! int Nselsrvpars = 0;
-  !! int Nselsrvlogs = 0;
   !! for (isrv=1;isrv<=nsrv;isrv++)
   !!  {
   !!   if (srv_sel_opt(isrv) == 1)
   !!    {
   !!     for (iyr=1;iyr<=n_sel_ch_srv(isrv);iyr++)
-  !!      {
   !!       for (iage=1;iage<=nselages_srv(isrv,iyr);iage++)
-  !!        {
   !!         Nselsrvpars += 1;
-  !!        }
-  !!      }
   !!    }
-  !!   if (srv_sel_opt(isrv) == 2)
-  !!    {
-  !!      Nselsrvlogs += 1;
-  !!    }
-  !!  }
-  !! if (Nselsrvlogs == 0)
-  !!  {
-  !!   Nselsrvlogs = -1;
-  !!   phase_SelSrvCoff2 = -1;
   !!  }
 
   // Count how many F_devs are needed
@@ -709,8 +687,6 @@ PARAMETER_SECTION
   init_vector log_selcoffs_fsh(1,Nselfshpars,phase_SelFshCoff)       // Log (selectivity coefficients)
   init_number_vector log_q_srv(1,nsrv,phase_q)                       // Survey-q
   init_vector log_selcoffs_srv(1,Nselsrvpars,phase_SelSrvCoff);      // Survey selectivity coefficients
-  init_vector logsel_slope_srv_par(1,Nselsrvlogs,phase_SelSrvCoff2)  // Selectivity slope
-  init_vector sel50_srv_par(1,Nselsrvlogs,phase_SelSrvCoff2)         // Length-at-50%-selectivity
   matrix logsel_slope_srv(1,nsrv,1,n_sel_ch_srv)                     // Selectivity slope
   matrix sel50_srv(1,nsrv,1,n_sel_ch_srv)                            // Length-at-50%-selectivity
   init_bounded_vector fmort_dev_est(1,NFdevs,-12,8,phase_fmort)      // Fishing mortality deviations
@@ -1019,12 +995,6 @@ PRELIMINARY_CALCS_SECTION
             log_selcoffs_srv(ipnt) = -log(1.0+mfexp(-log(19)*((double(iage)-8.0)/5.0)));
            }
          }
-        if (srv_sel_opt(isrv) == 2)
-         {
-          ipnt += 1;
-          logsel_slope_srv_par(ipnt) = logsel_slp_in_srv(isrv);
-          sel50_srv_par(ipnt) = sel_inf_in_srv(isrv);
-         }
        }
      }
 
@@ -1268,13 +1238,7 @@ FUNCTION Get_Selectivity
   ipnt = 0;
   for (isrv = 1; isrv <= nsrv; isrv++)
    {
-    if (srv_sel_opt(isrv) == 2)
-     {
-      ipnt += 1;
-      logsel_slope_srv(isrv) = logsel_slope_srv_par(ipnt);
-      sel50_srv(isrv) = sel50_srv_par(ipnt);
-     }
-    else
+    if (srv_sel_opt(isrv) == 1)
      {
       logsel_slope_srv(isrv) = 0;
       sel50_srv(isrv) = 0;
@@ -1316,37 +1280,12 @@ FUNCTION Get_Selectivity
        break;
        case 2 : // Survey asymptotic logistic (pollock, cod)
         {
-         int isel_ch_tmp = 1 ; // selectivity change pointer can be incremented with n_sel_ch_srv and with srv
-                               // in for loop to increment ipnt,isel_ch_tmp for multiple species
-         for (iyr=styr;iyr<=endyr;iyr++) // this for loop not used, see comment below
-           {
-            if (iyr==yrs_sel_ch_srv(isrv,isel_ch_tmp))
-             if (isel_ch_tmp<n_sel_ch_srv(isrv)) isel_ch_tmp++;
-           } // option of incrementing isel_ch_tmp when different logistic survey selectivities
-             // occur at breaks in time (yrs_sel_ch_srv) was not used for cod, pollock, or mackerel
-
-         sel_slope_srv(isrv) = mfexp(logsel_slope_srv(isrv));
-         dvariable sel_slope_tmp = sel_slope_srv(isrv,isel_ch_tmp);
-         dvariable sel50_tmp     = sel50_srv(isrv,isel_ch_tmp);
-         for (iyr=styr;iyr<=endyr;iyr++)
-           {
-             if (iyr==yrs_sel_ch_srv(isrv,isel_ch_tmp)) // first year of survey only for cod, pollock and mackerel
-              {                                          // so isel_ch_tmp always = 1
-               sel_slope_tmp = sel_slope_srv(isrv,isel_ch_tmp);
-               sel50_tmp     =     sel50_srv(isrv,isel_ch_tmp);
-               if (isel_ch_tmp<n_sel_ch_srv(isrv))      // n_sel_ch_srv always = 1
-                 isel_ch_tmp++;                         // so never incremented
-              }
-             // fill in log_sel_srv values for all the selected age groups
-             log_sel_srv(isrv,iyr)(1,nselages_srv(isrv,isel_ch_tmp)) = -1.*log( 1.0 + mfexp(-1.*sel_slope_tmp *
-                                                  ( age_matrix(isp)(1,nselages_srv(isrv,isel_ch_tmp)) - sel50_tmp) ));
-             // copy last selected age log_sel_srv value to the remaining older age groups
-             log_sel_srv(isrv,iyr)(nselages_srv(isrv,isel_ch_tmp),nages(isp)) = log_sel_srv(isrv,iyr,nselages_srv(isrv,isel_ch_tmp));
-           }
-         }
+         cout << "case 2 Fishery asymptotic logistic not coded" << endl;
+        }
         break;
     }        // end of srv_sel_opt switch
    }         // end of isrv loop
+
   sel_fsh = mfexp(log_sel_fsh);
   sel_srv = mfexp(log_sel_srv);
 
