@@ -66,7 +66,6 @@ DATA_SECTION
   int styr_pred
   !! styr_pred = 1960;
   int nyrs_pred;
-  int PhaseDummy;
   number offset_diet_w;      // Scales multinomial likelihood to 1
   number offset_diet_l;      // Scales multinomial likelihood to 1
   number smallF;             // Used in R_guess as a small fishing mortality
@@ -76,8 +75,6 @@ DATA_SECTION
 
   // Data file
   // ====================
-
-  init_int DebugOut
 
   init_int Set_from_pin_file                      // Default is zero
   !! if (Set_from_pin_file != 0)
@@ -401,13 +398,11 @@ DATA_SECTION
   !! endyr_all = endyr_sp + 1;
   !! nyrs_pred = endyr - styr_pred + 1;
 
-  !! PhaseDummy = -1;
   !! if (with_pred == 0)
   !! {PhasePred1 = -3; PhasePred2 = -1; PhasePred3 = -1; }
   !! if (ResetPhasesToZero==1)
   !!  {
   !!   cout << "Resetting all phases" << endl;
-  !!   PhaseDummy = 1;
   !!   PhasePred1 = -99;
   !!   PhasePred2 = -99;
   !!   PhasePred3 = -99;

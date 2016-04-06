@@ -5,10 +5,6 @@
 #### Author: Kelli Faye Johnson
 ###############################################################################
 
-#### Debug
-# 0 = Off; 1+ levels
-0
-
 #### Pin
 # Read from pin file if > 0, else read from dat file only
 0
