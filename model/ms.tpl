@@ -11,6 +11,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 DATA_SECTION
 ///////////////////////////////////////////////////////////////////////////////
+  !! cout << "Begin DATA_SECTION" << endl << endl;
 
   // Output
   // ====================
@@ -74,7 +75,6 @@ DATA_SECTION
 
   // Data file
   // ====================
-  !! cout << "Reading data file" << endl << endl;
 
   init_int DebugOut
 
@@ -578,19 +578,14 @@ DATA_SECTION
   !! UpperBoundH4 =   20.0;
   !! if (resp_type == 7) UpperBoundH3 = -0.00001;
 
-  // End of reading in the data file.
+  // End of reading in the main data file.
   // ====================
   init_int end_dat
  LOCAL_CALCS
    if (end_dat != 999)
-    {
-     cout << "Error reading data file " << end_dat << endl;
-     exit(1);
-    }
+    {cout << "Error reading main data" << end_dat << endl; exit(1);}
    else
-    {
-     cout << "Finished reading data file" << endl << endl;
-    }
+    cout << "Finished reading main data" << endl << endl;
  END_CALCS
 
 ///////////////////////////////////////////////////////////////////////////////
