@@ -41,6 +41,8 @@ DATA_SECTION
   int iage;                   // Counter
   int ipnt;                   // Pointer
   int istart;                 // Placeholder
+  int trick;                  // read in zero if there is no predation
+  !! trick = 0;
   int IyrPred;                // Year for Compute_Predation
   int rk_sp;                  // Predation sp X sp
   int r_age;                  // Predator age
@@ -200,7 +202,7 @@ DATA_SECTION
   !!  }
 
   init_3darray oc_srv(1,nsrv,1,nyrs_srv_comp,1,nyrs_srv_age);// Survey age or length composition data
-  init_3darray  wt_srv(1,nsrv,styr,endyr,1,nages)       // Weight-at-age (survey)
+  init_3darray  wt_srv(1,nsrv,styr,endyr,1,nages);           // Weight-at-age (survey)
 
   // Biological parameters
   // ====================
@@ -216,101 +218,6 @@ DATA_SECTION
 
   init_3darray al_key(1,nspp,1,nages,1,l_bins);         // Age-length transition matrix
   matrix mean_laa(1,nspp,1,nages);                      // Mean length-at-age for predator selectivity
-
-  // Predator-prey data
-  // ====================
-  !! nspp_sq = nspp * nspp;        // number pred X prey
-  !! nspp_sq2 = nspp * (nspp + 1); // number pred X (prey + "other")
-  // indices using l_bins or nages for each pred-prey combination:
-  // todo: document this section of code better as I do not understand
-  // what is happening. I think kk_ages pertains the number of age bins
-  // for each species with an other category in there.
-
-  ivector  r_lens(1,nspp_sq);
-  ivector  k_lens(1,nspp_sq);
-  ivector  r_ages(1,nspp_sq);
-  ivector  k_ages(1,nspp_sq);
-  ivector  rr_lens(1,nspp_sq2);
-  ivector  rr_ages(1,nspp_sq2);
-  ivector  kk_ages(1,nspp_sq2);
-
-  !! rk_sp = 0;
-  !! for (rsp=1; rsp<=nspp; rsp++)
-  !!  {
-  !!   for (ksp=1; ksp<=nspp; ksp++)
-  !!    {
-  !!     rk_sp = rk_sp+1;
-  !!     r_lens(rk_sp) = l_bins(rsp);
-  !!     k_lens(rk_sp) = l_bins(ksp);
-  !!     r_ages(rk_sp) = nages(rsp);
-  !!     k_ages(rk_sp) = nages(ksp);
-  !!    }
-  !!  }
-  !! rk_sp = 0;
-  !! for (rsp=1; rsp<=nspp; rsp++)
-  !!  {
-  !!   for (ksp=1; ksp<=nspp+1; ksp++)
-  !!    {
-  !!     rk_sp = rk_sp+1;
-  !!     rr_lens(rk_sp) = l_bins(rsp);
-  !!     rr_ages(rk_sp) = nages(rsp);
-  !!     if (ksp <=nspp) kk_ages(rk_sp) = nages(ksp);
-  !!     else kk_ages(rk_sp) = 1;
-  !!    }
-  !!  }
-
-  init_vector lbinwidth(1,nspp);                     // width of predator bins for each species
-  matrix pred_l_bin(1,nspp,1,l_bins);                // mid-points of length bins
-  !! for (isp = 1; isp<=nspp; isp++)
-  !! {
-  !!  for (ksp=1; ksp<=l_bins(isp); ksp++)
-  !!  {
-  !!   pred_l_bin(isp, ksp) = ksp * lbinwidth(isp) - (lbinwidth(isp) / 2.0);
-  !!  }
-  !! }
-  init_matrix omega_vB(1,nspp,1,nages);              // von_Bertalanffy ration
-  init_vector omega_sigma(1,nspp);                   // von-Bertalanffy sigma (data weight)
-  init_ivector nyrs_stomwts(1,nspp);                 // Number of years with predator stomach weight samples
-  init_ivector nyrs_stomlns(1,nspp_sq);              // Number of years with predator stomach length samples
-  init_imatrix yrs_stomwts(1,nspp,1,nyrs_stomwts);   // Years with predator stomach weights
-  init_imatrix yrs_stomlns(1,nspp_sq,1,nyrs_stomlns); // Years with predator stomach lengths
-  init_3darray stoms_w_N(1,nspp,1,l_bins,1,nyrs_stomwts); // Number of stomachsXpred_lenXyear with prey weights
-                                                     // a 3d array of 1:number of species x
-                                                     // 1:number of length bins for the predator species x
-                                                     // 1:number of years where weights were recorded.
-  init_3darray  stoms_l_N(1,nspp_sq,1,r_lens,1,nyrs_stomlns);  // Number of stomachsXpred_lenXyear with prey lengths
-                                                     // a 3d array of 1:number of species x
-                                                     // 1:number of length bins for the given predator species x
-                                                     // 1:number of years where lengths of prey were
-                                                     // recorded for the given predator
-                                                     // species stomach for the given prey species
-  init_vector min_SS_w(1,nspp);                      // minimum sample size stomach weights
-  init_vector max_SS_w(1,nspp);                      // maximum sample size stomach weights
-  init_vector min_SS_l(1,nspp_sq);                   // minimum sample size stomach lengths
-  init_vector max_SS_l(1,nspp_sq);                   // maximum sample size stomach lengths
-  ivector i_wt_yrs_all(1,nspp_sq2);                  // nyrs_stomwts for each predator species
-  !! rk_sp = 0;
-  !! for (rsp=1; rsp<=nspp; rsp++)
-  !!  {
-  !!   for (ksp=1; ksp<=nspp+1; ksp++)
-  !!    {
-  !!     rk_sp += 1;
-  !!     i_wt_yrs_all(rk_sp) = nyrs_stomwts(rsp);
-  !!    }
-  !!  }
-
-  init_3darray diet_w_dat(1,nspp_sq2,1,rr_lens,1,i_wt_yrs_all); // Prey weight fraction data
-                                                     // fraction of total prey weight for given prey in
-                                                     // each predator length X sample year
-                                                     // Sums total to 1 for a given length bin across all
-                                                     // prey types for a single predator. The sum will equal
-                                                     // zero if no prey weights were recorded in that year.
-                                                     // Prey includes other prey, which is why nspp_sq2
-  init_3darray diet_l_dat(1,nspp_sq,1,r_lens,1,k_lens); // Prey length fraction data
-                                                     // The 3d array stores predator length x prey length bin
-                                                     // for each predator x prey combination (no other)
-                                                     // where each row sums to one if there were samples
-                                                     // for that predator x prey combination in any year.
 
   // Modelling options
   // ====================
@@ -583,9 +490,154 @@ DATA_SECTION
   init_int end_dat
  LOCAL_CALCS
    if (end_dat != 999)
-    {cout << "Error reading main data" << end_dat << endl; exit(1);}
+    {cout << "Error reading main data, end_dat=" << end_dat << endl; exit(1);}
    else
     cout << "Finished reading main data" << endl << endl;
+ END_CALCS
+
+  // Predator-prey data
+  // ====================
+  // The following section is only read in if there is predation.
+  // Data is read in from msamak_pred.dat
+
+  !! nspp_sq = nspp * nspp;        // number pred X prey
+  !! nspp_sq2 = nspp * (nspp + 1); // number pred X (prey + "other")
+
+  // indices using l_bins or nages for each pred-prey combination:
+  ivector  r_lens(1,nspp_sq);
+  ivector  k_lens(1,nspp_sq);
+  ivector  r_ages(1,nspp_sq);
+  ivector  k_ages(1,nspp_sq);
+  ivector  rr_lens(1,nspp_sq2);
+  ivector  rr_ages(1,nspp_sq2);
+  ivector  kk_ages(1,nspp_sq2);
+
+  vector lbinwidth(1,nspp);                     // width of predator bins for each species
+  matrix pred_l_bin(1,nspp,1,l_bins);           // mid-points of length bins
+  !! for (isp = 1; isp<=nspp; isp++)
+  !!  for (ksp=1; ksp<=l_bins(isp); ksp++)
+  !!   pred_l_bin(isp, ksp) = ksp * lbinwidth(isp) - (lbinwidth(isp) / 2.0);
+  ivector nyrs_stomwts(1,nspp);                 // Number of years with predator stomach weight samples
+  ivector nyrs_stomlns(1,nspp_sq);              // Number of years with predator stomach length samples
+  vector min_SS_w(1,nspp);                      // minimum sample size stomach weights
+  vector max_SS_w(1,nspp);                      // maximum sample size stomach weights
+  vector min_SS_l(1,nspp_sq);                   // minimum sample size stomach lengths
+  vector max_SS_l(1,nspp_sq);                   // maximum sample size stomach lengths
+  ivector i_wt_yrs_all(1,nspp_sq2);             // nyrs_stomwts for each predator species
+
+  !! rk_sp = 0;
+  !! for (rsp=1; rsp<=nspp; rsp++)
+  !!  {
+  !!   for (ksp=1; ksp<=nspp; ksp++)
+  !!    {
+  !!     rk_sp = rk_sp+1;
+  !!     r_lens(rk_sp) = l_bins(rsp);
+  !!     k_lens(rk_sp) = l_bins(ksp);
+  !!     r_ages(rk_sp) = nages(rsp);
+  !!     k_ages(rk_sp) = nages(ksp);
+  !!    }
+  !!  }
+  !! rk_sp = 0;
+  !! for (rsp=1; rsp<=nspp; rsp++)
+  !!  {
+  !!   for (ksp=1; ksp<=nspp+1; ksp++)
+  !!    {
+  !!     rk_sp = rk_sp+1;
+  !!     rr_lens(rk_sp) = l_bins(rsp);
+  !!     rr_ages(rk_sp) = nages(rsp);
+  !!     if (ksp <=nspp) kk_ages(rk_sp) = nages(ksp);
+  !!     else kk_ages(rk_sp) = 1;
+  !!    }
+  !!  }
+
+  // Open the msamak_pred data file
+ LOCAL_CALCS
+  if (with_pred > 0)
+  {
+   ad_comm::change_datafile_name("msamak_pred.dat");
+   *(ad_comm::global_datafile) >> lbinwidth(1,nspp);
+   trick = nspp;
+  }
+ END_CALCS
+
+  init_matrix omega_vB(1,trick,1,nages);          // von_Bertalanffy ration
+
+ LOCAL_CALCS
+  if (with_pred > 0)
+  {
+   *(ad_comm::global_datafile) >> nyrs_stomwts(1,nspp);
+   *(ad_comm::global_datafile) >> nyrs_stomlns(1,nspp_sq);
+  }
+ END_CALCS
+
+  init_imatrix yrs_stomwts(1,trick,1,nyrs_stomwts); // Years with predator stomach weights
+ LOCAL_CALCS
+  if (with_pred > 0) trick = nspp_sq;
+ END_CALCS
+  init_imatrix yrs_stomlns(1,trick,1,nyrs_stomlns); // Years with predator stomach lengths
+ LOCAL_CALCS
+  if (with_pred > 0) trick = nspp;
+ END_CALCS
+  init_3darray stoms_w_N(1,trick,1,l_bins,1,nyrs_stomwts);
+                                                       // Number of stomachsXpred_lenXyear with prey weights
+                                                       // a 3d array of 1:number of species x
+                                                       // 1:number of length bins for the predator species x
+                                                       // 1:number of years where weights were recorded.
+ LOCAL_CALCS
+  if (with_pred > 0) trick = nspp_sq;
+ END_CALCS
+  init_3darray  stoms_l_N(1,trick,1,r_lens,1,nyrs_stomlns);
+                                                       // Number of stomachsXpred_lenXyear with prey lengths
+                                                       // a 3d array of 1:number of species x
+                                                       // 1:number of length bins for the given predator species x
+                                                       // 1:number of years where lengths of prey were
+                                                       // recorded for the given predator
+                                                       // species stomach for the given prey species
+
+ LOCAL_CALCS
+  if (with_pred > 0)
+  {
+   *(ad_comm::global_datafile) >> min_SS_w(1,nspp);
+   *(ad_comm::global_datafile) >> max_SS_w(1,nspp);
+   *(ad_comm::global_datafile) >> min_SS_l(1,nspp_sq);
+   *(ad_comm::global_datafile) >> max_SS_l(1,nspp_sq);
+   rk_sp = 0;
+   for (rsp=1; rsp<=nspp; rsp++)
+     for (ksp=1; ksp<=nspp+1; ksp++)
+       {rk_sp += 1; i_wt_yrs_all(rk_sp) = nyrs_stomwts(rsp);}
+   trick = nspp_sq2;
+  }
+ END_CALCS
+
+  init_3darray diet_w_dat(1,trick,1,rr_lens,1,i_wt_yrs_all); // Prey weight fraction data
+                                                     // fraction of total prey weight for given prey in
+                                                     // each predator length X sample year
+                                                     // Sums total to 1 for a given length bin across all
+                                                     // prey types for a single predator. The sum will equal
+                                                     // zero if no prey weights were recorded in that year.
+                                                     // Prey includes other prey, which is why nspp_sq2
+
+ LOCAL_CALCS
+  if (with_pred > 0) trick = nspp_sq;
+ END_CALCS
+  init_3darray diet_l_dat(1,trick,1,r_lens,1,k_lens); // Prey length fraction data
+                                                     // The 3d array stores predator length x prey length bin
+                                                     // for each predator x prey combination (no other)
+                                                     // where each row sums to one if there were samples
+                                                     // for that predator x prey combination in any year.
+
+ LOCAL_CALCS
+  if (with_pred > 0)
+  {
+   end_dat = 0;
+   *(ad_comm::global_datafile) >> end_dat;
+   if (end_dat != 999)
+    {cout << "Error reading diet data " << end_dat << endl; exit(1);}
+   else
+    cout << "Finished reading diet data" << endl << endl;
+
+   ad_comm::change_datafile_name("ms.dat");
+  }
  END_CALCS
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -839,13 +891,13 @@ PRELIMINARY_CALCS_SECTION
        (wt_pop(isp) * ntmp) /
        exp(-natmortprior(isp))
        );
-     cout << "R_guess without last divisor" << endl << endl;
+     cout << "R_guess without last divisor" << endl;
      cout << log(
        (mean(catch_bio(isp)) / smallF) /
        (wt_pop(isp) * ntmp)
        ) << endl << endl;
     }
-     cout << "R_guess" << endl << endl;
+     cout << "R_guess" << endl;
      cout << R_guess << endl << endl;
 
   // Compute fishery offsets to be used in FUNCTION Age_Like
@@ -873,35 +925,26 @@ PRELIMINARY_CALCS_SECTION
   // ====================
   mean_laa = 0;
   for (rsp=1;rsp<=nspp;rsp++)
-   {
     for (iage=1;iage<=nages(rsp);iage++)
-     {
        mean_laa(rsp,iage) += al_key(rsp,iage) * pred_l_bin(rsp);
-     }
-   }
 
   // Compute years having time-varying selectivities
   // ====================
   for (ifsh = 1; ifsh <= nfsh; ifsh++)
-  {
     for (iyr = 1; iyr <= n_sel_ch_fsh(ifsh); iyr++)
-    {
       yrs_sel_ch_fsh(ifsh,iyr) = yrs_sel_ch_tmp(ifsh,iyr);
-    }
-  }
+
   for (isrv = 1; isrv <= nsrv; isrv++)
-  {
     for (iyr = 1; iyr <= n_sel_ch_srv(isrv); iyr++)
-    {
       yrs_sel_ch_srv(isrv,iyr) = yrs_sel_ch_tsrv(isrv,iyr);
-    }
-  }
 
   // set min & max sample size for stomach prey wts, lns
   // ====================
-  for (rsp=1;rsp <= nspp; rsp++)
-    for (rln=1;rln<=l_bins(rsp);rln++)
-      for (iyrs=1;iyrs<=nyrs_stomwts(rsp);iyrs++)
+  if (with_pred > 0)
+  {
+  for (rsp = 1; rsp <= nspp; rsp++)
+    for (rln = 1; rln <= l_bins(rsp); rln++)
+      for (iyrs = 1; iyrs <= nyrs_stomwts(rsp); iyrs++)
        {
         if (stoms_w_N(rsp,rln,iyrs) <= min_SS_w(rsp))
           stoms_w_N(rsp,rln,iyrs) = 0;
@@ -922,26 +965,18 @@ PRELIMINARY_CALCS_SECTION
   // ====================
   offset_diet_w = 0;
   for (rsp=1;rsp <= nspp; rsp++)
-   {
-     for (iyrs=1; iyrs<= nyrs_stomwts(rsp); iyrs++)
-      {
-        for (rln=1;rln<=l_bins(rsp);rln++)
-         {
-          if (stoms_w_N(rsp,rln,iyrs) > 0)
-           {
+    for (iyrs=1; iyrs<= nyrs_stomwts(rsp); iyrs++)
+      for (rln=1;rln<=l_bins(rsp);rln++)
+        if (stoms_w_N(rsp,rln,iyrs) > 0)
+          {
             for (ksp=1;ksp <=(nspp+1);ksp++)
              {
               rk_sp = (rsp-1)*(nspp+1)+ksp;
               if (diet_w_dat(rk_sp,rln,iyrs) > 0)
-               {
                 offset_diet_w += -1*stoms_w_N(rsp,rln,iyrs)*diet_w_dat(rk_sp,rln,iyrs) *
-                  log(diet_w_dat(rk_sp,rln,iyrs)+ constant);
-               }
+                log(diet_w_dat(rk_sp,rln,iyrs)+ constant);
              }
-           }
-         }
-      }
-    }
+          }
 
   // Offset for diet (lengths)
   // ====================
@@ -960,6 +995,7 @@ PRELIMINARY_CALCS_SECTION
           offset_diet_l += -1*Itot*diet_l_dat(rk_sp,rln,kln)*log(diet_l_dat(rk_sp,rln,kln)+ constant);
       }
     }
+  } // End of with_pred if statement
 
   // Initial values for M, steepness, sigmar, R0, etc
   // ====================
@@ -973,6 +1009,7 @@ PRELIMINARY_CALCS_SECTION
         ipnt++;
         MEst(ipnt) = natmortprior(isp);
        }
+
     steepness = steepnessprior;
     log_sigmar = log_sigmarprior;
     if (phase_Rzero != -99) log_Rzero = R_guess;
@@ -1033,7 +1070,6 @@ PRELIMINARY_CALCS_SECTION
          log_gam_b(rsp) = -0.5;
         }
      }
-
 
    }
 
