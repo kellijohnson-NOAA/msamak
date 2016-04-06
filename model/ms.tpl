@@ -88,8 +88,6 @@ DATA_SECTION
   // Phase
   // ====================
   init_int ResetPhasesToZero  // Set to 1 to override phases
-  init_int Disc_first_phase;  // Make First phase easier
-  init_int Disc_any_phases;   // Set this 0 to operate in last_phase
   init_int Initial_phase;     // Initial phase (usually 1)
   init_int Terminal_phase;    // Last phase for the model
 
@@ -1817,15 +1815,11 @@ FUNCTION evaluate_the_objective_function
 
   obj_comps.initialize();
   obj_comps(1) = sum(catch_like);
-  if (Disc_any_phases != 0 & current_phase() < 2-Initial_phase+1 & Disc_first_phase > 0) obj_comps(1) *= 0.1;
   obj_comps(2) = sum(age_like_fsh);
   obj_comps(3) = sum(sel_like_fsh);
-  if (Disc_any_phases != 0 & current_phase() == 1-Initial_phase+1) obj_comps(3) = 0;
   obj_comps(4) = sum(surv_like);
-  if (Disc_any_phases != 0 & current_phase() < 2-Initial_phase+1 & Disc_first_phase > 0) obj_comps(4) *= 0.1;
   obj_comps(5) = sum(age_like_srv);
   obj_comps(6) = sum(sel_like_srv);
-  if (Disc_any_phases != 0 & current_phase() == 1-Initial_phase+1) obj_comps(6) = 0;
   obj_comps(7) = sum(rec_like);
   obj_comps(8) = sum(fpen);
   obj_comps(9) = sum(post_priors_srvq);
@@ -1833,7 +1827,6 @@ FUNCTION evaluate_the_objective_function
   obj_comps(11) = penal_rec_dev;
   obj_comps(12) = sum(Zlast_pen);
   obj_comps(13) = sum(ration_like);
-  if (Disc_any_phases != 0 & current_phase() < 2-Initial_phase+1 & Disc_first_phase > 0) obj_comps(13) *= 0.1;
   obj_comps(14) = diet_like1;
   obj_comps(15) = diet_like2;
   obj_comps(16) = sum(ration_pen);
@@ -1867,7 +1860,7 @@ FUNCTION Rec_Like
     sigmarsq(isp)   =  square(sigmar(isp));
     dvariable SSQRec;
     SSQRec.initialize();
-    if (Disc_any_phases == 0 || current_phase() > 2-Initial_phase+1)
+    if (current_phase() > 2 - Initial_phase + 1)
       {
         pred_rec(isp) = SRecruit(Sp_Biom(isp)(styr_rec(isp),endyr).shift(styr_rec(isp))(styr_rec(isp),endyr));
         dvar_vector chi = log(elem_div(mod_rec(isp)(styr_rec_est(isp),endyr ) ,
@@ -1878,7 +1871,7 @@ FUNCTION Rec_Like
         rec_like(isp,1) += norm2(chi + sigmarsq(isp)/2.)/(2*sigmarsq(isp)) + nrecs_est(isp)*log_sigmar(isp);
         // rec_like(isp,1) above changed to match Dorn(2002) -dhk Jul 3 2008. old (wrong) form used in NRM tpl -dhk apr 28 09
       }
-     if (Disc_any_phases == 0 || current_phase() >= phase_RecDev)
+     if (current_phase() >= phase_RecDev)
       {
         // Variance term for the parts not estimated by sr curve
         rec_like(isp,4) += .5*norm2( rec_dev_spp(isp)(styr_rec(isp),styr_rec_est(isp)) )/sigmarsq(isp) + (styr_rec_est(isp)-styr_rec(isp))*log(sigmar(isp)) ;
@@ -1953,26 +1946,12 @@ FUNCTION dvar_vector SRecruit(const dvar_vector& Stmp)
 FUNCTION Srv_Like
   // ====================
   // Fit to indices (Normal)
-  dvariable qest,nest;
 
   surv_like.initialize();
   for (isrv=1;isrv<=nsrv;isrv++)
-   {
-    if (Disc_any_phases != 0 & current_phase() < 2-Initial_phase+1)
-     {
-      qest.initialize(); nest.initialize();
-      for (iyr=1;iyr<=nyrs_srv(isrv);iyr++)
-       { nest += 1; qest += obs_srv(isrv,iyr)/pred_srv(isrv,yrs_srv(isrv,iyr)); }
-      qest = qest/nest;
-      surv_like(isrv) += square(qest-1)*100000;
-     }
-    else
-     qest = 1;
-
     for (iyr=1;iyr<=nyrs_srv(isrv);iyr++)
-     surv_like(isrv) += square(obs_srv(isrv,iyr) - qest*pred_srv(isrv,yrs_srv(isrv,iyr)) ) /
+     surv_like(isrv) += square(obs_srv(isrv,iyr) - pred_srv(isrv,yrs_srv(isrv,iyr)) ) /
                                    (2.*obs_se_srv(isrv,iyr)*obs_se_srv(isrv,iyr));
-   }
 
   // ====================
 FUNCTION Sel_Like
@@ -2185,7 +2164,7 @@ FUNCTION Fmort_Pen
   fpen.initialize();
   for(isp=1; isp<=nspp; isp++)
    {
-    if (Disc_any_phases != 0 & current_phase()<3-Initial_phase+1) // penalize High Fs for beginning phases
+    if (current_phase() < 3-Initial_phase + 1) // penalize High Fs for beginning phases
      fpen(isp,1) += 10.* norm2(Fmort(isp) - .2);
     else
      fpen(isp,1) +=.001*norm2(Fmort(isp) - .2);
