@@ -1076,15 +1076,13 @@ PRELIMINARY_CALCS_SECTION
 ///////////////////////////////////////////////////////////////////////////////
 PROCEDURE_SECTION
 ///////////////////////////////////////////////////////////////////////////////
+ // Initialize the objective function
  obj_fun.initialize();
  DoAll();
 
   // ====================
 FUNCTION DoAll
   // ====================
-
-  // Initialize the objective function
-  obj_fun.initialize();
 
   // Extract predation parameters from log space
   // with_pred dictates whether or not diet data is used, which in turn dictates
@@ -1493,8 +1491,6 @@ FUNCTION AltStart
   dvar_matrix NN(1,nspp,1,nages);
   dvariable pred_effect,Term;
   dvariable ParA, ParB, ParC;
-
-  //Term.initialize(); // not initialized in NRM tpl -dhk apr 28 09
 
   // Initialize Z to M
   for (isp=1;isp<=nspp;isp++)
@@ -2139,7 +2135,6 @@ FUNCTION ration
      // Calculate year-specific values
      numer.initialize();
      denom.initialize();
-     //n_avg.initialize(); //-dhk June 30 08
      for (iyr=styr;iyr<=endyr;iyr++)
       {
        // Average abundance
@@ -2164,7 +2159,6 @@ FUNCTION ration
 FUNCTION ration_like
   // ====================
   int ages;
-  //ration_like.initialize(); // not initialized in NRM tpl -dhk apr 28 09
 
   // Likelihood (Eqn 11)
   for (rsp=1;rsp<=nspp; rsp++)
@@ -2194,7 +2188,6 @@ FUNCTION diet_wt_Like
 
   //loop_count = 0;
   // Likelihood (Eqn 14)
-  diet_like1.initialize();
   for (rsp=1;rsp <= nspp; rsp++)
    for (iyrs=1; iyrs<= nyrs_stomwts(rsp); iyrs++)
     {
@@ -2228,7 +2221,6 @@ FUNCTION diet_len_Like
   // Calculate the predicted fraction by length-class (Eqn 17)
   rk_sp=0;
   T_hat.initialize();
-  diet_like2.initialize();
   for (rsp = 1; rsp <= nspp; rsp++)
    for (ksp = 1; ksp <= nspp; ksp++)
     {
