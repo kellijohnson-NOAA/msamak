@@ -88,8 +88,6 @@ DATA_SECTION
   // Phase
   // ====================
   init_int ResetPhasesToZero  // Set to 1 to override phases
-  init_int Initial_phase;     // Initial phase (usually 1)
-  init_int Terminal_phase;    // Last phase for the model
 
   // Predation
   // ====================
@@ -274,29 +272,6 @@ DATA_SECTION
   !! PhasePredH2 = -1;
   !! PhasePredH3 = -1;
   !! PhasePredH4 = -1;
-
-  !! if (phase_M > 0)
-  !!  { phase_M = phase_M - Initial_phase+1; if (phase_M < 1) phase_M = 1; }
-  !! if (phase_Rzero > 0)
-  !!  { phase_Rzero = phase_Rzero - Initial_phase+1; if (phase_Rzero < 1) phase_Rzero = 1; }
-  !! if (phase_fmort > 0)
-  !!  { phase_fmort = phase_fmort - Initial_phase+1; if (phase_fmort < 1) phase_fmort = 1; }
-  !! if (phase_fmort1 > 0)
-  !!  { phase_fmort1 = phase_fmort1 - Initial_phase+1; if (phase_fmort1 < 1) phase_fmort1 = 1; }
-  !! if (phase_LogRec > 0)
-  !!  { phase_LogRec = phase_LogRec - Initial_phase+1; if (phase_LogRec < 1) phase_LogRec = 1; }
-  !! if (phase_RecDev > 0)
-  !!  { phase_RecDev = phase_RecDev - Initial_phase+1; if (phase_RecDev < 1) phase_RecDev = 1; }
-  !! if (phase_SelFshCoff > 0)
-  !!  { phase_SelFshCoff = phase_SelFshCoff - Initial_phase+1; if (phase_SelFshCoff < 1) phase_SelFshCoff = 1; }
-  !! if (phase_SelSrvCoff > 0)
-  !!  { phase_SelSrvCoff = phase_SelSrvCoff - Initial_phase+1; if (phase_SelSrvCoff < 1) phase_SelSrvCoff = 1; }
-  !! if (PhasePred1 > 0)
-  !!  { PhasePred1 = PhasePred1 - Initial_phase+1; if (PhasePred1 < 1) PhasePred1 = 1; }
-  !! if (PhasePred2 > 0)
-  !!  { PhasePred2 = PhasePred2 - Initial_phase+1; if (PhasePred2 < 1) PhasePred2 = 1; }
-  !! if (PhasePred3x> 0)
-  !!  { PhasePred2 = PhasePred3x- Initial_phase+1; if (PhasePred3x< 1) PhasePred3 = 1; }
 
   !! if (resp_type > 0) PhasePredH1a = PhasePred2;
   !! if (1 < resp_type < 7) PhasePredH2 = PhasePred2 + 1;
@@ -689,8 +664,6 @@ PARAMETER_SECTION
   matrix sel50_srv(1,nsrv,1,n_sel_ch_srv)                            // Length-at-50%-selectivity
   init_bounded_vector fmort_dev_est(1,NFdevs,-12,8,phase_fmort)      // Fishing mortality deviations
   init_bounded_vector log_avg_fmort(1,nfsh,-10,2,phase_fmort1)       // Average F
-  init_number dummy(PhaseDummy);
-  init_number dummy2(Terminal_phase);
 
   // Derived parameters
   // =====================
@@ -1831,8 +1804,7 @@ FUNCTION evaluate_the_objective_function
   obj_comps(15) = diet_like2;
   obj_comps(16) = sum(ration_pen);
   obj_fun     += sum(obj_comps);
-  obj_fun     += dummy2*dummy2;
-  if (current_phase() == Terminal_phase)
+  if (current_phase() == last_phase())
 
   cout << "obj_fun: " << obj_fun << " Iteration: " << count_iters << " Phase: " << current_phase() << endl;
   cout << obj_comps << " " << Temp_obj  << endl;
@@ -1860,7 +1832,7 @@ FUNCTION Rec_Like
     sigmarsq(isp)   =  square(sigmar(isp));
     dvariable SSQRec;
     SSQRec.initialize();
-    if (current_phase() > 2 - Initial_phase + 1)
+    if (current_phase() > 2)
       {
         pred_rec(isp) = SRecruit(Sp_Biom(isp)(styr_rec(isp),endyr).shift(styr_rec(isp))(styr_rec(isp),endyr));
         dvar_vector chi = log(elem_div(mod_rec(isp)(styr_rec_est(isp),endyr ) ,
@@ -2164,7 +2136,7 @@ FUNCTION Fmort_Pen
   fpen.initialize();
   for(isp=1; isp<=nspp; isp++)
    {
-    if (current_phase() < 3-Initial_phase + 1) // penalize High Fs for beginning phases
+    if (current_phase() < 3) // penalize High Fs for beginning phases
      fpen(isp,1) += 10.* norm2(Fmort(isp) - .2);
     else
      fpen(isp,1) +=.001*norm2(Fmort(isp) - .2);
