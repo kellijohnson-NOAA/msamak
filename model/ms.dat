@@ -16,10 +16,6 @@
 #### Phase
 # Reset all phases to zero, 1 overrides phases (ResetPhasesToZero)
 0
-# Discount first phase (Disc_first_phase)
-1
-# Discount any phase, if 0 go to last phase (Disc_any_phases)
-1
 # Initial phase, usually 1 (Initial_phase)
 1
 # Last phase of calculation (Terminal_phase)
