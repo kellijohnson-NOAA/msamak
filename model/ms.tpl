@@ -23,7 +23,6 @@ DATA_SECTION
   // ====================
   int count_iters
   !! count_iters = 0;
-  int FinalYr;                // Terminal year of model
   int nyrs;                   // Total n years
   int nfsh;                   // Total n fleets
   int nsrv;                   // Total n surveys
@@ -101,7 +100,6 @@ DATA_SECTION
   init_ivector  l_bins(1,nspp);                   // Number of length bins
   init_ivector  nfsh_spp(1,nspp)                  // Number of fishing fleets per species
   !! nfsh = sum(nfsh_spp);                        // Total number of fleets, all species combinations
-  !! FinalYr = endyr;
   !! first_rec_est = endyr;
   !! nyrs = endyr - styr + 1;
   !! tot_fsh_yr = nyrs * nfsh;                    // Total number of year*fleet*species combinations
@@ -714,17 +712,17 @@ PARAMETER_SECTION
   matrix   N_prey_eq(1,nspp,1,nages)                       // Effective numbers of prey for each age of predator
   matrix   N_pred_yr(1,nspp,1,nages)                       // Effective numbers of predators for each age of prey (IyrPred)
   matrix   N_prey_yr(1,nspp,1,nages)                       // Effective numbers of prey for each age of predator
-  3darray  N_pred_eqs(1,nspp,styr_pred,FinalYr,1,nages)    // save N_pred_eq for all yrs
-  3darray  N_prey_eqs(1,nspp,styr_pred,FinalYr,1,nages)    // save N_prey_eq for all yrs
-  3darray  N_pred_yrs(1,nspp,styr_pred,FinalYr,1,nages)    // save N_pred_yr for all yrs
-  3darray  N_prey_yrs(1,nspp,styr_pred,FinalYr,1,nages)    // save N_prey_yr for all yrs
-  3darray  Pred_r(1,nspp,styr_pred,FinalYr,1,nages)        // save Pred_ratio values
-  3darray  Prey_r(1,nspp,styr_pred,FinalYr,1,nages)        // save Prey_ratio values
-  4darray  pred_resp(1,nspp_sq2,styr_pred,FinalYr,1,rr_ages,1,kk_ages) // Predator functional response
-  3darray  Pmort_ua(1,nspp_sq,styr_pred,FinalYr,1,k_ages)  // Predation mortality on prey age a by all predators age u
-  4darray  Vmort_ua(1,nspp_sq,1,r_ages,styr_pred,FinalYr,1,k_ages) // Predation mortality on prey age a by single predator age u
-  4darray  eaten_la(1,nspp_sq,1,r_lens,styr_pred,FinalYr,1,k_ages) // Number of prey of age a eaten by predator length l
-  4darray  eaten_ua(1,nspp_sq,1,r_ages,styr_pred,FinalYr,1,k_ages) // Number of prey of age a eaten by predator age u
+  3darray  N_pred_eqs(1,nspp,styr_pred,endyr,1,nages)    // save N_pred_eq for all yrs
+  3darray  N_prey_eqs(1,nspp,styr_pred,endyr,1,nages)    // save N_prey_eq for all yrs
+  3darray  N_pred_yrs(1,nspp,styr_pred,endyr,1,nages)    // save N_pred_yr for all yrs
+  3darray  N_prey_yrs(1,nspp,styr_pred,endyr,1,nages)    // save N_prey_yr for all yrs
+  3darray  Pred_r(1,nspp,styr_pred,endyr,1,nages)        // save Pred_ratio values
+  3darray  Prey_r(1,nspp,styr_pred,endyr,1,nages)        // save Prey_ratio values
+  4darray  pred_resp(1,nspp_sq2,styr_pred,endyr,1,rr_ages,1,kk_ages) // Predator functional response
+  3darray  Pmort_ua(1,nspp_sq,styr_pred,endyr,1,k_ages)  // Predation mortality on prey age a by all predators age u
+  4darray  Vmort_ua(1,nspp_sq,1,r_ages,styr_pred,endyr,1,k_ages) // Predation mortality on prey age a by single predator age u
+  4darray  eaten_la(1,nspp_sq,1,r_lens,styr_pred,endyr,1,k_ages) // Number of prey of age a eaten by predator length l
+  4darray  eaten_ua(1,nspp_sq,1,r_ages,styr_pred,endyr,1,k_ages) // Number of prey of age a eaten by predator age u
   3darray  Q_mass_l(1,nspp_sq2,styr_pred,endyr,1,rr_lens)  // Mass of prey consumed by length l of predator
   3darray  Q_mass_u(1,nspp_sq2,styr_pred,endyr,1,rr_ages)  // Mass of prey consumed by age u of predator
   3darray  omega_hat(1,nspp,styr_pred,endyr,1,nages)       // Daily ration by predator age each year
@@ -3448,7 +3446,7 @@ REPORT_SECTION
   for (isp=1;isp<=nspp;isp++)
     {
     report << "N_pred_eqs[[" << isp << "]] <- c(" << endl << N_pred_eqs(isp,styr_pred,1);
-     for (iyr=styr_pred; iyr <= FinalYr; iyr++)
+     for (iyr=styr_pred; iyr <= endyr; iyr++)
      {
        for (iage=1;iage<=nages(isp);iage++)  // ages per species
          {
@@ -3473,7 +3471,7 @@ REPORT_SECTION
   for (isp=1;isp<=nspp;isp++)
     {
     report << "N_prey_eqs[[" << isp << "]] <- c(" << endl << N_prey_eqs(isp,styr_pred,1);
-     for (iyr=styr_pred; iyr <= FinalYr; iyr++)
+     for (iyr=styr_pred; iyr <= endyr; iyr++)
      {
        for (iage=1;iage<=nages(isp);iage++)  // ages per species
          {
@@ -3497,7 +3495,7 @@ REPORT_SECTION
   for (isp=1;isp<=nspp;isp++)
     {
     report << "N_pred_yrs[[" << isp << "]] <- c(" << endl << N_pred_yrs(isp,styr_pred,1);
-     for (iyr=styr_pred; iyr <= FinalYr; iyr++)
+     for (iyr=styr_pred; iyr <= endyr; iyr++)
      {
        for (iage=1;iage<=nages(isp);iage++)  // ages per species
          {
@@ -3521,7 +3519,7 @@ REPORT_SECTION
   for (isp=1;isp<=nspp;isp++)
     {
     report << "N_prey_yrs[[" << isp << "]] <- c(" << endl << N_prey_yrs(isp,styr_pred,1);
-     for (iyr=styr_pred; iyr <= FinalYr; iyr++)
+     for (iyr=styr_pred; iyr <= endyr; iyr++)
      {
        for (iage=1;iage<=nages(isp);iage++)  // ages per species
          {
