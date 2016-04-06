@@ -1892,7 +1892,7 @@ FUNCTION evaluate_the_objective_function
   if (with_pred > 0)
    {
     ration();
-    ration_Like();
+    ration_like();
     diet_wt_Like();
     diet_len_Like();
    }
@@ -2161,7 +2161,7 @@ FUNCTION ration
     }
 
   // ====================
-FUNCTION ration_Like
+FUNCTION ration_like
   // ====================
   int ages;
   //ration_like.initialize(); // not initialized in NRM tpl -dhk apr 28 09
