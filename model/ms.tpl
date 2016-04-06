@@ -1101,6 +1101,7 @@ FUNCTION DoAll
   // Assign natural mortality
   // If M is not estimated then the estimated value is set equal to the
   // prior for M for that species
+  cout << natmortphase2 << endl;
   ipnt = 0;
   for (isp=1;isp<=nspp;isp++)
    if (natmortphase2(isp) <= 0)
@@ -1888,7 +1889,7 @@ FUNCTION evaluate_the_objective_function
   if (with_pred > 0)
    {
     ration();
-    ration_like();
+    ration_Like();
     diet_wt_Like();
     diet_len_Like();
    }
@@ -2156,7 +2157,7 @@ FUNCTION ration
     }
 
   // ====================
-FUNCTION ration_like
+FUNCTION ration_Like
   // ====================
   int ages;
 
