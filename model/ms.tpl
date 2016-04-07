@@ -557,7 +557,7 @@ PARAMETER_SECTION
   // Estimated parameters by species, fishery, or survey
   // =====================
   init_bounded_vector MEst(1,NEstNat,0.02,0.8,phase_M)             // Natural mortality
-  init_bounded_vector log_gam_a(1,nspp,constant,19.9,PhasePred1);   // Predator selectivity
+  init_bounded_vector log_gam_a(1,nspp,constant,19.9,PhasePred1);  // Predator selectivity
   init_bounded_vector log_gam_b(1,nspp,-5.2,10,PhasePred1);        // Predator selectivity
   init_vector_vector Q_other_est(1,nspp,1,nages,PhasePred3);
 
@@ -568,14 +568,15 @@ PARAMETER_SECTION
   init_bounded_vector logH_3(1,nspp_sq,-30.0,UpperBoundH3,PhasePredH3);  // Predation functional form
   init_bounded_vector H_4(1,nspp_sq,-0.1,20.0,PhasePredH4);        // Predation functional form
 
+  vector M(1,nspp);
+  vector gam_a(1,nspp);
+  vector gam_b(1,nspp);
   vector H_1(1,nspp_sq2);
   vector H_1a(1,nspp);
   vector H_1b(1,nspp);
   vector H_2(1,nspp_sq);
   vector H_3(1,nspp_sq);
-  vector gam_a(1,nspp);
-  vector gam_b(1,nspp);
-  vector M(1,nspp);
+
   init_bounded_vector steepness(1,nspp,0.21,Steepness_UB,phase_srec) // Steepness
   init_bounded_vector log_Rzero(1,nspp,-100,100,phase_Rzero)         // Log(R0)
   init_bounded_vector rec_dev(1,n_est_recs,-15,2,phase_RecDev);      // All species combined (rec devs, phase = 2)
