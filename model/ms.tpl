@@ -1766,7 +1766,8 @@ FUNCTION Rec_Like
         SSQRec   = norm2( chi ) ;
         m_sigmar(isp)   =  sqrt( SSQRec  / nrecs_est(isp));
         m_sigmarsq(isp) =  m_sigmar(isp) * m_sigmar(isp)   ;
-        rec_like(isp,1) += norm2(chi + sigmarsq(isp)/2.)/(2*sigmarsq(isp)) + nrecs_est(isp)*log_sigmar(isp);
+        rec_like(isp,1) += (SSQRec + m_sigmarsq(isp) / 2.0) /
+          (2 * sigmarsq(isp)) + nrecs_est(isp) * log_sigmar(isp);
         // rec_like(isp,1) above changed to match Dorn(2002) -dhk Jul 3 2008. old (wrong) form used in NRM tpl -dhk apr 28 09
       }
      if (current_phase() >= phase_RecDev)
