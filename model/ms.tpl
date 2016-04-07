@@ -53,6 +53,12 @@ DATA_SECTION
   int nspp_sq2;
   int n_est_recs;
   int NEstNat;                // Number of species for which M is estimated
+  int NFdevs;                 // Number of F_devs
+  !! NFdevs = 0;
+  int Nselsrvpars;            // Number of survey selectivity parameters
+  !! Nselsrvpars = 0;
+  int Nselfshpars;            // Number of fishery selectivity parameters
+  !! Nselfshpars = 0;
   int PhasePredH1a;
   int PhasePredH2;
   int PhasePredH3;
@@ -129,6 +135,11 @@ DATA_SECTION
   // ====================
   init_matrix catch_bio(1,nfsh,styr,endyr)            // Catch biomass
   init_3darray wt_fsh(1,nfsh,styr,endyr,1,nages_fsh)  // Weight-at-age in the catch
+
+  !! for (ifsh = 1; ifsh <= nfsh; ifsh++)
+  !!   for (iyr = styr; iyr <= endyr; iyr++)
+  !!     if (catch_bio(ifsh,iyr) > smallCatch)
+  !!        NFdevs++;
 
   // Fishery composition
   // ====================
@@ -333,10 +344,24 @@ DATA_SECTION
   imatrix  nselages_srv(1,nsrv,1,n_sel_ch_srv);
   // Number of ages for each fleet / survey
  LOCAL_CALCS
-  for (ifsh=1;ifsh<=nfsh;ifsh++)
+  for (ifsh = 1; ifsh <= nfsh; ifsh++)
+  {
     nselages_fsh(ifsh) = nselages_in_fsh(ifsh);
-  for (isrv=1;isrv<=nsrv;isrv++)
+    for (iyr = 1; iyr <= n_sel_ch_fsh(ifsh); iyr++)
+     for (iage = 1; iage <= nselages_fsh(ifsh,iyr); iage++)
+      Nselfshpars += 1;
+  }
+
+  for (isrv = 1; isrv <= nsrv; isrv++)
+  {
     nselages_srv(isrv) = nselages_in_srv(isrv);
+    if (srv_sel_opt(isrv) == 1)
+    {
+     for (iyr = 1; iyr <= n_sel_ch_srv(isrv); iyr++)
+      for (iage = 1; iage <= nselages_srv(isrv,iyr); iage++)
+        Nselsrvpars += 1;
+    }
+  }
  END_CALCS
 
   ivector endyr_all(1,nspp);
@@ -528,35 +553,6 @@ DATA_SECTION
 PARAMETER_SECTION
 ///////////////////////////////////////////////////////////////////////////////
   !! cout << "Begin PARAMETER_SECTION" << endl << endl;
-
-  // Fishery selectivity parameters combined over species
-  // ====================
-  !! int Nselfshpars = 0;
-  !! for (ifsh = 1; ifsh <= nfsh; ifsh++)
-  !!   for (iyr = 1; iyr <= n_sel_ch_fsh(ifsh); iyr++)
-  !!     for (iage = 1; iage <= nselages_fsh(ifsh,iyr); iage++)
-  !!       Nselfshpars += 1;
-
-
-  // Survey selectivity parameters combined over species
-  // =====================
-  !! int Nselsrvpars = 0;
-  !! for (isrv=1;isrv<=nsrv;isrv++)
-  !!   if (srv_sel_opt(isrv) == 1)
-  !!    {
-  !!     for (iyr=1;iyr<=n_sel_ch_srv(isrv);iyr++)
-  !!       for (iage=1;iage<=nselages_srv(isrv,iyr);iage++)
-  !!         Nselsrvpars += 1;
-  !!    }
-
-  // Count how many F_devs are needed
-  !! int NFdevs = 0;
-  !! for (ifsh = 1; ifsh <= nfsh; ifsh++)
-  !!   for (iyr = styr; iyr <= endyr; iyr++)
-  !!     if (catch_bio(ifsh,iyr) > smallCatch)
-  !!      {
-  !!        NFdevs++;
-  !!      }
 
   // Estimated parameters by species, fishery, or survey
   // =====================
