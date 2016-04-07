@@ -71,7 +71,6 @@ DATA_SECTION
 
   number UpperBoundH3;
   !! UpperBoundH3 =  -0.000001;
-  vector R_guess(1,nspp);   // Initial values for R0
 
   number smallF;             // Used in R_guess as a small fishing mortality
   !! smallF = 0.05;
@@ -120,6 +119,7 @@ DATA_SECTION
   !!       styr_rec = (styr - nages) + 1;
   !!       first_rec_est = min(styr_rec);
   vector   offset_fsh(1,nfsh)                // Fleet-specific offsets
+  vector   R_guess(1,nspp);                  // Initial values for R0
 
   !! for(ifsh = 1; ifsh <= nfsh; ifsh++)
   !!  {
