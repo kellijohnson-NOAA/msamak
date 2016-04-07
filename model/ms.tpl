@@ -69,8 +69,6 @@ DATA_SECTION
   number offset_diet_w;      // Scales multinomial likelihood to 1
   number offset_diet_l;      // Scales multinomial likelihood to 1
 
-  number Steepness_UB;      // Upper bound for Steepness
-  !! Steepness_UB = 0.999;
   number UpperBoundH3;
   !! UpperBoundH3 =  -0.000001;
   vector R_guess(1,nspp);   // Initial values for R0
@@ -577,7 +575,7 @@ PARAMETER_SECTION
   vector H_2(1,nspp_sq);
   vector H_3(1,nspp_sq);
 
-  init_bounded_vector steepness(1,nspp,0.21,Steepness_UB,phase_srec) // Steepness
+  init_bounded_vector steepness(1,nspp,0.21,0.999,phase_srec)        // Steepness
   init_bounded_vector log_Rzero(1,nspp,-100,100,phase_Rzero)         // Log(R0)
   init_bounded_vector rec_dev(1,n_est_recs,-15,2,phase_RecDev);      // All species combined (rec devs, phase = 2)
   init_vector log_sigmar(1,nspp,phase_sigmar);                       // Sigma(R)
