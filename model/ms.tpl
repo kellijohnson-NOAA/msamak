@@ -590,7 +590,7 @@ PARAMETER_SECTION
   // Derived parameters
   // =====================
   3darray natage(1,nspp,styr_pred,endyr,1,nages)           // Numbers-at-age
-  matrix Sp_Biom(1,nspp,styr_rec,endyr_all)                 // Spawning biomass
+  matrix Sp_Biom(1,nspp,styr_rec,endyr_all)                // Spawning biomass
   matrix pred_rec(1,nspp,styr_rec,endyr_all)               // Recruitment from s-r relationship
   matrix mod_rec(1,nspp,styr_rec,endyr_all)                // Recruitment as estimated by model
   3darray Z(1,nspp,styr_pred,endyr,1,nages)                // Total mortality
@@ -1761,11 +1761,11 @@ FUNCTION Rec_Like
     if (current_phase() > 2)
       {
         pred_rec(isp) = SRecruit(Sp_Biom(isp)(styr_rec(isp),endyr).shift(styr_rec(isp))(styr_rec(isp),endyr));
-        dvar_vector chi = log(elem_div(mod_rec(isp)(styr_rec_est(isp),endyr ) ,
-                                  pred_rec(isp)(styr_rec_est(isp),endyr )));
+        dvar_vector chi = log(elem_div(mod_rec(isp)(styr_rec_est(isp),endyr),
+                                  pred_rec(isp)(styr_rec_est(isp),endyr)));
         SSQRec   = norm2( chi ) ;
         m_sigmar(isp)   =  sqrt( SSQRec  / nrecs_est(isp));
-        m_sigmarsq(isp) =  m_sigmar(isp) * m_sigmar(isp)   ;
+        m_sigmarsq(isp) =  m_sigmar(isp) * m_sigmar(isp);
         rec_like(isp,1) += (SSQRec + m_sigmarsq(isp) / 2.0) /
           (2 * sigmarsq(isp)) + nrecs_est(isp) * log_sigmar(isp);
         // rec_like(isp,1) above changed to match Dorn(2002) -dhk Jul 3 2008. old (wrong) form used in NRM tpl -dhk apr 28 09
