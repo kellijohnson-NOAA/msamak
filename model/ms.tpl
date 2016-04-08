@@ -705,7 +705,6 @@ PARAMETER_SECTION
 PRELIMINARY_CALCS_SECTION
 ///////////////////////////////////////////////////////////////////////////////
   cout << "Begin PRELIMINARY_CALCS_SECTION" << endl << endl;
-  exit(99);
 
   double TotN, LogH1Low;
   int nagestmp, iyrs, Itot, II, iage;
