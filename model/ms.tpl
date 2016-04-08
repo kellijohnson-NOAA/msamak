@@ -1314,8 +1314,7 @@ FUNCTION AltStart
 
   int isp,rsp,ksp,itno,age,ru,rln,ksp_type,rk_sp;
   dvar_matrix NN(1,nspp,1,nages);
-  dvariable pred_effect,Term;
-  dvariable ParA, ParB, ParC;
+  dvariable Term;
 
   // Initialize Z to M, where Z is stored as an age-specific value
   for (isp = 1; isp<=nspp;isp++)
