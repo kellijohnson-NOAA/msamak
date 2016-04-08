@@ -1306,6 +1306,12 @@ FUNCTION Get_Bzero
   //=====================
 FUNCTION AltStart
   //=====================
+  // todo: Determine why Zcurr and Zlast are used for a penalty term
+  // in the likelihood function. Why should the predation mortality
+  // be similar to the input mortality? Also, if this is needed,
+  // why was the geometric mean not deemed sufficient, and what is
+  // the code that is currently used doing?
+
   int isp,rsp,ksp,itno,age,ru,rln,ksp_type,rk_sp;
   dvar_matrix NN(1,nspp,1,nages);
   dvariable pred_effect,Term;
@@ -1348,8 +1354,8 @@ FUNCTION AltStart
       }
 
     // Average the Za
-    // DK: also tried sqrt(Zcurr(isp,age)*Zlast(isp,age) + constant), whcih does not equal
-    // what is currently done.
+    // DK: tried using the geometric mean (a*b)^(1/2) but it was commented out
+    // DK: sqrt(Zcurr(isp,age)*Zlast(isp,age) + constant)
     for (isp = 1; isp <= nspp; isp++)
      for (age = 1; age <= nages(isp); age++)
       Zlast(isp,age) = sqrt(sqrt(Zcurr(isp,age) * Zlast(isp,age))) * sqrt(Zlast(isp,age));
@@ -1736,6 +1742,8 @@ FUNCTION evaluate_the_objective_function
 FUNCTION Catch_Like
   // ====================
 
+  // todo: create a switch based on the phase that allows the program to ease into estimating
+  // catch-biomass likelihoods like amak.
   catch_like.initialize();
   for (ifsh=1; ifsh<=nfsh; ifsh++)
    {
@@ -1758,6 +1766,8 @@ FUNCTION Rec_Like
     if (current_phase() > 2)
       {
         pred_rec(isp) = SRecruit(Sp_Biom(isp)(styr_rec(isp),endyr).shift(styr_rec(isp))(styr_rec(isp),endyr));
+        // todo: if(last_phase()) above
+        // else pred_rec = 0.1 + SRecruit(Sp_Biom(isp)(styr_rec(isp),endyr).shift(styr_rec(isp))(styr_rec(isp),endyr));
         dvar_vector chi = log(elem_div(mod_rec(isp)(styr_rec_est(isp),endyr),
                                   pred_rec(isp)(styr_rec_est(isp),endyr)));
         SSQRec   = norm2( chi ) ;
