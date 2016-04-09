@@ -597,8 +597,6 @@ PARAMETER_SECTION
   3darray F(1,nfsh,styr,endyr,1,nages_fsh);                // Fishing mortality
   3darray S(1,nspp,styr_pred,endyr,1,nages)                // Survival from total mortality
   3darray catage(1,nfsh,styr,endyr,1,nages_fsh)            // Catch-at-age
-  vector surv(1,nspp)                                      // Survival from natural mortality
-  vector natmort(1,nspp)                                   // Natural mortality
   matrix rec_dev_spp(1,nspp,styr_rec,endyr_all);           // Recruitment devs unpacked by spp
   matrix fmort_dev(1,nfsh,styr,endyr)                      // Fishing mortality deviations
   matrix Fmort(1,nspp,styr,endyr);                         // Annual total Fmort
@@ -1227,9 +1225,6 @@ FUNCTION Get_Mortality
     Q_other_u(rsp,age) = mfexp(Q_other_est(rsp,age));
 
   // If doing Pope's approximation
-  // todo: remove surv and natmort, b/c they are not used elsewhere.
-  surv    = mfexp(-1.0 * M);
-  natmort = M;
   for (isp = 1; isp <= nspp; isp++) Z(isp) = M(isp);
   Fmort.initialize();
   ipnt = 0;
