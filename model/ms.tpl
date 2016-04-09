@@ -1199,7 +1199,7 @@ FUNCTION Get_Mortality
      rec_dev_spp(isp,iyr) = rec_dev(rec_adv);
      Temp = (rec_dev(rec_adv) + 6.5) / 8.5;
      Temp1 = 10;
-     for (ii = 1; ii <= 10;ii++)
+     for (ii = 1; ii <= 10; ii++)
       Temp1 *= Temp;
      penal_rec_dev += Temp1;
     }
@@ -1210,7 +1210,7 @@ FUNCTION Get_Mortality
   // Extract the Fs (only for years WITH data)
   int F_adv = 0; //DHK initialize?
   for (ifsh = 1; ifsh <= nfsh; ifsh++)
-   for (iyr=styr;iyr<=endyr;iyr++)
+   for (iyr = styr; iyr <= endyr; iyr++)
     if (catch_bio(ifsh,iyr) > smallCatch) // 0 in NRM tpl -dhk apr 28 09
      {
       F_adv += 1;
@@ -1220,8 +1220,8 @@ FUNCTION Get_Mortality
      fmort_dev(ifsh,iyr) = -100; // changed from -1000 -dhk Sep 1 09
 
   // Extract the other prey biomass
-  for (rsp = 1; rsp<=nspp; rsp++)
-   for (age=1;age<=nages(rsp);age++)
+  for (rsp = 1; rsp <= nspp; rsp++)
+   for (age = 1; age <= nages(rsp); age++)
     Q_other_u(rsp,age) = mfexp(Q_other_est(rsp,age));
 
   // If doing Pope's approximation
@@ -1232,7 +1232,7 @@ FUNCTION Get_Mortality
    {
     isp = spp_fsh(ifsh);
     ipnt += 1;
-    Fmort(isp) += mfexp(log_avg_fmort(ifsh) + fmort_dev(ifsh))+constant;
+    Fmort(isp) += mfexp(log_avg_fmort(ifsh) + fmort_dev(ifsh)) + constant;
     for (iyr = styr; iyr <= endyr; iyr++)
      {
       F(ipnt,iyr) = mfexp(log_avg_fmort(ifsh) + fmort_dev(ifsh,iyr)) * sel_fsh(ifsh,iyr) + 1.0e-12;
