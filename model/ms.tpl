@@ -709,9 +709,8 @@ PRELIMINARY_CALCS_SECTION
 
   // Penalty on the curvature of fishery selectivity (only used if opt_fsh_sel=1)
   // ====================
-  curv_pen_fsh = 1./ (square(curv_pen_fsh)*2);
-  for(isrv = 1; isrv <= nsrv; isrv++)
-    curv_pen_srv(isrv) = 1. / (square(curv_pen_srv(isrv)) * 2);
+  curv_pen_fsh = 1. / (square(curv_pen_fsh) * 2);
+  curv_pen_srv = 1. / (square(curv_pen_srv) * 2);
 
   // R_guess
   // R_guess is an initial guess for log_Rzero, derived from the prior on M.
