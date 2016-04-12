@@ -1049,7 +1049,7 @@ FUNCTION gamma_selectivity
         for (k_age = 1; k_age <= nages(ksp); k_age++)
          if(mean_laa(rsp,r_age) > mean_laa(ksp,k_age))
           gam_ua(rk_sp,r_age,k_age) = constant + mfexp(gam_ua(rk_sp,r_age,k_age) -
-            log(constant + gsum/double(ncnt)));
+            log(gsum/double(ncnt)));
        }
      }
    }
