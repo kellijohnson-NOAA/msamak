@@ -1299,11 +1299,18 @@ FUNCTION Get_Bzero
   //=====================
 FUNCTION AltStart
   //=====================
-  // todo: Determine why Zcurr and Zlast are used for a penalty term
-  // in the likelihood function. Why should the predation mortality
-  // be similar to the input mortality? Also, if this is needed,
-  // why was the geometric mean not deemed sufficient, and what is
-  // the code that is currently used doing?
+  // AltStart calculates the numbers-at-age based on the input natural mortality
+  // values and the estimated Rzero.
+  // Subsequently, AltStart iterates through the population using the functional
+  // response parameters, the predator selectivity, and the estimated numbers-at-age
+  // to determine the total mortality that would lead to those numbers-at-age.
+  // This is the most unstable portion of the model, which is why an additional penalty
+  // was placed on the current calculation of Zlast,
+  // because the geometric mean was not enough.
+  // todo: change the code to function more like a VPA model that assumes the current
+  // number is known and does not eat itself, and then back-calculate the numbers-at-age
+  // for each species-age based by starting with the category that experiences the least
+  // amount of predation by others, i.e., the top predator. Suggested by AEP 2016-04-12
 
   int isp,rsp,ksp,itno,age,ru,rln,ksp_type,rk_sp;
   dvar_matrix NN(1,nspp,1,nages);
@@ -1346,8 +1353,11 @@ FUNCTION AltStart
       }
 
     // Average the Za
-    // DK: tried using the geometric mean (a*b)^(1/2) but it was commented out
-    // DK: sqrt(Zcurr(isp,age)*Zlast(isp,age) + constant)
+    // A spin off of the geometric mean
+    // (a*b)^(1/2), here  sqrt(Zcurr(isp,age)*Zlast(isp,age) + constant),
+    // that attempts to decrease the
+    // variability between iterations because estimates of Zcurr can differ
+    // from Zlast quite substantially.
     for (isp = 1; isp <= nspp; isp++)
      for (age = 1; age <= nages(isp); age++)
       Zlast(isp,age) = sqrt(sqrt(Zcurr(isp,age) * Zlast(isp,age))) * sqrt(Zlast(isp,age));
@@ -1366,7 +1376,8 @@ FUNCTION AltStart
        }
      }
 
-  // Calculate equilibrium N predators and prey in styr_pred for each species X age
+  // Calculate equilibrium available prey for each predator species
+  // and prey available for each species X age
   N_pred_eq.initialize();
   N_prey_eq.initialize();
   N_pred_yr = constant;
