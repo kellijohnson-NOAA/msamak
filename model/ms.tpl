@@ -1695,7 +1695,6 @@ FUNCTION Catch_at_Age
   //=====================
 FUNCTION evaluate_the_objective_function
   //=====================
-  dvariable Temp_obj;
 
   count_iters = count_iters + 1;
 
@@ -1736,10 +1735,9 @@ FUNCTION evaluate_the_objective_function
   obj_comps(15) = diet_like2;
   obj_comps(16) = sum(ration_pen);
   obj_fun     += sum(obj_comps);
-  if (current_phase() == last_phase())
 
   cout << "obj_fun: " << obj_fun << " Iteration: " << count_iters << " Phase: " << current_phase() << endl;
-  cout << obj_comps << " " << Temp_obj  << endl;
+  cout << obj_comps << endl;
 
   // ====================
 FUNCTION Catch_Like
